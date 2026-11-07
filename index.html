@@ -737,103 +737,199 @@ document.addEventListener("click",e=>{ if(kpQ!==null&&kpQ!=="d"&&!e.target.close
 // ───────── 特別練習區：公因數與公倍數（程式出題）─────────
 let dcur=null;
 const DMODES={
-  basic:{n:"基礎",g:"小五",d:"兩數的公因數、公倍數，數字 60 以內"},
-  adv:{n:"進階",g:"小六",d:"較大的數、公因數個數、互質判斷"},
-  app:{n:"應用題",g:"小五～國一",d:"分組、裁紙、公車發車、拼磁磚"},
-  chal:{n:"挑戰",g:"國一",d:"三個數、標準分解式、乘積關係"}
+  std:{n:"標準分解式",g:"國一",d:"質因數分解、標準分解式、因數個數"},
+  gl:{n:"最大公因數與最小公倍數",g:"國一",d:"大數、三數、用標準分解式求 (a,b)、[a,b]"},
+  rel:{n:"性質與關係",g:"國一",d:"兩數乘積、可能的組數、倍數個數"},
+  app:{n:"會考應用題",g:"國一～國三",d:"餘數、種樹、齒輪、堆正方體、發車時刻"},
+  alg:{n:"公因式",g:"國二",d:"單項式的最大公因式、提公因式分解"},
+  chal:{n:"會考挑戰",g:"國三",d:"完全平方數、未知指數、因數個數綜合"}
 };
 const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const lcm=(a,b)=>a/gcd(a,b)*b;
-const PR=[2,3,5,7,11,13,17,19,23,29,31,37];
+const PR=[2,3,5,7,11,13,17,19,23,29,31,37,41,43,47];
 function pf(n){const o=[];for(const p of PR){let e=0;while(n%p===0){n/=p;e++}if(e)o.push([p,e])}if(n>1)o.push([n,1]);return o}
-function pfStr(n){return pf(n).map(([p,e])=>e>1?`${p}^${e}`:`${p}`).join(" × ")||"1"}
+const ex=(p,e)=>e>1?`${p}^${e}`:`${p}`;
+function pfStr(n){return pf(n).map(([p,e])=>ex(p,e)).join(" × ")||"1"}
 function divCount(n){return pf(n).reduce((s,[,e])=>s*(e+1),1)}
 function divisors(n){const o=[];for(let i=1;i<=n;i++)if(n%i===0)o.push(i);return o}
+// 以指數陣列表示 2,3,5,7
+const P4=[2,3,5,7];
+const eStr=E=>P4.map((p,i)=>E[i]?ex(p,E[i]):"").filter(Boolean).join(" × ")||"1";
+const eVal=E=>P4.reduce((s,p,i)=>s*p**(E[i]||0),1);
 function pairWithGcd(gMin,gMax,mMin,mMax,max){
-  for(let t=0;t<200;t++){const g=R(gMin,gMax),m1=R(mMin,mMax),m2=R(mMin,mMax);
+  for(let t=0;t<300;t++){const g=R(gMin,gMax),m1=R(mMin,mMax),m2=R(mMin,mMax);
     if(m1===m2||gcd(m1,m2)!==1)continue; const a=g*m1,b=g*m2; if(a>max||b>max)continue; return a<b?[a,b]:[b,a];}
-  return [12,18];
+  return [84,126];
 }
 function shortDiv(a,b){
   let x=a,y=b,steps=[],ps=[];
   for(const p of PR){while(x%p===0&&y%p===0){steps.push(`${p}）${x}　${y}`);x/=p;y/=p;ps.push(p)}}
   const g=ps.reduce((s,p)=>s*p,1);
-  if(!ps.length) return {txt:`${a} 和 ${b} 沒有 1 以外的公因數（互質），最大公因數是 1，最小公倍數 = ${a} × ${b} = ${a*b}。`,g:1,l:a*b};
-  return {txt:`短除法：${steps.join("；")}，剩下 ${x} 和 ${y} 互質。最大公因數 = ${ps.join(" × ")} = ${g}；最小公倍數 = ${g} × ${x} × ${y} = ${g*x*y}。`,g,l:g*x*y};
+  if(!ps.length) return {txt:`${a} 和 ${b} 互質，(a, b) = 1，[a, b] = ${a*b}。`,g:1,l:a*b};
+  return {txt:`短除法：${steps.join("；")}，剩下 ${x}、${y} 互質。最大公因數 = ${ps.join(" × ")} = ${g}；最小公倍數 = ${g} × ${x} × ${y} = ${g*x*y}。`,g,l:g*x*y};
 }
-function shuffleOpts(correct,wrongs){return {opts:[String(correct),...wrongs.slice(0,3).map(String)]}}
+function mcOf(correct,wrongs,q,exp){
+  const w=[...new Set(wrongs.map(String))].filter(x=>x!==String(correct));
+  if(w.length<3) return null;
+  return {t:"mc",q,opts:[String(correct),...w.slice(0,3)],exp};
+}
+function randE(maxs,minNonZero=2){let E;do{E=maxs.map(m=>R(0,m))}while(E.filter(Boolean).length<minNonZero);return E}
+function mono(c,x,y){ // 係數、x 次方、y 次方 → 字串
+  const v=(s,e)=>e===0?"":e===1?s:`${s}^${e}`;
+  const cs=(c===1&&(x||y))?"":String(c);
+  return cs+v("x",x)+v("y",y)||"1";
+}
+
 function genQ(mode){
-  const T={
-    basic:["gcd","gcd","lcmS","lcmS","cf","cnt"],
-    adv:["gcdA","gcdA","lcmA","lcmA","cnt","cop"],
-    app:["aGroup","aSquare","aBus","aTile","aGroup3","aBus3"],
-    chal:["gcd3","lcm3","pfG","pfL","rel","gcdA"]
-  }[mode];
-  const k=pick(T); let a,b,c,sd;
-  switch(k){
-  case "gcd": [a,b]=pairWithGcd(2,9,1,7,60); sd=shortDiv(a,b);
-    return {t:"num",q:`${a} 和 ${b} 的最大公因數是多少？`,ans:String(sd.g),exp:sd.txt};
-  case "gcdA": [a,b]=pairWithGcd(3,16,2,9,150); sd=shortDiv(a,b);
-    return {t:"num",q:`${a} 和 ${b} 的最大公因數是多少？`,ans:String(sd.g),exp:sd.txt};
-  case "lcmS": do{a=R(2,15);b=R(2,15)}while(a===b||a*b<12); [a,b]=[Math.min(a,b),Math.max(a,b)]; sd=shortDiv(a,b);
-    return {t:"num",q:`${a} 和 ${b} 的最小公倍數是多少？`,ans:String(sd.l),exp:sd.txt};
-  case "lcmA": [a,b]=pairWithGcd(2,12,2,9,120); sd=shortDiv(a,b);
-    return {t:"num",q:`${a} 和 ${b} 的最小公倍數是多少？`,ans:String(sd.l),exp:sd.txt};
-  case "cf": { [a,b]=pairWithGcd(4,12,1,6,60); const g=gcd(a,b); const good=divisors(g).filter(d=>d>1); const ans=pick(good);
-    const pool=[...new Set([...divisors(a),...divisors(b),R(5,11),R(7,13),b+1])].filter(d=>d>1&&(a%d||b%d));
-    const w=[]; while(w.length<3&&pool.length){const x=pool.splice(Math.floor(Math.random()*pool.length),1)[0]; if(!w.includes(x))w.push(x)}
-    while(w.length<3){const x=R(5,40); if((a%x||b%x)&&!w.includes(x)&&x!==ans)w.push(x)}
-    return {t:"mc",q:`下列哪一個數是 ${a} 和 ${b} 的公因數？`,...shuffleOpts(ans,w),exp:`${a} 的因數：${divisors(a).join("、")}；${b} 的因數：${divisors(b).join("、")}。共同的因數有 ${divisors(g).join("、")}，選項中只有 ${ans} 是公因數。`};}
-  case "cnt": [a,b]=pairWithGcd(4,24,1,6,mode==="basic"?72:160); { const g=gcd(a,b);
-    return {t:"num",q:`${a} 和 ${b} 一共有幾個公因數？`,ans:String(divCount(g)),unit:"個",exp:`公因數就是最大公因數 ${g} 的因數：${divisors(g).join("、")}，共 ${divCount(g)} 個。`};}
-  case "cop": { let ok; do{a=R(6,40);b=R(6,40)}while(a===b||gcd(a,b)!==1); ok=`${a} 和 ${b}`;
-    const w=[]; while(w.length<3){const [x,y]=pairWithGcd(2,7,2,7,60); const s=`${x} 和 ${y}`; if(!w.includes(s))w.push(s)}
-    return {t:"mc",q:"下列哪一組數「互質」（最大公因數是 1）？",...shuffleOpts(ok,w),exp:`${a} = ${pfStr(a)}，${b} = ${pfStr(b)}，沒有共同的質因數，所以互質。其他各組都有大於 1 的公因數。`};}
-  case "aGroup": [a,b]=pairWithGcd(3,12,2,7,90); sd=shortDiv(a,b);
-    return {t:"num",q:`老師有 ${a} 顆糖果和 ${b} 塊餅乾，要平分給一些小朋友，每種都剛好分完、沒有剩。最多可以分給幾位小朋友？`,ans:String(sd.g),unit:"位",exp:`人數要同時是 ${a} 和 ${b} 的因數，最多就是最大公因數。${sd.txt}`};
-  case "aGroup3": { const g=R(2,8); let m=[R(2,6),R(2,6),R(3,7)]; while(gcd(gcd(m[0],m[1]),m[2])!==1||new Set(m).size<3) m=[R(2,6),R(2,6),R(3,7)];
-    [a,b,c]=m.map(x=>x*g); const G=gcd(gcd(a,b),c);
-    return {t:"num",q:`有紅筆 ${a} 枝、藍筆 ${b} 枝、黑筆 ${c} 枝，要包成相同的禮物包，每包裡三種筆的數量都一樣，且全部用完。最多可以包成幾包？`,ans:String(G),unit:"包",exp:`包數是三數的公因數，最多取最大公因數：${a} = ${pfStr(a)}、${b} = ${pfStr(b)}、${c} = ${pfStr(c)}，最大公因數是 ${G}。`};}
-  case "aSquare": [a,b]=pairWithGcd(3,15,2,6,120); sd=shortDiv(a,b);
-    return {t:"num",q:`一張長 ${b} 公分、寬 ${a} 公分的長方形紙，要剪成大小相同的正方形，而且沒有剩。正方形的邊長最大是幾公分？`,ans:String(sd.g),unit:"公分",exp:`邊長必須同時整除 ${b} 和 ${a}，最大就是最大公因數。${sd.txt}`};
-  case "aBus": [a,b]=pairWithGcd(2,6,2,7,30); sd=shortDiv(a,b);
-    return {t:"num",q:`甲路公車每 ${a} 分鐘發一班，乙路公車每 ${b} 分鐘發一班。早上 7:00 兩路同時發車，至少再過幾分鐘會再次同時發車？`,ans:String(sd.l),unit:"分鐘",exp:`再次同時發車的時間要同時是 ${a} 和 ${b} 的倍數，最少就是最小公倍數。${sd.txt}`};
-  case "aBus3": { let m; do{m=[R(2,8),R(3,10),R(4,12)]}while(new Set(m).size<3); [a,b,c]=m; const L=lcm(lcm(a,b),c);
-    return {t:"num",q:`三盞燈分別每 ${a} 秒、${b} 秒、${c} 秒閃一次。現在同時閃，至少再過幾秒會再一起閃？`,ans:String(L),unit:"秒",exp:`求 ${a}、${b}、${c} 的最小公倍數：${a} = ${pfStr(a)}、${b} = ${pfStr(b)}、${c} = ${pfStr(c)}，每個質因數取最高次方相乘得 ${L}。`};}
-  case "aTile": [a,b]=pairWithGcd(2,5,2,6,30); sd=shortDiv(a,b);
-    return {t:"num",q:`用長 ${b} 公分、寬 ${a} 公分的長方形磁磚，同一方向排列拼成一個正方形。這個正方形的邊長最小是幾公分？`,ans:String(sd.l),unit:"公分",exp:`正方形邊長要同時是 ${b} 和 ${a} 的倍數，最小就是最小公倍數。${sd.txt}`};
-  case "gcd3": case "lcm3": { const g=R(2,6); let m; do{m=[R(2,8),R(2,8),R(2,8)]}while(new Set(m).size<3||gcd(gcd(m[0],m[1]),m[2])!==1);
-    [a,b,c]=m.map(x=>x*g).sort((x,y)=>x-y); const G=gcd(gcd(a,b),c), L=lcm(lcm(a,b),c);
-    const base=`${a} = ${pfStr(a)}，${b} = ${pfStr(b)}，${c} = ${pfStr(c)}。`;
-    return k==="gcd3"?{t:"num",q:`${a}、${b}、${c} 的最大公因數是多少？`,ans:String(G),exp:base+`共同質因數取最低次方相乘 = ${G}。`}
-                     :{t:"num",q:`${a}、${b}、${c} 的最小公倍數是多少？`,ans:String(L),exp:base+`所有質因數取最高次方相乘 = ${pfStr(L)} = ${L}。`};}
-  case "pfG": case "pfL": { const e=()=>R(0,3); let A,B; do{A=[e(),e(),R(0,1)];B=[e(),e(),R(0,1)]}while(A.every(x=>!x)||B.every(x=>!x)||A.join()===B.join());
-    const ps=[2,3,5], str=E=>ps.map((p,i)=>E[i]?(E[i]>1?`${p}^${E[i]}`:`${p}`):"").filter(Boolean).join(" × ");
-    const val=E=>ps.reduce((s,p,i)=>s*p**E[i],1);
-    const G=ps.map((p,i)=>Math.min(A[i],B[i])), L=ps.map((p,i)=>Math.max(A[i],B[i]));
-    return k==="pfG"?{t:"num",q:`A = ${str(A)}，B = ${str(B)}。A 和 B 的最大公因數是多少？（填數值）`,ans:String(val(G)),exp:`每個質因數取「較小」的次方：${str(G)||"1"} = ${val(G)}。`}
-                    :{t:"num",q:`A = ${str(A)}，B = ${str(B)}。A 和 B 的最小公倍數是多少？（填數值）`,ans:String(val(L)),exp:`每個質因數取「較大」的次方：${str(L)} = ${val(L)}。`};}
-  case "rel": { [a,b]=pairWithGcd(3,12,2,7,100); const g=gcd(a,b), l=lcm(a,b);
-    return pick([0,1])?{t:"num",q:`兩個正整數的乘積是 ${a*b}，它們的最大公因數是 ${g}。它們的最小公倍數是多少？`,ans:String(l),exp:`兩數乘積 = 最大公因數 × 最小公倍數，所以最小公倍數 = ${a*b} ÷ ${g} = ${l}。（例如 ${a} 和 ${b}）`}
-                       :{t:"num",q:`兩個正整數的最大公因數是 ${g}、最小公倍數是 ${l}，其中一個數是 ${a}。另一個數是多少？`,ans:String(b),exp:`兩數乘積 = 最大公因數 × 最小公倍數 = ${g} × ${l} = ${g*l}，另一數 = ${g*l} ÷ ${a} = ${b}。`};}
-  }
+  for(let t=0;t<50;t++){ const q=genQ1(mode); if(q) return q; }
+  return genQ1("gl")||{t:"num",q:"12 和 18 的最大公因數是多少？",ans:"6",exp:"(12, 18) = 6。"};
 }
+function genQ1(mode){
+  const T={
+    std:["pfMC","pfMC","divCntE","divCntN","isFac","pfNum"],
+    gl:["gcdB","lcmB","gcd3","lcm3","stdG","stdL"],
+    rel:["relL","relO","pairs","pairMC","multOr","cfCnt"],
+    app:["remSame","remShort","remDist","tree","gear","cube","bus","sqCut"],
+    alg:["mGCF","mGCF","fac2","fac2","fac3"],
+    chal:["sqMin","cubeMin","sqDiv","expG","expL","pairs","kDiv"]
+  }[mode];
+  const k=pick(T); let a,b,c,E,F,sd;
+  switch(k){
+  // ── 標準分解式 ──
+  case "pfMC": { E=randE([4,3,2,1],2); const N=eVal(E); if(N<60||N>3000) return null;
+    const w=[];
+    // 不是「標準」：把 2^2 寫成 4 或 3^2 寫成 9
+    if(E[0]>=2){const F2=[...E];F2[0]-=2; w.push(("4 × "+eStr(F2)).replace(/ × 1$/,""));}
+    if(E[1]>=2){const F2=[...E];F2[1]-=2; w.push(("9 × "+eStr(F2)).replace(/ × 1$/,""));}
+    for(let i=0;i<4&&w.length<5;i++){ if(E[i]){const F2=[...E];F2[i]++;w.push(eStr(F2));} if(E[i]>1){const F2=[...E];F2[i]--;w.push(eStr(F2));} }
+    { const F2=[...E]; const i=E.findIndex(x=>x>0), j=E.findIndex((x,ix)=>ix>i&&x>0); if(j>0&&E[i]!==E[j]){[F2[i],F2[j]]=[F2[j],F2[i]];w.push(eStr(F2));} }
+    const sh=w.sort(()=>Math.random()-.5);
+    return mcOf(eStr(E),sh,`${N} 的標準分解式是？`,`標準分解式要把 ${N} 分解成「質數」的乘積，並由小到大以指數表示：${N} = ${eStr(E)}。4、9 不是質數，不能出現在標準分解式中。`);}
+  case "pfNum": { E=randE([4,3,2,1],2); const N=eVal(E); if(N>2000) return null;
+    return {t:"num",q:`若 ${eStr(E)} = N，則 N = ?`,ans:String(N),exp:`${eStr(E)} = ${P4.filter((p,i)=>E[i]).map((p,i)=>p**E[P4.indexOf(p)]).join(" × ")} = ${N}。`};}
+  case "divCntE": { E=randE([5,4,3,2],2); const n=E.reduce((s,e)=>s*(e+1),1);
+    return {t:"num",q:`${eStr(E)} 的正因數共有幾個？`,ans:String(n),unit:"個",exp:`正因數個數 = 各指數加 1 後相乘：${E.filter(Boolean).map(e=>`(${e} + 1)`).join(" × ")} = ${n}。`};}
+  case "divCntN": { E=randE([4,3,2,1],2); const N=eVal(E); if(N<48||N>1000) return null; const n=divCount(N);
+    return {t:"num",q:`${N} 的正因數共有幾個？`,ans:String(n),unit:"個",exp:`先寫標準分解式：${N} = ${eStr(E)}。正因數個數 = ${E.filter(Boolean).map(e=>`(${e} + 1)`).join(" × ")} = ${n}。`};}
+  case "isFac": { E=randE([4,3,2,1],3); const okE=E.map(e=>R(0,e)); if(okE.every(x=>!x)) return null;
+    const w=[]; for(let i=0;i<4;i++){const F2=[...okE];F2[i]=E[i]+1;w.push(eStr(F2));}
+    { const F2=[...okE]; const z=E.findIndex(x=>x===0); if(z>=0){F2[z]=1;w.push(eStr(F2));} }
+    return mcOf(eStr(okE),w.sort(()=>Math.random()-.5),`下列哪一個是 ${eStr(E)} 的因數？`,`因數的每個質因數次方都不能超過原數：${eStr(okE)} 符合；其他選項有某個質因數次方太高，或出現原數沒有的質因數。`);}
+  // ── 最大公因數、最小公倍數 ──
+  case "gcdB": [a,b]=pairWithGcd(6,40,2,11,700); sd=shortDiv(a,b);
+    return {t:"num",q:`求 (${a}, ${b}) = ?`,ans:String(sd.g),exp:`(a, b) 表示最大公因數。${sd.txt}`};
+  case "lcmB": [a,b]=pairWithGcd(3,24,2,9,400); sd=shortDiv(a,b);
+    return {t:"num",q:`求 [${a}, ${b}] = ?`,ans:String(sd.l),exp:`[a, b] 表示最小公倍數。${sd.txt}`};
+  case "gcd3": case "lcm3": { const g=R(2,12); let m; do{m=[R(2,9),R(2,9),R(2,9)]}while(new Set(m).size<3||gcd(gcd(m[0],m[1]),m[2])!==1);
+    [a,b,c]=m.map(x=>x*g).sort((x,y)=>x-y); const G=gcd(gcd(a,b),c), L=lcm(lcm(a,b),c); if(L>5000) return null;
+    const base=`${a} = ${pfStr(a)}，${b} = ${pfStr(b)}，${c} = ${pfStr(c)}。`;
+    return k==="gcd3"?{t:"num",q:`求 (${a}, ${b}, ${c}) = ?`,ans:String(G),exp:base+`共同質因數取最低次方相乘：(${a}, ${b}, ${c}) = ${pfStr(G)} = ${G}。`}
+                     :{t:"num",q:`求 [${a}, ${b}, ${c}] = ?`,ans:String(L),exp:base+`所有質因數取最高次方相乘：[${a}, ${b}, ${c}] = ${pfStr(L)} = ${L}。`};}
+  case "stdG": case "stdL": { E=randE([4,3,2,2],3); F=randE([4,3,2,2],3); if(E.join()===F.join()) return null;
+    const G=E.map((e,i)=>Math.min(e,F[i])), L=E.map((e,i)=>Math.max(e,F[i])); if(G.every(x=>!x)) return null;
+    const isG=k==="stdG", ans=isG?G:L, wrong=isG?L:G;
+    const w=[eStr(wrong), eStr(E.map((e,i)=>e+F[i]))]; for(let i=0;i<4;i++){const X=[...ans]; if(X[i]){X[i]--; w.push(eStr(X));} const Y=[...ans]; Y[i]++; w.push(eStr(Y));}
+    return mcOf(eStr(ans),w,`a = ${eStr(E)}，b = ${eStr(F)}，則 ${isG?"(a, b)":"[a, b]"} = ?`,
+      isG?`最大公因數：只取「共同」的質因數，次方取「較小」的 → ${eStr(G)}。`:`最小公倍數：所有出現的質因數都要取，次方取「較大」的 → ${eStr(L)}。`);}
+  // ── 性質與關係 ──
+  case "relL": { [a,b]=pairWithGcd(4,20,2,9,300); const g=gcd(a,b),l=lcm(a,b);
+    return {t:"num",q:`兩個正整數的乘積為 ${a*b}，最大公因數為 ${g}，則它們的最小公倍數為多少？`,ans:String(l),exp:`兩正整數 a、b 滿足 a × b = (a, b) × [a, b]，所以 [a, b] = ${a*b} ÷ ${g} = ${l}。`};}
+  case "relO": { [a,b]=pairWithGcd(4,20,2,9,300); const g=gcd(a,b),l=lcm(a,b); const [x,y]=pick([0,1])?[a,b]:[b,a];
+    return {t:"num",q:`兩個正整數的最大公因數為 ${g}、最小公倍數為 ${l}，已知其中一數為 ${x}，另一數為多少？`,ans:String(y),exp:`a × b = (a, b) × [a, b] = ${g} × ${l} = ${g*l}，另一數 = ${g*l} ÷ ${x} = ${y}。`};}
+  case "pairs": { const g=R(2,12); const q=pick([6,10,12,15,18,20,24,28,30,36,40,42,60]); const l=g*q;
+    let cnt=0, list=[]; for(let i=1;i*i<q;i++) if(q%i===0&&gcd(i,q/i)===1){cnt++;list.push(`(${g*i}, ${g*q/i})`);}
+    return {t:"num",q:`兩正整數 a、b（a < b）的最大公因數為 ${g}、最小公倍數為 ${l}，符合條件的 (a, b) 共有幾組？`,ans:String(cnt),unit:"組",
+      exp:`設 a = ${g}m、b = ${g}n，m、n 互質且 m × n = ${l} ÷ ${g} = ${q}。把 ${q} 拆成兩個互質的數相乘：可得 ${list.join("、")}，共 ${cnt} 組。`};}
+  case "pairMC": { [a,b]=pairWithGcd(3,15,2,9,200); const g=gcd(a,b),l=lcm(a,b);
+    const w=[]; for(let t=0;t<30&&w.length<6;t++){const [x,y]=pairWithGcd(2,15,2,9,200); if(gcd(x,y)!==g||lcm(x,y)!==l) w.push(`${x} 和 ${y}`);}
+    w.push(`${g} 和 ${l*2}`, `${g*2} 和 ${l}`);
+    const fw=w.filter(s=>{const [x,y]=s.split(" 和 ").map(Number);return !(gcd(x,y)===g&&lcm(x,y)===l)});
+    return mcOf(`${a} 和 ${b}`,fw,`下列哪一組數的最大公因數是 ${g}、最小公倍數是 ${l}？`,`${a} = ${pfStr(a)}，${b} = ${pfStr(b)}：(${a}, ${b}) = ${g}，[${a}, ${b}] = ${l}。也可用 ${a} × ${b} = ${a*b} = ${g} × ${l} 快速檢查。`);}
+  case "multOr": { a=pick([2,3,4,5,6]); do{b=pick([3,4,5,6,7,8,9])}while(b===a||b%a===0||a%b===0); const N=pick([50,60,80,100,120,150,200]);
+    const L=lcm(a,b), A=Math.floor(N/a), B=Math.floor(N/b), C=Math.floor(N/L);
+    return pick([0,1])?{t:"num",q:`1 到 ${N} 的正整數中，是 ${a} 的倍數「或」是 ${b} 的倍數的數共有幾個？`,ans:String(A+B-C),unit:"個",exp:`${a} 的倍數 ${A} 個，${b} 的倍數 ${B} 個，兩者都是（即 ${L} 的倍數）${C} 個被重複計算：${A} + ${B} − ${C} = ${A+B-C}。`}
+      :{t:"num",q:`1 到 ${N} 的正整數中，同時是 ${a} 和 ${b} 的倍數的數共有幾個？`,ans:String(C),unit:"個",exp:`同時是 ${a} 和 ${b} 的倍數，就是 [${a}, ${b}] = ${L} 的倍數：${N} ÷ ${L} = ${(N/L).toFixed(2).replace(/\.?0+$/,"")}，取整數部分得 ${C} 個。`};}
+  case "cfCnt": { E=randE([5,4,3,2],2); F=randE([5,4,3,2],2); const G=E.map((e,i)=>Math.min(e,F[i])); if(G.every(x=>!x)) return null; const n=G.reduce((s,e)=>s*(e+1),1); if(n<3) return null;
+    return {t:"num",q:`a = ${eStr(E)}，b = ${eStr(F)}，a 和 b 的正公因數共有幾個？`,ans:String(n),unit:"個",exp:`公因數就是 (a, b) 的因數。(a, b) = ${eStr(G)}，因數個數 = ${G.filter(Boolean).map(e=>`(${e} + 1)`).join(" × ")} = ${n}。`};}
+  // ── 會考應用題 ──
+  case "remSame": { a=R(3,12); do{b=R(4,15)}while(b===a); const r=R(1,Math.min(a,b)-1); const L=lcm(a,b); if(L>200) return null;
+    return {t:"num",q:`有一個大於 ${r} 的正整數，除以 ${a} 和除以 ${b} 都餘 ${r}。這個數最小是多少？`,ans:String(L+r),exp:`這個數減去 ${r} 後是 ${a} 和 ${b} 的公倍數，最小為 [${a}, ${b}] = ${L}，所以這個數最小是 ${L} + ${r} = ${L+r}。`};}
+  case "remShort": { a=R(3,9); do{b=R(4,12)}while(b===a); const L=lcm(a,b); if(L>150) return null;
+    return {t:"num",q:`某正整數除以 ${a} 餘 ${a-1}，除以 ${b} 餘 ${b-1}。這個數最小是多少？`,ans:String(L-1),exp:`除以 ${a} 餘 ${a-1}、除以 ${b} 餘 ${b-1}，表示這個數「加 1」後能被 ${a} 和 ${b} 整除。[${a}, ${b}] = ${L}，所以最小是 ${L} − 1 = ${L-1}。`};}
+  case "remDist": { const g=R(5,15); let m1,m2; do{m1=R(3,9);m2=R(3,9)}while(m1===m2||gcd(m1,m2)!==1); const r1=R(1,g-1), r2=R(1,g-1); const x=g*m1+r1, y=g*m2+r2;
+    return {t:"num",q:`把 ${x} 顆糖果平分給一群學生，剩下 ${r1} 顆；把 ${y} 塊餅乾平分給同一群學生，剩下 ${r2} 塊。這群學生最多有幾位？`,ans:String(g),unit:"位",
+      exp:`人數能整除 ${x} − ${r1} = ${x-r1} 和 ${y} − ${r2} = ${y-r2}，且要大於剩下的數量 ${Math.max(r1,r2)}。(${x-r1}, ${y-r2}) = ${g}，符合條件，所以最多 ${g} 位。`};}
+  case "tree": { [a,b]=pairWithGcd(3,12,2,7,90); const g=gcd(a,b), n=2*(a+b)/g;
+    return {t:"num",q:`一塊長 ${b} 公尺、寬 ${a} 公尺的長方形空地，要在四周等距離種樹，四個角都要種，且樹的間隔愈大愈好。最少要種幾棵樹？`,ans:String(n),unit:"棵",
+      exp:`間隔要同時整除 ${b} 和 ${a}，最大為 (${b}, ${a}) = ${g} 公尺。周長 2 × (${b} + ${a}) = ${2*(a+b)} 公尺，圍成一圈時棵數 = 周長 ÷ 間隔 = ${2*(a+b)} ÷ ${g} = ${n} 棵。`};}
+  case "gear": { [a,b]=pairWithGcd(2,8,3,9,72); const L=lcm(a,b);
+    return {t:"num",q:`甲齒輪有 ${b} 齒、乙齒輪有 ${a} 齒，兩齒輪互相咬合。開始時某兩齒相對，甲齒輪至少要轉幾圈，這兩齒才會再次相對？`,ans:String(L/b),unit:"圈",
+      exp:`兩齒再次相對時，轉過的齒數要同時是 ${b} 和 ${a} 的倍數，最少為 [${b}, ${a}] = ${L} 齒。甲轉 ${L} ÷ ${b} = ${L/b} 圈（乙轉 ${L/a} 圈）。`};}
+  case "cube": { let m; do{m=[R(2,6),R(2,8),R(3,10)]}while(new Set(m).size<3); [a,b,c]=m.sort((x,y)=>x-y); const L=lcm(lcm(a,b),c); if(L>30) return null; const n=(L/a)*(L/b)*(L/c);
+    return {t:"num",q:`用長 ${c} 公分、寬 ${b} 公分、高 ${a} 公分的長方體積木，以相同方向堆成一個正方體，最少需要幾塊？`,ans:String(n),unit:"塊",
+      exp:`正方體邊長要同時是 ${c}、${b}、${a} 的倍數，最小為 [${c}, ${b}, ${a}] = ${L} 公分。塊數 = (${L} ÷ ${c}) × (${L} ÷ ${b}) × (${L} ÷ ${a}) = ${L/c} × ${L/b} × ${L/a} = ${n}。`};}
+  case "bus": { [a,b]=pairWithGcd(2,10,2,7,45); const L=lcm(a,b); if(L>180||L<20) return null; const h=R(6,8), mm=pick([0,10,15,20,30]);
+    const t=h*60+mm+L, ts=x=>`${Math.floor(x/60)}:${String(x%60).padStart(2,"0")}`;
+    const w=[ts(h*60+mm+a*b), ts(t-a), ts(t+b), ts(t+a), ts(t-gcd(a,b))];
+    return mcOf(ts(t),w,`A 路公車每 ${a} 分鐘發一班，B 路公車每 ${b} 分鐘發一班。若兩路公車在 ${ts(h*60+mm)} 同時發車，下一次同時發車是幾點幾分？`,`下一次同時發車要經過 [${a}, ${b}] = ${L} 分鐘，${ts(h*60+mm)} 再過 ${L} 分鐘是 ${ts(t)}。`);}
+  case "sqCut": { [a,b]=pairWithGcd(3,15,2,7,120); const g=gcd(a,b), n=(a/g)*(b/g);
+    return {t:"num",q:`把一張長 ${b} 公分、寬 ${a} 公分的長方形紙，剪成大小相同、邊長盡量大的正方形，且沒有剩。可以剪成幾個正方形？`,ans:String(n),unit:"個",
+      exp:`正方形邊長最大為 (${b}, ${a}) = ${g} 公分。長可剪 ${b} ÷ ${g} = ${b/g} 個，寬可剪 ${a} ÷ ${g} = ${a/g} 個，共 ${b/g} × ${a/g} = ${n} 個。`};}
+  // ── 國二：公因式 ──
+  case "mGCF": { const g=R(2,9); let m1,m2; do{m1=R(1,6);m2=R(1,6)}while(m1===m2||gcd(m1,m2)!==1);
+    const x1=R(1,4),x2=R(1,4),y1=R(0,3),y2=R(1,3); const A=mono(g*m1,x1,y1), B=mono(g*m2,x2,y2);
+    const ans=mono(g,Math.min(x1,x2),Math.min(y1,y2));
+    const w=[mono(g,Math.max(x1,x2),Math.max(y1,y2)), mono(g*m1*m2,Math.min(x1,x2),Math.min(y1,y2)), mono(g,Math.min(x1,x2),Math.max(y1,y2)), mono(g,Math.max(x1,x2),Math.min(y1,y2)), mono(1,Math.min(x1,x2),Math.min(y1,y2)), mono(g*2,Math.min(x1,x2),Math.min(y1,y2))];
+    return mcOf(ans,w,`${A} 和 ${B} 的最大公因式是？`,`係數取最大公因數 (${g*m1}, ${g*m2}) = ${g}；每個文字取「共同」且次方「較小」的：x 取 ${Math.min(x1,x2)} 次${Math.min(y1,y2)?`、y 取 ${Math.min(y1,y2)} 次`:"，y 不是共同因式"}。最大公因式 = ${ans}。`);}
+  case "fac2": { const g=R(2,8); let p,q2; do{p=R(1,6);q2=R(1,7)}while(gcd(p,q2)!==1||p===q2); const m=R(2,4), n=R(1,m-1);
+    const t1=mono(g*p,m,0), t2=mono(g*q2,n,0), out=mono(g,n,0), inn1=mono(p,m-n,0);
+    const ans=`${out}(${inn1} + ${q2})`, sign=pick(["+","−"]);
+    const A=`${out}(${inn1} ${sign} ${q2})`;
+    const w=[`${mono(1,n,0)}(${mono(g*p,m-n,0)} ${sign} ${g*q2})`, `${g}(${mono(p,m,0)} ${sign} ${mono(q2,n,0)})`, `${out}(${mono(p,m-n,0)} ${sign==="+"?"−":"+"} ${q2})`, `${mono(g,m,0)}(${p} ${sign} ${q2})`];
+    return mcOf(A,w,`把 ${t1} ${sign} ${t2} 因式分解，結果是？`,`兩項的最大公因式是 ${out}（係數 (${g*p}, ${g*q2}) = ${g}，x 取較小次方 ${n}）。提出後：${t1} ${sign} ${t2} = ${A}。只提出 x 或只提出 ${g}，括號內仍有公因式，不算完全分解。`);}
+  case "fac3": { const g=R(2,6); const c=[R(1,5),R(1,5),R(1,5)]; if(gcd(gcd(c[0],c[1]),c[2])!==1) return null;
+    const terms=[mono(g*c[0],2,1),mono(g*c[1],1,2),mono(g*c[2],1,1)], inner=[mono(c[0],1,0),mono(c[1],0,1),String(c[2])];
+    const ans=`${mono(g,1,1)}(${inner[0]} + ${inner[1]} − ${inner[2]})`;
+    const w=[`${mono(g,1,1)}(${inner[0]} + ${inner[1]} − 1)`, `${mono(1,1,1)}(${mono(g*c[0],1,0)} + ${mono(g*c[1],0,1)} − ${g*c[2]})`, `${mono(g,2,2)}(${inner[0]} + ${inner[1]} − ${inner[2]})`, `${g}(${mono(c[0],2,1)} + ${mono(c[1],1,2)} − ${mono(c[2],1,1)})`];
+    return mcOf(ans,w,`把 ${terms[0]} + ${terms[1]} − ${terms[2]} 因式分解，結果是？`,`三項的最大公因式為 ${mono(g,1,1)}，每一項各除以 ${mono(g,1,1)}：${terms[0]} ÷ ${mono(g,1,1)} = ${inner[0]}、${terms[1]} ÷ ${mono(g,1,1)} = ${inner[1]}、${terms[2]} ÷ ${mono(g,1,1)} = ${inner[2]}。只提出 ${g} 或只提出 xy，括號內仍有公因式，不算完全分解。`);}
+  // ── 國三：會考挑戰 ──
+  case "sqMin": case "cubeMin": { const K=k==="sqMin"?2:3; E=randE([5,4,3,2],2); const N=eVal(E); if(N>5000) return null;
+    const need=E.map(e=>(K-e%K)%K); const n=eVal(need); if(n===1) return null;
+    return {t:"num",q:`若 ${N} × n 是一個${K===2?"完全平方數":"完全立方數"}，則最小的正整數 n 是多少？`,ans:String(n),
+      exp:`${N} = ${eStr(E)}。${K===2?"完全平方數":"完全立方數"}的每個質因數次方都是 ${K} 的倍數，需補上 ${eStr(need)}，所以 n = ${n}（${N} × ${n} = ${eStr(E.map((e,i)=>e+need[i]))}）。`};}
+  case "sqDiv": { E=randE([6,4,4,2],2); const n=E.reduce((s,e)=>s*(Math.floor(e/2)+1),1); if(n<2) return null;
+    return {t:"num",q:`${eStr(E)} 的正因數中，有幾個是完全平方數？`,ans:String(n),unit:"個",
+      exp:`完全平方數因數的每個質因數次方都要是偶數（含 0）。${E.map((e,i)=>e?`${P4[i]} 的次方可取 ${[...Array(Math.floor(e/2)+1).keys()].map(x=>2*x).join("、")}（${Math.floor(e/2)+1} 種）`:"").filter(Boolean).join("；")}。共 ${n} 個。`};}
+  case "expG": case "expL": { const q2=R(2,5), p3=R(2,5); const isG=k==="expG";
+    const m=isG?R(0,q2-1):R(q2+1,q2+3), n=isG?R(0,p3-1):R(p3+1,p3+3); if(isG&&m===0&&n===0) return null;
+    const res=isG?[m,n]:[m,n];
+    const A=`2^m × ${ex(3,p3)}`, B=`${ex(2,q2)} × 3^n`, cond=`${isG?"(a, b)":"[a, b]"} = ${eStr([res[0],res[1],0,0])}`;
+    return {t:"num",q:`a = ${A}，b = ${B}（m、n 為正整數或 0）。若 ${cond}，則 m + n = ?`,ans:String(m+n),
+      exp:isG?`(a, b) 的次方取較小者：2 的次方 = min(m, ${q2}) = ${m}，因為 ${m} < ${q2}，所以 m = ${m}；3 的次方 = min(${p3}, n) = ${n}，因為 ${n} < ${p3}，所以 n = ${n}。m + n = ${m+n}。`
+             :`[a, b] 的次方取較大者：2 的次方 = max(m, ${q2}) = ${m}，因為 ${m} > ${q2}，所以 m = ${m}；3 的次方 = max(${p3}, n) = ${n}，因為 ${n} > ${p3}，所以 n = ${n}。m + n = ${m+n}。`};}
+  case "kDiv": { const tbl={4:6,6:12,8:24,9:36,10:48,12:60}; const kk=pick(Object.keys(tbl)); const v=tbl[kk];
+    return {t:"num",q:`正因數恰好有 ${kk} 個的正整數中，最小的是多少？`,ans:String(v),exp:`${v} = ${pfStr(v)}，正因數個數 = ${pf(v).map(([,e])=>`(${e} + 1)`).join(" × ")} = ${kk}。比 ${v} 小的數都不是恰好 ${kk} 個正因數，所以最小是 ${v}。`};}
+  }
+  return null;
+}
+
 function multOf(s){return s>=10?3:s>=5?2:s>=3?1.5:1}
 function drillStats(){S.drill=S.drill||{};return S.drill}
 function drillHome(){
   const st=drillStats();
   $("#app").innerHTML=`${subjBar()}
   <section class="hero"><h1>⚡ 特別練習區</h1><p>題目由程式隨機產生、做不完，適合大量練習。連續答對越多，點數加成越高！</p></section>
-  <div class="dcard"><h3>🔢 公因數與公倍數</h3>
+  <div class="dcard"><h3>🔢 公因數與公倍數（國一～國三）</h3>
     <div class="rules">每題答對 <b>10 點</b>，連對加成：<br>連對 3 題 <b>×1.5</b>｜連對 5 題 <b>×2</b>｜連對 10 題 <b>×3</b><br>一回 10 題全對，再加 <b>50 點</b>。答錯連對歸零。</div>
     <div class="modes">${Object.entries(DMODES).map(([k,m])=>{const s=st[k]||{};return `<button class="mode" data-m="${k}"><b>${m.n}</b><small>${m.g}・${m.d}</small><span class="st">${s.n?`已練 ${s.n} 題・答對 ${s.ok}・最高連對 ${s.best||0}`:"開始練習 ›"}</span></button>`}).join("")}</div>
   </div>
-  <p class="hint">更多特訓主題（例如分數四則、方程式）之後可以陸續加入。</p>`;
+  <p class="hint">建議順序：標準分解式 → 最大公因數與最小公倍數 → 性質與關係 → 會考應用題 → 公因式 → 會考挑戰。</p>`;
   document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{S.dmode=b.dataset.m;save();startDrill(b.dataset.m)});
   bindSubj(); window.scrollTo(0,0);
 }
 function startDrill(mode){
+  if(!DMODES[mode]) mode="std";
   kpClose(); cur=null; mcur=null; location.hash="drill-gcd";
   dcur={mode,i:0,n:10,ok:0,streak:0,earned:0,q:genQ(mode),ans:null};
   renderDrill(); window.scrollTo(0,0);
