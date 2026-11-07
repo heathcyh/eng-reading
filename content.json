@@ -1,7 +1,694 @@
 {
- "version": 1,
+ "version": 2,
  "updated": "2026-11-07",
  "passages": [
+  {
+   "id": "g4-1",
+   "level": 4,
+   "title": "My Family",
+   "zh": "我的家人",
+   "text": "Hi, I am Tom. I am ten years old. There are four people in my family. My father is a {doctor}. My mother is a teacher.\nI have a little sister. Her name is Amy. She is six. She {likes} cats. We have a cat, Mimi. Mimi is fat and cute. I {love} my family.",
+   "cloze": [
+    {
+     "opts": [
+      "doctor",
+      "doctors",
+      "apple",
+      "happy"
+     ],
+     "exp": "a + 單數職業名詞：a doctor 一位醫生。"
+    },
+    {
+     "opts": [
+      "likes",
+      "like",
+      "liking",
+      "is like"
+     ],
+     "exp": "主詞 She 是第三人稱單數，動詞加 s：likes。"
+    },
+    {
+     "opts": [
+      "love",
+      "loves",
+      "is",
+      "am"
+     ],
+     "exp": "主詞 I 搭配原形動詞：I love my family."
+    }
+   ],
+   "qs": [
+    {
+     "q": "How old is Tom?",
+     "opts": [
+      "Ten.",
+      "Six.",
+      "Four.",
+      "Eleven."
+     ],
+     "exp": "I am ten years old."
+    },
+    {
+     "q": "What does Tom's mother do?",
+     "opts": [
+      "She is a teacher.",
+      "She is a doctor.",
+      "She is a student.",
+      "She is a cook."
+     ],
+     "exp": "My mother is a teacher."
+    },
+    {
+     "q": "Who is Mimi?",
+     "opts": [
+      "The family's cat.",
+      "Tom's sister.",
+      "Tom's mother.",
+      "Tom's friend."
+     ],
+     "exp": "We have a cat, Mimi."
+    }
+   ]
+  },
+  {
+   "id": "g4-2",
+   "level": 4,
+   "title": "At the Zoo",
+   "zh": "在動物園",
+   "text": "Today is Sunday. Ben and his dad go to the zoo. They see many animals.\nThe elephant is big. It has a long {nose}. The monkeys are funny. They {jump} and play in the trees.\nBen's favorite animal is the panda. It is black and {white}. It eats bamboo all day. Ben is very happy today.",
+   "cloze": [
+    {
+     "opts": [
+      "nose",
+      "nail",
+      "hand",
+      "hair"
+     ],
+     "exp": "大象有長長的「鼻子」：a long nose。"
+    },
+    {
+     "opts": [
+      "jump",
+      "jumps",
+      "jumping",
+      "is jump"
+     ],
+     "exp": "主詞 They 是複數，用原形動詞 jump。"
+    },
+    {
+     "opts": [
+      "white",
+      "red",
+      "green",
+      "pink"
+     ],
+     "exp": "貓熊是黑「白」色的：black and white。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "Where do Ben and his dad go?",
+     "opts": [
+      "To the zoo.",
+      "To the park.",
+      "To school.",
+      "To the beach."
+     ],
+     "exp": "Ben and his dad go to the zoo."
+    },
+    {
+     "q": "What do the monkeys do?",
+     "opts": [
+      "They jump and play in the trees.",
+      "They eat bamboo all day.",
+      "They sleep all day.",
+      "They swim in the water."
+     ],
+     "exp": "They jump and play in the trees."
+    },
+    {
+     "q": "What is Ben's favorite animal?",
+     "opts": [
+      "The panda.",
+      "The elephant.",
+      "The monkey.",
+      "The cat."
+     ],
+     "exp": "Ben's favorite animal is the panda."
+    }
+   ]
+  },
+  {
+   "id": "g4-3",
+   "level": 4,
+   "title": "Mary's Day",
+   "zh": "瑪莉的一天",
+   "text": "Mary gets up at six thirty every day. She {washes} her face and brushes her teeth. At seven, she eats breakfast with her mom. She has bread and milk.\nThen she goes to school {by} bus. School starts at eight. After school, Mary does her homework. She goes to {bed} at nine.",
+   "cloze": [
+    {
+     "opts": [
+      "washes",
+      "wash",
+      "washing",
+      "washed"
+     ],
+     "exp": "every day 表習慣，主詞 She 用第三人稱單數 washes。"
+    },
+    {
+     "opts": [
+      "by",
+      "on",
+      "in",
+      "at"
+     ],
+     "exp": "by bus 搭公車（by + 交通工具）。"
+    },
+    {
+     "opts": [
+      "bed",
+      "school",
+      "home",
+      "work"
+     ],
+     "exp": "go to bed 上床睡覺。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "What time does Mary get up?",
+     "opts": [
+      "At six thirty.",
+      "At seven.",
+      "At eight.",
+      "At nine."
+     ],
+     "exp": "Mary gets up at six thirty every day."
+    },
+    {
+     "q": "What does Mary have for breakfast?",
+     "opts": [
+      "Bread and milk.",
+      "Rice and soup.",
+      "Eggs and juice.",
+      "Noodles and tea."
+     ],
+     "exp": "She has bread and milk."
+    },
+    {
+     "q": "How does Mary go to school?",
+     "opts": [
+      "By bus.",
+      "By bike.",
+      "On foot.",
+      "By car."
+     ],
+     "exp": "she goes to school by bus."
+    }
+   ]
+  },
+  {
+   "id": "g5-1",
+   "level": 5,
+   "title": "My Birthday Party",
+   "zh": "我的生日派對",
+   "text": "Last Saturday was my birthday. I was eleven years old. My friends {came} to my house for a party. My mom {made} a big chocolate cake. We sang a birthday song, and I made a wish.\nMy best friend, Kelly, gave me a storybook. My grandpa {gave} me a new watch. After that, we played games and ate pizza. Everyone had a good {time}. It was the best birthday ever!",
+   "cloze": [
+    {
+     "opts": [
+      "came",
+      "come",
+      "comes",
+      "coming"
+     ],
+     "exp": "Last Saturday 是過去時間，come 的過去式為 came。"
+    },
+    {
+     "opts": [
+      "made",
+      "make",
+      "makes",
+      "did"
+     ],
+     "exp": "做蛋糕用 make，過去式 made。"
+    },
+    {
+     "opts": [
+      "gave",
+      "give",
+      "gives",
+      "got"
+     ],
+     "exp": "give sb. sth. 給某人某物，過去式 gave。"
+    },
+    {
+     "opts": [
+      "time",
+      "day",
+      "cake",
+      "party"
+     ],
+     "exp": "have a good time 玩得很愉快。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "How old was the writer on this birthday?",
+     "opts": [
+      "Eleven.",
+      "Ten.",
+      "Twelve.",
+      "Nine."
+     ],
+     "exp": "I was eleven years old."
+    },
+    {
+     "q": "What did Kelly give the writer?",
+     "opts": [
+      "A storybook.",
+      "A new watch.",
+      "A chocolate cake.",
+      "A pizza."
+     ],
+     "exp": "Kelly, gave me a storybook."
+    },
+    {
+     "q": "What did they eat at the party?",
+     "opts": [
+      "Cake and pizza.",
+      "Rice and soup.",
+      "Bread and milk.",
+      "Fried chicken."
+     ],
+     "exp": "媽媽做了巧克力蛋糕，後來大家 ate pizza。"
+    }
+   ]
+  },
+  {
+   "id": "g5-2",
+   "level": 5,
+   "title": "A Rainy Day",
+   "zh": "下雨天",
+   "text": "It is rainy today, so Leo can't play basketball in the park. He is a little sad. He sits by the window and {looks} at the rain.\nHis mother says, \"Why don't you read a book?\" Leo finds an old book about dinosaurs. The book has many {pictures}. Leo learns that some dinosaurs were as tall as a house! He reads for two hours.\nWhen the rain stops, Leo is not sad {anymore}. He wants to {visit} the science museum this weekend to see the dinosaurs.",
+   "cloze": [
+    {
+     "opts": [
+      "looks",
+      "look",
+      "looking",
+      "sees"
+     ],
+     "exp": "look at 看著…；主詞 He 用 looks。sees 後面不接 at。"
+    },
+    {
+     "opts": [
+      "pictures",
+      "picture",
+      "picture's",
+      "pictured"
+     ],
+     "exp": "many + 複數名詞：many pictures。"
+    },
+    {
+     "opts": [
+      "anymore",
+      "again",
+      "already",
+      "too"
+     ],
+     "exp": "not ... anymore 不再…。雨停後他不再難過了。"
+    },
+    {
+     "opts": [
+      "visit",
+      "visits",
+      "visiting",
+      "visited"
+     ],
+     "exp": "want to + 原形動詞：want to visit。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "Why can't Leo play basketball?",
+     "opts": [
+      "Because it is rainy.",
+      "Because he is sick.",
+      "Because he has homework.",
+      "Because the park is closed."
+     ],
+     "exp": "It is rainy today, so Leo can't play basketball."
+    },
+    {
+     "q": "What is Leo's book about?",
+     "opts": [
+      "Dinosaurs.",
+      "Basketball.",
+      "The rain.",
+      "Houses."
+     ],
+     "exp": "an old book about dinosaurs."
+    },
+    {
+     "q": "What does Leo want to do this weekend?",
+     "opts": [
+      "Visit the science museum.",
+      "Play basketball.",
+      "Buy a new book.",
+      "Stay home."
+     ],
+     "exp": "He wants to visit the science museum this weekend."
+    }
+   ]
+  },
+  {
+   "id": "g5-3",
+   "level": 5,
+   "title": "Healthy Habits",
+   "zh": "健康的好習慣",
+   "text": "Do you want to be healthy? Here are some easy ways.\nFirst, eat more fruit and vegetables. They are good {for} your body. Second, drink water, not soda. Soda has too much sugar. Third, exercise every day. You can ride a bike, jump rope, or {swim}. Fourth, go to bed early. Children need about ten hours of sleep.\nIf you {follow} these habits, you will feel strong and happy!",
+   "cloze": [
+    {
+     "opts": [
+      "for",
+      "to",
+      "at",
+      "with"
+     ],
+     "exp": "be good for... 對…有益。"
+    },
+    {
+     "opts": [
+      "swim",
+      "swims",
+      "swimming",
+      "swam"
+     ],
+     "exp": "can 後面接原形動詞，與 ride、jump 並列：swim。"
+    },
+    {
+     "opts": [
+      "follow",
+      "forget",
+      "stop",
+      "break"
+     ],
+     "exp": "follow habits 遵守（養成）這些習慣。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "Why should we drink water, not soda?",
+     "opts": [
+      "Soda has too much sugar.",
+      "Water is sweeter.",
+      "Soda is too cold.",
+      "Water has more sugar."
+     ],
+     "exp": "Soda has too much sugar."
+    },
+    {
+     "q": "Which is NOT a way to exercise in the passage?",
+     "opts": [
+      "Play basketball.",
+      "Ride a bike.",
+      "Jump rope.",
+      "Swim."
+     ],
+     "exp": "文中提到騎腳踏車、跳繩、游泳，沒有打籃球。"
+    },
+    {
+     "q": "How many hours of sleep do children need?",
+     "opts": [
+      "About ten hours.",
+      "About six hours.",
+      "About four hours.",
+      "About fourteen hours."
+     ],
+     "exp": "Children need about ten hours of sleep."
+    }
+   ]
+  },
+  {
+   "id": "g6-1",
+   "level": 6,
+   "title": "The Class Trip",
+   "zh": "班級校外教學",
+   "text": "Last Friday, the sixth graders at Sunshine Elementary School went on a class trip to a farm. When they arrived, the farmer, Mr. Wang, showed them around.\nFirst, they {fed} the cows and sheep. Some students were afraid at first, but soon they had fun. Next, they picked strawberries. The strawberries were red and sweet. Mr. Wang said, \"Don't eat too {many}. Save some for your family!\"\nAt lunch, they ate rice balls under a big tree. In the afternoon, they learned how to make ice cream with fresh milk. It was {harder} than they thought, but it tasted great. On the bus home, everyone was tired {but} happy.",
+   "cloze": [
+    {
+     "opts": [
+      "fed",
+      "feed",
+      "feeds",
+      "fixed"
+     ],
+     "exp": "Last Friday 為過去，feed（餵）的過去式是 fed。"
+    },
+    {
+     "opts": [
+      "many",
+      "much",
+      "more",
+      "lot"
+     ],
+     "exp": "strawberries 可數，too many 太多（顆）。"
+    },
+    {
+     "opts": [
+      "harder",
+      "hard",
+      "hardest",
+      "more hard"
+     ],
+     "exp": "後面有 than，用比較級 harder。"
+    },
+    {
+     "opts": [
+      "but",
+      "so",
+      "or",
+      "because"
+     ],
+     "exp": "「累，但很開心」語意轉折：tired but happy。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "Where did the students go last Friday?",
+     "opts": [
+      "To a farm.",
+      "To a zoo.",
+      "To a museum.",
+      "To the beach."
+     ],
+     "exp": "went on a class trip to a farm."
+    },
+    {
+     "q": "Why did Mr. Wang say \"Don't eat too many\"?",
+     "opts": [
+      "He wanted them to save some for their families.",
+      "The strawberries were not sweet.",
+      "The strawberries were too expensive.",
+      "The students were full."
+     ],
+     "exp": "Save some for your family!"
+    },
+    {
+     "q": "What did the students learn to make?",
+     "opts": [
+      "Ice cream.",
+      "Rice balls.",
+      "Strawberry cake.",
+      "Cheese."
+     ],
+     "exp": "they learned how to make ice cream with fresh milk."
+    },
+    {
+     "q": "How did the students feel on the bus home?",
+     "opts": [
+      "Tired but happy.",
+      "Sad and angry.",
+      "Afraid.",
+      "Bored."
+     ],
+     "exp": "everyone was tired but happy."
+    }
+   ]
+  },
+  {
+   "id": "g6-2",
+   "level": 6,
+   "title": "Grandpa's Garden",
+   "zh": "爺爺的菜園",
+   "text": "My grandpa lives in the country. He has a small garden behind his house. Every summer vacation, I {stay} with him for two weeks.\nGrandpa grows tomatoes, corn, and sweet potatoes. Every morning, we get up early to water the plants {before} it gets too hot. Grandpa tells me that plants are like people. \"They need water, sunlight, and love,\" he says.\nThis summer, I planted my own tomato plant. I took care of it every day. At the end of my stay, I picked three red tomatoes. Grandpa cooked them with eggs for dinner. It was the most {delicious} dish I have ever eaten, because I grew the tomatoes {myself}.",
+   "cloze": [
+    {
+     "opts": [
+      "stay",
+      "stays",
+      "stayed",
+      "staying"
+     ],
+     "exp": "Every summer vacation 表習慣，主詞 I 用原形 stay。"
+    },
+    {
+     "opts": [
+      "before",
+      "after",
+      "because",
+      "until"
+     ],
+     "exp": "趁天氣變太熱「之前」澆水：before it gets too hot。"
+    },
+    {
+     "opts": [
+      "delicious",
+      "terrible",
+      "boring",
+      "expensive"
+     ],
+     "exp": "自己種的番茄做成的菜，是吃過「最好吃」的：the most delicious。"
+    },
+    {
+     "opts": [
+      "myself",
+      "me",
+      "my",
+      "mine"
+     ],
+     "exp": "反身代名詞 myself：我自己（親手）種的。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "Where does the writer's grandpa live?",
+     "opts": [
+      "In the country.",
+      "In a big city.",
+      "Near the sea.",
+      "In a hospital."
+     ],
+     "exp": "My grandpa lives in the country."
+    },
+    {
+     "q": "Why do they water the plants early in the morning?",
+     "opts": [
+      "Because it gets too hot later.",
+      "Because Grandpa goes to work.",
+      "Because it rains in the afternoon.",
+      "Because the plants are sleeping."
+     ],
+     "exp": "water the plants before it gets too hot."
+    },
+    {
+     "q": "What did Grandpa do with the three tomatoes?",
+     "opts": [
+      "He cooked them with eggs.",
+      "He sold them.",
+      "He gave them to a friend.",
+      "He planted them again."
+     ],
+     "exp": "Grandpa cooked them with eggs for dinner."
+    },
+    {
+     "q": "Why was the dish so delicious to the writer?",
+     "opts": [
+      "The writer grew the tomatoes.",
+      "Grandpa is a famous cook.",
+      "The writer was very hungry.",
+      "The eggs were very big."
+     ],
+     "exp": "because I grew the tomatoes myself."
+    }
+   ]
+  },
+  {
+   "id": "g6-3",
+   "level": 6,
+   "title": "A New Student",
+   "zh": "新同學",
+   "text": "There is a new student in Ruby's class. His name is Kenji, and he is from Japan. On his first day, Kenji didn't {say} much. He sat alone at lunch time.\nRuby thought, \"He must feel lonely.\" So she walked over and asked, \"Can I sit with you?\" Kenji smiled. He spoke a little Chinese and some English.\nRuby {showed} him around the school and taught him some Chinese words. Kenji taught her how to {fold} paper cranes. Now they are good friends. Ruby learned that a small act of kindness can make a big {difference}.",
+   "cloze": [
+    {
+     "opts": [
+      "say",
+      "said",
+      "says",
+      "saying"
+     ],
+     "exp": "didn't 後面接原形動詞：didn't say much 話不多。"
+    },
+    {
+     "opts": [
+      "showed",
+      "show",
+      "shows",
+      "shown"
+     ],
+     "exp": "過去發生的事，show 的過去式 showed；show sb. around 帶某人參觀。"
+    },
+    {
+     "opts": [
+      "fold",
+      "cook",
+      "draw",
+      "buy"
+     ],
+     "exp": "fold paper cranes 摺紙鶴。"
+    },
+    {
+     "opts": [
+      "difference",
+      "mistake",
+      "noise",
+      "problem"
+     ],
+     "exp": "make a difference 帶來改變、產生影響。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "Where is Kenji from?",
+     "opts": [
+      "Japan.",
+      "Taiwan.",
+      "Korea.",
+      "America."
+     ],
+     "exp": "he is from Japan."
+    },
+    {
+     "q": "Why did Ruby sit with Kenji?",
+     "opts": [
+      "She thought he felt lonely.",
+      "The teacher asked her to.",
+      "There were no other seats.",
+      "Kenji asked her to."
+     ],
+     "exp": "Ruby thought, \"He must feel lonely.\""
+    },
+    {
+     "q": "What did Kenji teach Ruby?",
+     "opts": [
+      "How to fold paper cranes.",
+      "Some Chinese words.",
+      "How to cook Japanese food.",
+      "How to play basketball."
+     ],
+     "exp": "Kenji taught her how to fold paper cranes. 教中文字的是 Ruby。"
+    },
+    {
+     "q": "What did Ruby learn?",
+     "opts": [
+      "A small act of kindness can make a big difference.",
+      "Learning Japanese is easy.",
+      "New students are always shy.",
+      "Lunch time is boring."
+     ],
+     "exp": "a small act of kindness can make a big difference."
+    }
+   ]
+  },
   {
    "id": "g7-1",
    "level": 7,
@@ -1616,6 +2303,155 @@
   "years": "n. 年（year 的複數）",
   "yes": "adv. 是",
   "you": "pron. 你；你們",
-  "your": "pron. 你的；你們的"
+  "your": "pron. 你的；你們的",
+  "act": "n. 行為（act of kindness 善舉）",
+  "afraid": "adj. 害怕的",
+  "animal": "n. 動物",
+  "anymore": "adv. 不再（not ... anymore）",
+  "around": "adv. 到處（show sb. around 帶某人參觀）",
+  "ate": "v. 吃（eat 的過去式）",
+  "balls": "n. 球；團（rice ball 飯糰）",
+  "bamboo": "n. 竹子",
+  "behind": "prep. 在…後面",
+  "ben": "n. 班（人名）",
+  "bike": "n. 腳踏車",
+  "birthday": "n. 生日",
+  "black": "adj. 黑色的",
+  "book": "n. 書",
+  "bread": "n. 麵包",
+  "breakfast": "n. 早餐",
+  "brushes": "v. 刷（brush 的第三人稱單數；brush teeth 刷牙）",
+  "cake": "n. 蛋糕",
+  "can't": "aux. 不能（can not 的縮寫）",
+  "care": "n. 照顧（take care of 照顧）",
+  "cat": "n. 貓",
+  "cats": "n. 貓（cat 的複數）",
+  "children": "n. 孩子們（child 的複數）",
+  "chinese": "n. 中文",
+  "chocolate": "n. 巧克力",
+  "corn": "n. 玉米",
+  "country": "n. 鄉下；國家（in the country 在鄉下）",
+  "cows": "n. 乳牛（cow 的複數）",
+  "cranes": "n. 鶴（paper crane 紙鶴）",
+  "cream": "n. 奶油（ice cream 冰淇淋）",
+  "cute": "adj. 可愛的",
+  "dad": "n. 爸爸",
+  "didn't": "aux. 沒有（did not 的縮寫）",
+  "dinosaurs": "n. 恐龍（dinosaur 的複數）",
+  "dish": "n. 一道菜；盤子",
+  "doctor": "n. 醫生",
+  "drink": "v. 喝",
+  "eaten": "v. 吃（eat 的過去分詞）",
+  "eats": "v. 吃（eat 的第三人稱單數）",
+  "elementary": "adj. 初級的（elementary school 小學）",
+  "elephant": "n. 大象",
+  "eleven": "num. 十一",
+  "ever": "adv. 曾經（have ever + p.p. 曾經…過）",
+  "exercise": "v. 運動；n. 運動",
+  "face": "n. 臉",
+  "farm": "n. 農場",
+  "farmer": "n. 農夫",
+  "fat": "adj. 胖的",
+  "favorite": "adj. 最喜愛的",
+  "fed": "v. 餵（feed 的過去式）",
+  "finds": "v. 找到（find 的第三人稱單數）",
+  "fold": "v. 摺疊",
+  "follow": "v. 遵循；跟隨",
+  "four": "num. 四",
+  "fourth": "adv. 第四",
+  "fresh": "adj. 新鮮的",
+  "fruit": "n. 水果",
+  "funny": "adj. 好笑的；有趣的",
+  "garden": "n. 花園；菜園",
+  "gave": "v. 給（give 的過去式）",
+  "goes": "v. 去（go 的第三人稱單數）",
+  "graders": "n. …年級生（sixth grader 六年級生）",
+  "grandpa": "n. 爺爺；外公",
+  "grew": "v. 種植；成長（grow 的過去式）",
+  "grows": "v. 種植（grow 的第三人稱單數）",
+  "habits": "n. 習慣（habit 的複數）",
+  "hi": "int. 嗨",
+  "ice": "n. 冰（ice cream 冰淇淋）",
+  "japan": "n. 日本",
+  "jump": "v. 跳（jump rope 跳繩）",
+  "kelly": "n. 凱莉（人名）",
+  "kenji": "n. 健司（日本人名）",
+  "kindness": "n. 善意；親切",
+  "learns": "v. 學到；得知（learn 的第三人稱單數）",
+  "leo": "n. 里歐（人名）",
+  "lonely": "adj. 寂寞的",
+  "looks": "v. 看（look 的第三人稱單數；look at 看著）",
+  "love": "v. 愛；n. 愛",
+  "mary": "n. 瑪莉（人名）",
+  "mimi": "n. 咪咪（貓的名字）",
+  "mom": "n. 媽媽",
+  "monkeys": "n. 猴子（monkey 的複數）",
+  "museum": "n. 博物館（science museum 科學博物館）",
+  "must": "aux. 一定（表推測）；必須",
+  "myself": "pron. 我自己",
+  "name": "n. 名字",
+  "nose": "n. 鼻子",
+  "over": "adv. 過去（walk over 走過去）",
+  "panda": "n. 貓熊",
+  "paper": "n. 紙",
+  "party": "n. 派對",
+  "pizza": "n. 披薩",
+  "plant": "n. 植物",
+  "planted": "v. 種植（plant 的過去式）",
+  "plants": "n. 植物（plant 的複數）",
+  "play": "v. 玩；打（球）",
+  "potatoes": "n. 馬鈴薯（sweet potato 地瓜）",
+  "rain": "n. 雨",
+  "rainy": "adj. 下雨的",
+  "read": "v. 閱讀",
+  "reads": "v. 閱讀（read 的第三人稱單數）",
+  "red": "adj. 紅色的",
+  "rope": "n. 繩子（jump rope 跳繩）",
+  "ruby": "n. 露比（人名）",
+  "sad": "adj. 難過的",
+  "sang": "v. 唱（sing 的過去式）",
+  "sat": "v. 坐（sit 的過去式）",
+  "save": "v. 留下；保存",
+  "science": "n. 科學",
+  "see": "v. 看見",
+  "seven": "num. 七",
+  "sheep": "n. 綿羊（單複數同形）",
+  "showed": "v. 展示；帶領（show 的過去式）",
+  "sit": "v. 坐",
+  "sits": "v. 坐（sit 的第三人稱單數）",
+  "sixth": "adj. 第六的（sixth grader 六年級生）",
+  "soda": "n. 汽水",
+  "song": "n. 歌",
+  "spoke": "v. 說（speak 的過去式）",
+  "stops": "v. 停止（stop 的第三人稱單數）",
+  "storybook": "n. 故事書",
+  "strawberries": "n. 草莓（strawberry 的複數）",
+  "strong": "adj. 強壯的",
+  "sugar": "n. 糖",
+  "sunlight": "n. 陽光",
+  "sunshine": "n. 陽光（此處為校名）",
+  "sweet": "adj. 甜的（sweet potato 地瓜）",
+  "swim": "v. 游泳",
+  "tall": "adj. 高的",
+  "teeth": "n. 牙齒（tooth 的複數）",
+  "tom": "n. 湯姆（人名）",
+  "tomato": "n. 番茄",
+  "tomatoes": "n. 番茄（tomato 的複數）",
+  "tree": "n. 樹",
+  "trees": "n. 樹（tree 的複數）",
+  "under": "prep. 在…下面",
+  "vacation": "n. 假期（summer vacation 暑假）",
+  "wang": "n. 王（姓氏）",
+  "wants": "v. 想要（want 的第三人稱單數）",
+  "washes": "v. 洗（wash 的第三人稱單數）",
+  "watch": "n. 手錶；v. 觀看",
+  "water": "n. 水；v. 澆水",
+  "weekend": "n. 週末",
+  "weeks": "n. 星期（week 的複數）",
+  "white": "adj. 白色的",
+  "window": "n. 窗戶",
+  "wish": "n. 願望（make a wish 許願）",
+  "words": "n. 字；詞（word 的複數）",
+  "zoo": "n. 動物園"
  }
 }

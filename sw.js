@@ -1,5 +1,5 @@
 // 離線快取：App 本體先用快取；題庫 content.json 每次優先抓網路（拿到最新題目），沒網路才用快取
-const CACHE = "eng-reading-v1";
+const CACHE = "eng-reading-v2";
 const SHELL = ["./", "./index.html", "./manifest.json", "./content.json", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-180.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener("activate", e => {

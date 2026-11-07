@@ -43,8 +43,8 @@ header{position:sticky;top:0;z-index:20;background:rgba(251,247,239,.94);backdro
 .hero{padding:20px 2px 6px}
 .hero h1{margin:0 0 4px;font-size:24px}
 .hero p{margin:0;color:var(--muted);font-size:14px;line-height:1.6}
-.levels{display:flex;gap:8px;margin:18px 0 14px;overflow-x:auto}
-.lv{flex:1;min-width:96px;padding:10px 8px;border-radius:14px;background:#fff;border:1.5px solid var(--line);text-align:center}
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0 14px}
+.lv{padding:9px 6px;border-radius:14px;background:#fff;border:1.5px solid var(--line);text-align:center}
 .lv b{display:block;font-size:16px}
 .lv small{color:var(--muted);font-size:12px}
 .lv.on{background:var(--brand);border-color:var(--brand);color:#fff}
@@ -207,7 +207,7 @@ function validate(c){
   c.passages.forEach((p,i)=>{
     const tag=`第 ${i+1} 篇（${p.id||"無 id"}）`;
     if(!p.id||!p.title||!p.text||!p.level) throw new Error(tag+"缺少 id / title / text / level");
-    if(![7,8,9].includes(+p.level)) throw new Error(tag+"的 level 必須是 7、8 或 9");
+    if(![4,5,6,7,8,9].includes(+p.level)) throw new Error(tag+"的 level 必須是 4～9（4＝小四…9＝國三）");
     const blanks=(p.text.match(/\{[^}]+\}/g)||[]).length;
     if(blanks!==(p.cloze||[]).length) throw new Error(`${tag}：文中 {} 挖空 ${blanks} 個，但 cloze 有 ${(p.cloze||[]).length} 題`);
     (p.qs||[]).forEach(q=>{if(!q.q||!Array.isArray(q.opts)||q.opts.length<2) throw new Error(tag+"有題目格式錯誤")});
@@ -256,7 +256,7 @@ function seeded(str){let h=2166136261;for(const c of str){h^=c.charCodeAt(0);h=M
 function order(n,seed){const r=seeded(seed),a=[...Array(n).keys()];for(let i=n-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 
 // ───────── text parsing ─────────
-const LV={7:{n:"國一",d:"基礎"},8:{n:"國二",d:"進階"},9:{n:"國三",d:"會考"}};
+const LV={4:{n:"小四",d:"入門"},5:{n:"小五",d:"初級"},6:{n:"小六",d:"銜接"},7:{n:"國一",d:"基礎"},8:{n:"國二",d:"進階"},9:{n:"國三",d:"會考"}};
 function parse(p){
   // → paragraphs[ sentences[ {text, tokens:[{t:'w'|'x', s, blank}]} ] ]
   let bi=0;
@@ -387,8 +387,8 @@ function home(){
   const list=PASSAGES.filter(p=>p.level===S.level);
   $("#app").innerHTML=`
   <section class="hero"><h1>英文短文閱讀</h1>
-  <p>依國中會考程度分三級。每篇可整篇聽讀、點單字看翻譯與發音，並完成文意理解與克漏字賺積點。</p></section>
-  <div class="levels">${[7,8,9].map(l=>`<button class="lv ${l===S.level?"on":""}" data-l="${l}"><b>${LV[l].n}</b><small>${LV[l].d}</small></button>`).join("")}</div>
+  <p>小四到國三共六級，國中部分依會考程度設計。每篇可整篇聽讀、點單字看翻譯與發音，並完成文意理解與克漏字賺積點。</p></section>
+  <div class="levels">${[4,5,6,7,8,9].map(l=>`<button class="lv ${l===S.level?"on":""}" data-l="${l}"><b>${LV[l].n}</b><small>${LV[l].d}</small></button>`).join("")}</div>
   <div class="plist">${list.map((p,i)=>{const s=stats(p);return `
     <button class="pcard" data-id="${p.id}">
       <div class="pnum">${i+1}</div>
