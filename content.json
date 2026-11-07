@@ -1,0 +1,1621 @@
+{
+ "version": 1,
+ "updated": "2026-11-07",
+ "passages": [
+  {
+   "id": "g7-1",
+   "level": 7,
+   "title": "My New Neighbor",
+   "zh": "我的新鄰居",
+   "text": "Last month, a new family moved into the house next to mine. They have a girl named Emma. She is twelve years old, just like me. On the first day, I saw her in front of her house. She looked a little shy, so I {said} hello to her. She smiled and told me she came from Canada.\nNow Emma and I go to school {together} every morning. She is good at English, and I am good at math, so we often {help} each other with our homework. On weekends, we ride our bikes to the park near our street. Emma likes to take pictures of birds and flowers there.\nEmma's mother is very kind. She sometimes {makes} cookies for us. Last Sunday, Emma taught me how to make them. They were not very pretty, {but} they were delicious! I am happy to have a new neighbor and a new {friend}.",
+   "cloze": [
+    {
+     "opts": [
+      "said",
+      "told",
+      "talked",
+      "spoke"
+     ],
+     "exp": "say hello to sb. 向某人打招呼，過去式為 said。"
+    },
+    {
+     "opts": [
+      "together",
+      "alone",
+      "again",
+      "already"
+     ],
+     "exp": "go to school together 一起上學。"
+    },
+    {
+     "opts": [
+      "help",
+      "helps",
+      "helping",
+      "to help"
+     ],
+     "exp": "主詞 we 搭配頻率副詞 often，用原形動詞 help。help each other with... 互相幫忙…"
+    },
+    {
+     "opts": [
+      "makes",
+      "make",
+      "making",
+      "made"
+     ],
+     "exp": "主詞 She 為第三人稱單數、敘述習慣（sometimes），用 makes。"
+    },
+    {
+     "opts": [
+      "but",
+      "so",
+      "because",
+      "or"
+     ],
+     "exp": "「不太好看，但很好吃」前後語意相反，用 but。"
+    },
+    {
+     "opts": [
+      "friend",
+      "teacher",
+      "house",
+      "family"
+     ],
+     "exp": "全文描述兩人成為好朋友：a new neighbor and a new friend。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "Where did Emma come from?",
+     "opts": [
+      "Canada",
+      "America",
+      "Japan",
+      "Taiwan"
+     ],
+     "exp": "第一段最後：She ... told me she came from Canada."
+    },
+    {
+     "q": "How do the writer and Emma help each other?",
+     "opts": [
+      "Emma helps with English, and the writer helps with math.",
+      "Emma helps with math, and the writer helps with English.",
+      "They both help each other with science.",
+      "Emma's mother helps them with homework."
+     ],
+     "exp": "She is good at English, and I am good at math, so we often help each other."
+    },
+    {
+     "q": "What does Emma like to do in the park?",
+     "opts": [
+      "Take pictures of birds and flowers.",
+      "Play basketball.",
+      "Make cookies.",
+      "Read books."
+     ],
+     "exp": "Emma likes to take pictures of birds and flowers there."
+    },
+    {
+     "q": "What do we know about the cookies they made last Sunday?",
+     "opts": [
+      "They didn't look nice, but they tasted good.",
+      "They looked nice and tasted good.",
+      "They were too sweet to eat.",
+      "Emma's mother made them alone."
+     ],
+     "exp": "They were not very pretty, but they were delicious!"
+    }
+   ]
+  },
+  {
+   "id": "g7-2",
+   "level": 7,
+   "title": "A Busy Saturday",
+   "zh": "忙碌的星期六",
+   "text": "Kevin usually gets up late on weekends, but last Saturday was different. He {got} up at six thirty because his family had a lot of things to do.\nFirst, Kevin and his father cleaned the living room and washed the car. Then his mother asked him to go to the supermarket with her. They {bought} some eggs, milk, apples, and a big fish for dinner.\nIn the afternoon, Kevin's grandparents came to visit. Kevin played chess with his grandfather, and he {lost} three games in a row. His grandmother laughed and said, \"Don't worry. Your grandfather has played chess for fifty years.\"\nIn the evening, the whole family cooked dinner together. Kevin's job was to {wash} the vegetables. After dinner, Kevin was so {tired} that he went to bed at nine. It was a busy day, {but} Kevin felt very happy.",
+   "cloze": [
+    {
+     "opts": [
+      "got",
+      "gets",
+      "get",
+      "getting"
+     ],
+     "exp": "last Saturday 為過去時間，用過去式 got。"
+    },
+    {
+     "opts": [
+      "bought",
+      "buy",
+      "buys",
+      "brought"
+     ],
+     "exp": "在超市「買了」東西，buy 的過去式 bought（注意與 brought 帶來 區分）。"
+    },
+    {
+     "opts": [
+      "lost",
+      "won",
+      "missed",
+      "left"
+     ],
+     "exp": "奶奶安慰他 Don't worry，可知他「輸了」：lose → lost。"
+    },
+    {
+     "opts": [
+      "wash",
+      "washes",
+      "washed",
+      "washing"
+     ],
+     "exp": "be 動詞 + to + 原形動詞：His job was to wash...。"
+    },
+    {
+     "opts": [
+      "tired",
+      "happy",
+      "hungry",
+      "angry"
+     ],
+     "exp": "so...that... 太…以致於…；累到九點就去睡，用 tired。"
+    },
+    {
+     "opts": [
+      "but",
+      "and",
+      "so",
+      "because"
+     ],
+     "exp": "「很忙，但很快樂」語意轉折，用 but。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "What time did Kevin get up last Saturday?",
+     "opts": [
+      "At 6:30.",
+      "At 6:00.",
+      "At 7:30.",
+      "At 9:00."
+     ],
+     "exp": "He got up at six thirty."
+    },
+    {
+     "q": "Who did Kevin go to the supermarket with?",
+     "opts": [
+      "His mother.",
+      "His father.",
+      "His grandfather.",
+      "His grandmother."
+     ],
+     "exp": "his mother asked him to go to the supermarket with her."
+    },
+    {
+     "q": "Why did Kevin's grandmother say \"Don't worry\"?",
+     "opts": [
+      "Kevin lost three chess games.",
+      "Kevin got up too late.",
+      "Kevin didn't wash the car.",
+      "Kevin was too tired to cook."
+     ],
+     "exp": "Kevin 下棋連輸三盤（lost three games in a row），奶奶才安慰他。"
+    },
+    {
+     "q": "Which of the following is NOT true?",
+     "opts": [
+      "Kevin went to bed at ten.",
+      "Kevin washed the car with his father.",
+      "Kevin's grandfather has played chess for a long time.",
+      "Kevin washed the vegetables."
+     ],
+     "exp": "文中說 he went to bed at nine，九點就寢，不是十點。"
+    }
+   ]
+  },
+  {
+   "id": "g7-3",
+   "level": 7,
+   "title": "Lunch Time at School",
+   "zh": "學校的午餐時間",
+   "text": "Many students in Taiwan eat lunch at school. At Lily's school, lunch {time} starts at twelve o'clock. Students take turns to bring the food from the kitchen to their classroom.\nToday it is Lily's turn. She and two classmates carry the rice, soup, and dishes {carefully}. Their teacher, Mr. Lin, always says, \"Don't run with the soup. It's hot!\"\nLily likes most of the food, but she doesn't like green peppers. Mr. Lin tells the class not to {waste} food. \"Try one bite,\" he says. \"Vegetables are good for your body.\" Lily tries a small piece. It is not as bad as she thinks.\nAfter lunch, everyone {cleans} the tables and puts the bowls back. Then they take a short nap. Lily thinks lunch time is {fun} because she can talk with her friends {while} they eat.",
+   "cloze": [
+    {
+     "opts": [
+      "time",
+      "box",
+      "money",
+      "room"
+     ],
+     "exp": "lunch time 午餐時間，與後文 starts at twelve o'clock 呼應。"
+    },
+    {
+     "opts": [
+      "carefully",
+      "quickly",
+      "loudly",
+      "angrily"
+     ],
+     "exp": "湯很燙不能跑，所以要「小心地」搬：carefully。"
+    },
+    {
+     "opts": [
+      "waste",
+      "eat",
+      "cook",
+      "buy"
+     ],
+     "exp": "老師要大家試一口，意思是不要「浪費」食物：waste。"
+    },
+    {
+     "opts": [
+      "cleans",
+      "clean",
+      "cleaning",
+      "to clean"
+     ],
+     "exp": "everyone 視為第三人稱單數，現在式用 cleans。"
+    },
+    {
+     "opts": [
+      "fun",
+      "boring",
+      "hard",
+      "late"
+     ],
+     "exp": "可以和朋友聊天，所以覺得午餐時間「好玩」：fun。"
+    },
+    {
+     "opts": [
+      "while",
+      "before",
+      "until",
+      "if"
+     ],
+     "exp": "while 當…的時候（同時進行）：邊吃邊聊。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "What time does lunch time start at Lily's school?",
+     "opts": [
+      "At twelve o'clock.",
+      "At eleven o'clock.",
+      "At one o'clock.",
+      "At twelve thirty."
+     ],
+     "exp": "lunch time starts at twelve o'clock."
+    },
+    {
+     "q": "Why does Mr. Lin say \"Don't run with the soup\"?",
+     "opts": [
+      "Because the soup is hot.",
+      "Because the soup is cold.",
+      "Because the soup is not delicious.",
+      "Because the classroom is far away."
+     ],
+     "exp": "Don't run with the soup. It's hot!"
+    },
+    {
+     "q": "How does Lily feel after she tries the green pepper?",
+     "opts": [
+      "It is not as bad as she thinks.",
+      "She loves it very much.",
+      "She feels sick.",
+      "She wants to eat all of it."
+     ],
+     "exp": "It is not as bad as she thinks. 沒有她想像中那麼糟。"
+    },
+    {
+     "q": "What do students do right after they clean the tables?",
+     "opts": [
+      "They take a short nap.",
+      "They go home.",
+      "They play basketball.",
+      "They have a test."
+     ],
+     "exp": "Then they take a short nap. 接著午睡。"
+    }
+   ]
+  },
+  {
+   "id": "g8-1",
+   "level": 8,
+   "title": "The Lost Wallet",
+   "zh": "遺失的皮夾",
+   "text": "Last Friday, Jason was waiting for the bus after school when he noticed a brown wallet on the ground. He picked it up and looked inside. There was some money, a student card, and a photo of an old woman. The card {belonged} to a girl named Amy Chen from another junior high school.\nJason's first thought was to keep the money, because he wanted to buy a new video game. {However}, when he looked at the photo again, he changed his mind. \"Maybe the photo is {important} to her,\" he thought.\nJason took the wallet to the police station near the bus stop. The police officer called Amy's school, and an hour later, Amy and her mother arrived. Amy almost {cried} when she saw the wallet. She explained that the woman in the photo was her grandmother, who passed away last year. It was the only picture she had of the two of them together.\nAmy's mother wanted to give Jason some money as a thank-you gift, but he {refused}. \"I'm just glad you got it back,\" he said. On his way home, Jason felt {proud} of himself. He learned that doing the right thing can make someone's day {much} better.",
+   "cloze": [
+    {
+     "opts": [
+      "belonged",
+      "brought",
+      "borrowed",
+      "bought"
+     ],
+     "exp": "belong to 屬於。學生證「屬於」Amy Chen。"
+    },
+    {
+     "opts": [
+      "However",
+      "Because",
+      "So",
+      "Also"
+     ],
+     "exp": "原本想留下錢，「然而」看到照片後改變主意，用 However 表轉折。"
+    },
+    {
+     "opts": [
+      "important",
+      "boring",
+      "cheap",
+      "funny"
+     ],
+     "exp": "照片對她可能很「重要」：important。"
+    },
+    {
+     "opts": [
+      "cried",
+      "laughed",
+      "shouted",
+      "slept"
+     ],
+     "exp": "看到失而復得的皮夾，激動得「差點哭了」：almost cried。"
+    },
+    {
+     "opts": [
+      "refused",
+      "agreed",
+      "accepted",
+      "asked"
+     ],
+     "exp": "後面說 I'm just glad you got it back，可知他「拒絕」收錢：refused。"
+    },
+    {
+     "opts": [
+      "proud",
+      "afraid",
+      "sorry",
+      "bored"
+     ],
+     "exp": "be/feel proud of oneself 以自己為傲。"
+    },
+    {
+     "opts": [
+      "much",
+      "very",
+      "many",
+      "so"
+     ],
+     "exp": "修飾比較級 better 要用 much，不能用 very。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "What was NOT in the wallet?",
+     "opts": [
+      "A video game.",
+      "Some money.",
+      "A student card.",
+      "A photo of an old woman."
+     ],
+     "exp": "皮夾裡有錢、學生證和照片；video game 是 Jason 想買的東西。"
+    },
+    {
+     "q": "Why did Jason change his mind about keeping the money?",
+     "opts": [
+      "He thought the photo might be important to the owner.",
+      "A police officer saw him.",
+      "He already had a new video game.",
+      "His mother told him to return it."
+     ],
+     "exp": "\"Maybe the photo is important to her,\" he thought."
+    },
+    {
+     "q": "Who was the woman in the photo?",
+     "opts": [
+      "Amy's grandmother.",
+      "Amy's mother.",
+      "Amy's teacher.",
+      "Jason's grandmother."
+     ],
+     "exp": "the woman in the photo was her grandmother."
+    },
+    {
+     "q": "What kind of person is Jason?",
+     "opts": [
+      "Honest and kind.",
+      "Lazy and rude.",
+      "Shy and afraid.",
+      "Greedy and selfish."
+     ],
+     "exp": "他歸還皮夾且拒收謝禮，是誠實又善良的人。"
+    }
+   ]
+  },
+  {
+   "id": "g8-2",
+   "level": 8,
+   "title": "A Night at the Night Market",
+   "zh": "夜市之夜",
+   "text": "Night markets are one of the most popular places in Taiwan. Last summer, my cousin Mike visited Taiwan from the United States for the first time, and I took him to a famous night market in Taipei.\nAs soon as we arrived, Mike was {surprised} by the crowds. \"Are there always so many people here?\" he asked. I told him that night markets are usually busiest on weekends.\nWe walked from one food stand to {another}. Mike tried bubble tea, fried chicken, and oyster omelets. He loved all of them. Then I asked him to try stinky tofu. He looked at it and said, \"It smells terrible! Do I really have to eat it?\" I {laughed} and told him to try just one piece. To his surprise, it tasted much better than it {smelled}.\nBesides food, there were also many games. Mike played a ring toss game and {won} a small toy bear for his little sister.\nBefore we went home, Mike said, \"The night market is the best part of my trip. I want to come back again {next} year.\" I was glad he had {such} a good time in Taiwan.",
+   "cloze": [
+    {
+     "opts": [
+      "surprised",
+      "bored",
+      "tired",
+      "worried"
+     ],
+     "exp": "第一次看到人潮，感到「驚訝」：be surprised by...。"
+    },
+    {
+     "opts": [
+      "another",
+      "other",
+      "others",
+      "the other"
+     ],
+     "exp": "from one... to another 從一個…到另一個。"
+    },
+    {
+     "opts": [
+      "laughed",
+      "cried",
+      "shouted",
+      "worried"
+     ],
+     "exp": "表弟誇張的反應讓作者「笑了」。"
+    },
+    {
+     "opts": [
+      "smelled",
+      "looked",
+      "sounded",
+      "felt"
+     ],
+     "exp": "臭豆腐「吃起來比聞起來好得多」：tasted better than it smelled。"
+    },
+    {
+     "opts": [
+      "won",
+      "lost",
+      "bought",
+      "sold"
+     ],
+     "exp": "玩套圈圈遊戲「贏得」小熊：win → won。"
+    },
+    {
+     "opts": [
+      "next",
+      "last",
+      "this",
+      "every"
+     ],
+     "exp": "想「明年」再來：next year。"
+    },
+    {
+     "opts": [
+      "such",
+      "so",
+      "very",
+      "too"
+     ],
+     "exp": "such + a + 形容詞 + 名詞：such a good time。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "When are night markets usually the busiest?",
+     "opts": [
+      "On weekends.",
+      "On Mondays.",
+      "In the morning.",
+      "In winter."
+     ],
+     "exp": "night markets are usually busiest on weekends."
+    },
+    {
+     "q": "How did Mike feel about stinky tofu after he tried it?",
+     "opts": [
+      "It tasted better than he expected.",
+      "It tasted as terrible as it smelled.",
+      "He didn't want to try it at all.",
+      "He thought it was too sweet."
+     ],
+     "exp": "To his surprise, it tasted much better than it smelled."
+    },
+    {
+     "q": "Who was the toy bear for?",
+     "opts": [
+      "Mike's little sister.",
+      "The writer.",
+      "Mike's mother.",
+      "Mike himself."
+     ],
+     "exp": "won a small toy bear for his little sister."
+    },
+    {
+     "q": "What is this story mainly about?",
+     "opts": [
+      "A cousin's first visit to a Taiwanese night market.",
+      "How to cook stinky tofu.",
+      "Why night markets are crowded.",
+      "How to win a ring toss game."
+     ],
+     "exp": "全文描述表弟 Mike 第一次逛台灣夜市的經驗。"
+    }
+   ]
+  },
+  {
+   "id": "g8-3",
+   "level": 8,
+   "title": "Plastic in the Ocean",
+   "zh": "海洋中的塑膠",
+   "text": "Every year, millions of tons of plastic end up in the ocean. Plastic bags, bottles, and straws are {easy} to use, but they are very hard to get rid of. Some plastic can stay in the ocean for hundreds of years.\nThis is a big problem for sea animals. Sea turtles often eat plastic bags because they look {like} jellyfish. Some birds feed small pieces of plastic to their babies. Many of these animals get sick or even die.\nPlastic can also come back to us. Fish eat tiny pieces of plastic, and then people eat the fish. Scientists are still studying {how} this may affect our health.\nSo what can we do? There are many simple ways to help. We can bring our own bags {when} we go shopping. We can use cups and bottles that can be used again and again. We can also say \"no\" to plastic straws. Some students even join beach clean-ups on weekends.\nOne person's action may seem small. {But} if everyone does a little, together we can make a big {difference}. The ocean is home to many animals, and it is our job to {protect} it.",
+   "cloze": [
+    {
+     "opts": [
+      "easy",
+      "hard",
+      "expensive",
+      "dangerous"
+     ],
+     "exp": "與後面 but they are very hard to get rid of 相對，前面是「容易」使用：easy。"
+    },
+    {
+     "opts": [
+      "like",
+      "at",
+      "for",
+      "after"
+     ],
+     "exp": "look like 看起來像。塑膠袋看起來像水母。"
+    },
+    {
+     "opts": [
+      "how",
+      "what",
+      "who",
+      "where"
+     ],
+     "exp": "科學家研究「這會如何影響」健康：how this may affect...。"
+    },
+    {
+     "opts": [
+      "when",
+      "because",
+      "until",
+      "unless"
+     ],
+     "exp": "「去購物時」自備袋子：when we go shopping。"
+    },
+    {
+     "opts": [
+      "But",
+      "So",
+      "Because",
+      "Or"
+     ],
+     "exp": "一個人的行動看似微小，「但」大家都做就能帶來改變，語意轉折。"
+    },
+    {
+     "opts": [
+      "difference",
+      "mistake",
+      "noise",
+      "promise"
+     ],
+     "exp": "make a difference 產生影響、帶來改變。"
+    },
+    {
+     "opts": [
+      "protect",
+      "pollute",
+      "leave",
+      "forget"
+     ],
+     "exp": "海洋是動物的家，我們的責任是「保護」它。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "Why do sea turtles eat plastic bags?",
+     "opts": [
+      "The bags look like jellyfish.",
+      "The bags taste good.",
+      "They are very hungry.",
+      "Birds give the bags to them."
+     ],
+     "exp": "Sea turtles often eat plastic bags because they look like jellyfish."
+    },
+    {
+     "q": "How can plastic \"come back to us\"?",
+     "opts": [
+      "People eat fish that have eaten plastic.",
+      "People drink sea water.",
+      "Plastic flies back to land.",
+      "Birds bring plastic to people."
+     ],
+     "exp": "Fish eat tiny pieces of plastic, and then people eat the fish."
+    },
+    {
+     "q": "Which way to help is NOT mentioned in the passage?",
+     "opts": [
+      "Recycling paper.",
+      "Bringing our own bags.",
+      "Saying no to plastic straws.",
+      "Joining beach clean-ups."
+     ],
+     "exp": "文中沒有提到回收紙類。"
+    },
+    {
+     "q": "What does \"get rid of\" mean in the first paragraph?",
+     "opts": [
+      "To remove something you don't want.",
+      "To buy something new.",
+      "To make something.",
+      "To use something again."
+     ],
+     "exp": "get rid of 擺脫、除去。"
+    }
+   ]
+  },
+  {
+   "id": "g9-1",
+   "level": 9,
+   "title": "Why Teenagers Need More Sleep",
+   "zh": "青少年為何需要更多睡眠",
+   "text": "Do you often feel sleepy in your first class? If so, you are not {alone}. Many junior high students in Taiwan go to bed late and get up early. Some of them sleep only six hours a night, but doctors say teenagers {need} about eight to ten hours of sleep.\nWhy is sleep so important? While we are sleeping, our brain is not resting at all. In fact, it is busy organizing what we learned during the day. That is why students who sleep {enough} usually remember things better. Sleep also helps our bodies grow and keeps us healthy.\n{Unfortunately}, many students stay up late because of homework, cram school, or their phones. The light from phone screens can make it harder to fall asleep. Some students think they can sleep more on weekends to \"pay back\" the sleep they lost. However, this does not completely {solve} the problem.\nThere are some easy ways to sleep better. First, try to go to bed and get up at the same time every day, {even} on weekends. Second, put your phone away at least thirty minutes before bed. Third, avoid drinks with caffeine, such as coffee and some teas, in the afternoon and evening.\nGood sleep is not a waste of time. {Instead}, it is one of the best things you can do for your studies and your {health}.",
+   "cloze": [
+    {
+     "opts": [
+      "alone",
+      "lonely",
+      "tired",
+      "wrong"
+     ],
+     "exp": "you are not alone 你並不孤單（很多人也一樣）。lonely 是心理上的寂寞，此處不合。"
+    },
+    {
+     "opts": [
+      "need",
+      "needs",
+      "needed",
+      "needing"
+     ],
+     "exp": "teenagers 為複數主詞，現在式用原形 need。"
+    },
+    {
+     "opts": [
+      "enough",
+      "too",
+      "little",
+      "late"
+     ],
+     "exp": "睡得「足夠」的學生記憶較好：sleep enough。"
+    },
+    {
+     "opts": [
+      "Unfortunately",
+      "Luckily",
+      "Finally",
+      "Happily"
+     ],
+     "exp": "接著說學生因功課、補習、手機而熬夜，是負面情況，用 Unfortunately（不幸地）。"
+    },
+    {
+     "opts": [
+      "solve",
+      "cause",
+      "make",
+      "start"
+     ],
+     "exp": "週末補眠並不能完全「解決」問題：solve the problem。"
+    },
+    {
+     "opts": [
+      "even",
+      "only",
+      "still",
+      "already"
+     ],
+     "exp": "even on weekends 即使在週末也（要同時間睡起）。"
+    },
+    {
+     "opts": [
+      "Instead",
+      "However",
+      "Besides",
+      "Finally"
+     ],
+     "exp": "「不是浪費時間；反而是…」，用 Instead 表「取而代之、反而」。"
+    },
+    {
+     "opts": [
+      "health",
+      "homework",
+      "phone",
+      "money"
+     ],
+     "exp": "與前文 Sleep ... keeps us healthy 呼應：your studies and your health。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "According to doctors, how much sleep do teenagers need each night?",
+     "opts": [
+      "About eight to ten hours.",
+      "About six hours.",
+      "Less than five hours.",
+      "More than twelve hours."
+     ],
+     "exp": "doctors say teenagers need about eight to ten hours of sleep."
+    },
+    {
+     "q": "What does the brain do while we are sleeping?",
+     "opts": [
+      "It organizes what we learned during the day.",
+      "It stops working completely.",
+      "It forgets everything we learned.",
+      "It makes us feel hungry."
+     ],
+     "exp": "it is busy organizing what we learned during the day."
+    },
+    {
+     "q": "What does the writer think about sleeping more on weekends?",
+     "opts": [
+      "It does not fully solve the problem.",
+      "It is the best way to sleep better.",
+      "It is a waste of time.",
+      "It is bad for our bodies."
+     ],
+     "exp": "However, this does not completely solve the problem."
+    },
+    {
+     "q": "Which of the following is NOT one of the writer's suggestions?",
+     "opts": [
+      "Drink coffee in the evening to finish homework.",
+      "Go to bed at the same time every day.",
+      "Put your phone away before bed.",
+      "Avoid drinks with caffeine in the afternoon."
+     ],
+     "exp": "作者建議下午和晚上「避免」含咖啡因飲料，正好相反。"
+    }
+   ]
+  },
+  {
+   "id": "g9-2",
+   "level": 9,
+   "title": "Learning from Mistakes",
+   "zh": "從錯誤中學習",
+   "text": "When Jenny joined the school basketball team in seventh grade, she was the shortest player. She was also the slowest. During her first game, she missed every shot she {took}. Some students in the crowd laughed at her, and she wanted to {quit}.\nThat night, Jenny talked with her father. He did not tell her she was great. {Instead}, he asked, \"What did you learn today?\" Jenny thought for a while. \"I learned that I'm too nervous when I shoot,\" she answered. Her father smiled. \"Then you already know what to {work} on.\"\nFrom then on, Jenny practiced shooting for thirty minutes every morning before school. She also watched videos of good players and wrote down {what} they did. Whenever she made a mistake in a game, she did not feel sorry for herself. She asked herself the same question her father had asked.\nTwo years later, Jenny was still not the tallest player on the team, but she had become one of the {best} shooters. In the final game of the season, she scored the winning basket in the last five seconds. Her teammates ran to her and lifted her into the air.\nAfter the game, a reporter from the school newspaper asked about her secret. Jenny said, \"Mistakes are not the end. They are {lessons}. If you are {willing} to learn from them, you will keep getting better.\"",
+   "cloze": [
+    {
+     "opts": [
+      "took",
+      "made",
+      "gave",
+      "kept"
+     ],
+     "exp": "take a shot 投籃；she missed every shot she took 她每一球都沒投進。"
+    },
+    {
+     "opts": [
+      "quit",
+      "win",
+      "play",
+      "stay"
+     ],
+     "exp": "被嘲笑後想「放棄」：quit。"
+    },
+    {
+     "opts": [
+      "Instead",
+      "Also",
+      "Then",
+      "Besides"
+     ],
+     "exp": "爸爸沒有稱讚她，「反而」問她學到什麼：Instead。"
+    },
+    {
+     "opts": [
+      "work",
+      "depend",
+      "wait",
+      "give"
+     ],
+     "exp": "work on 致力於改善…。"
+    },
+    {
+     "opts": [
+      "what",
+      "who",
+      "where",
+      "why"
+     ],
+     "exp": "記下他們「做了什麼」：wrote down what they did（名詞子句）。"
+    },
+    {
+     "opts": [
+      "best",
+      "worst",
+      "shortest",
+      "slowest"
+     ],
+     "exp": "兩年苦練後成為「最好的」射手之一：one of the best shooters。"
+    },
+    {
+     "opts": [
+      "lessons",
+      "problems",
+      "games",
+      "jokes"
+     ],
+     "exp": "錯誤不是終點，而是「課題／教訓」：lessons。"
+    },
+    {
+     "opts": [
+      "willing",
+      "afraid",
+      "tired",
+      "sorry"
+     ],
+     "exp": "be willing to + V 願意去做…。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "Why did Jenny want to quit after her first game?",
+     "opts": [
+      "She missed every shot and some people laughed at her.",
+      "Her father told her to stop playing.",
+      "She hurt her leg in the game.",
+      "The team didn't need her."
+     ],
+     "exp": "she missed every shot... Some students in the crowd laughed at her."
+    },
+    {
+     "q": "What did Jenny's father do that night?",
+     "opts": [
+      "He asked her what she learned.",
+      "He told her she was the best player.",
+      "He bought her a new basketball.",
+      "He talked to her coach."
+     ],
+     "exp": "He did not tell her she was great. Instead, he asked, \"What did you learn today?\""
+    },
+    {
+     "q": "When did Jenny score the winning basket?",
+     "opts": [
+      "Two years after she joined the team.",
+      "In her first game.",
+      "In seventh grade.",
+      "One month after she joined the team."
+     ],
+     "exp": "Two years later... In the final game of the season, she scored the winning basket."
+    },
+    {
+     "q": "What is the main idea of the story?",
+     "opts": [
+      "We can grow by learning from our mistakes.",
+      "Tall people are better at basketball.",
+      "Parents should always praise their children.",
+      "Practicing in the morning is the only way to succeed."
+     ],
+     "exp": "全文主旨：Mistakes are not the end. They are lessons."
+    }
+   ]
+  },
+  {
+   "id": "g9-3",
+   "level": 9,
+   "title": "Robots in Our Daily Life",
+   "zh": "日常生活中的機器人",
+   "text": "Not long ago, robots were things we only saw in movies. Today, they are becoming part of our daily life. In some restaurants, robots carry food to customers' tables. In hospitals, they help doctors {during} operations. At home, robot vacuums clean the floor while people are at work.\nRobots are useful because they can do the same job again and again without getting tired. They can also do {dangerous} work, such as checking broken pipes deep underground or looking for people after an earthquake. Because of this, many people believe robots can make our lives safer and easier.\nHowever, not everyone is happy about robots. Some people worry that robots will {take} their jobs. For example, if a factory buys robots to build cars, it may need {fewer} workers. Others worry that people will depend on machines too much and forget how to do simple things by themselves.\nExperts say the key is to learn how to work {with} robots, not against them. Robots are good at repeating tasks, but humans are better at creative thinking and understanding other people's feelings. In the future, jobs that need these skills will become even more {important}.\nSo, will robots change the world? The answer is {probably} yes. The real question is how we will change {along} with them.",
+   "cloze": [
+    {
+     "opts": [
+      "during",
+      "between",
+      "until",
+      "since"
+     ],
+     "exp": "during + 名詞：在手術「期間」。"
+    },
+    {
+     "opts": [
+      "dangerous",
+      "boring",
+      "easy",
+      "funny"
+     ],
+     "exp": "地底檢查破管、地震後找人，都是「危險」的工作。"
+    },
+    {
+     "opts": [
+      "take",
+      "give",
+      "make",
+      "find"
+     ],
+     "exp": "擔心機器人「搶走」工作：take their jobs。"
+    },
+    {
+     "opts": [
+      "fewer",
+      "less",
+      "more",
+      "many"
+     ],
+     "exp": "workers 為可數名詞，「較少」用 fewer（less 修飾不可數）。"
+    },
+    {
+     "opts": [
+      "with",
+      "without",
+      "for",
+      "under"
+     ],
+     "exp": "與後面 not against them 對比：學會「與」機器人合作。"
+    },
+    {
+     "opts": [
+      "important",
+      "useless",
+      "cheap",
+      "easy"
+     ],
+     "exp": "需要創意與同理心的工作將變得更「重要」。"
+    },
+    {
+     "opts": [
+      "probably",
+      "never",
+      "hardly",
+      "rarely"
+     ],
+     "exp": "答案「大概」是肯定的：probably yes。"
+    },
+    {
+     "opts": [
+      "along",
+      "across",
+      "through",
+      "over"
+     ],
+     "exp": "change along with them 與它們一起改變。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "Why are robots useful, according to the passage?",
+     "opts": [
+      "They can repeat the same job without getting tired.",
+      "They understand people's feelings well.",
+      "They are cheaper than anything else.",
+      "They can think more creatively than humans."
+     ],
+     "exp": "they can do the same job again and again without getting tired."
+    },
+    {
+     "q": "What do some people worry about?",
+     "opts": [
+      "Robots may take their jobs.",
+      "Robots are too slow.",
+      "Robots cannot clean floors.",
+      "Robots are only in movies."
+     ],
+     "exp": "Some people worry that robots will take their jobs."
+    },
+    {
+     "q": "According to experts, what are humans better at than robots?",
+     "opts": [
+      "Creative thinking and understanding feelings.",
+      "Repeating the same tasks.",
+      "Working without rest.",
+      "Checking pipes underground."
+     ],
+     "exp": "humans are better at creative thinking and understanding other people's feelings."
+    },
+    {
+     "q": "What is the writer's attitude toward robots?",
+     "opts": [
+      "Robots bring both good and bad changes, so we should learn to work with them.",
+      "Robots are dangerous and should not be used.",
+      "Robots will solve every problem in the world.",
+      "Robots are not important in our lives."
+     ],
+     "exp": "作者同時陳述優缺點，結論是要學會與機器人合作，態度持平。"
+    }
+   ]
+  }
+ ],
+ "dict": {
+  "a": "art. 一個",
+  "about": "prep. 關於；adv. 大約",
+  "action": "n. 行動",
+  "affect": "v. 影響",
+  "after": "prep./conj. 在…之後",
+  "afternoon": "n. 下午",
+  "again": "adv. 再一次",
+  "against": "prep. 反對；對抗",
+  "ago": "adv. 以前",
+  "air": "n. 空中；空氣",
+  "all": "pron./adj. 全部",
+  "almost": "adv. 幾乎；差點",
+  "alone": "adj. 孤單的；獨自的",
+  "along": "adv. 一起；沿著（along with 與…一起）",
+  "already": "adv. 已經",
+  "also": "adv. 也",
+  "always": "adv. 總是",
+  "am": "v. 是（be 動詞）",
+  "amy": "n. 艾咪（人名）",
+  "an": "art. 一個",
+  "and": "conj. 和；而且",
+  "animals": "n. 動物（animal 的複數）",
+  "another": "pron./adj. 另一個",
+  "answer": "n. 答案；v. 回答",
+  "answered": "v. 回答（answer 的過去式）",
+  "apples": "n. 蘋果（複數）",
+  "are": "v. 是（be 動詞）",
+  "arrived": "v. 抵達（arrive 的過去式）",
+  "as": "conj./prep. 如同；作為；當…時（as soon as 一…就…）",
+  "asked": "v. 問；要求（ask 的過去式）",
+  "asleep": "adj. 睡著的（fall asleep 入睡）",
+  "at": "prep. 在（時間、地點）",
+  "avoid": "v. 避免",
+  "away": "adv. 離開（put away 收起來；pass away 過世）",
+  "babies": "n. 寶寶；幼雛（baby 的複數）",
+  "back": "adv. 回原處",
+  "bad": "adj. 壞的；糟的",
+  "bags": "n. 袋子（bag 的複數）",
+  "basket": "n. 籃子；（籃球）投籃得分",
+  "basketball": "n. 籃球",
+  "be": "v. 是；成為",
+  "beach": "n. 海灘",
+  "bear": "n. 熊",
+  "because": "conj. 因為（because of 由於）",
+  "become": "v. 變成（過去分詞也是 become）",
+  "becoming": "v. 正在變成（become 的 -ing）",
+  "bed": "n. 床（go to bed 上床睡覺）",
+  "before": "prep./conj. 在…之前",
+  "believe": "v. 相信",
+  "belonged": "v. 屬於（belong to，過去式）",
+  "besides": "prep. 除了…之外（還有）",
+  "best": "adj. 最好的（good 的最高級）",
+  "better": "adj./adv. 較好的（good / well 的比較級）",
+  "big": "adj. 大的",
+  "bikes": "n. 腳踏車（bike 的複數）",
+  "birds": "n. 鳥（bird 的複數）",
+  "bite": "n. 一口；v. 咬",
+  "bodies": "n. 身體（body 的複數）",
+  "body": "n. 身體",
+  "bottles": "n. 瓶子（bottle 的複數）",
+  "bought": "v. 買（buy 的過去式）",
+  "bowls": "n. 碗（bowl 的複數）",
+  "brain": "n. 大腦",
+  "bring": "v. 帶來",
+  "broken": "adj. 破損的；壞掉的",
+  "brown": "adj. 棕色的",
+  "bubble": "n. 泡泡（bubble tea 珍珠奶茶）",
+  "build": "v. 建造；製造",
+  "bus": "n. 公車",
+  "busiest": "adj. 最忙碌的；最熱鬧的（busy 的最高級）",
+  "busy": "adj. 忙碌的",
+  "but": "conj. 但是",
+  "buy": "v. 買",
+  "buys": "v. 買（buy 的第三人稱單數）",
+  "by": "prep. 經由（by themselves 靠自己）",
+  "caffeine": "n. 咖啡因",
+  "called": "v. 打電話給（call 的過去式）",
+  "came": "v. 來（come 的過去式；come from 來自）",
+  "can": "aux. 能夠；可以",
+  "canada": "n. 加拿大",
+  "car": "n. 汽車",
+  "card": "n. 卡片；證件（student card 學生證）",
+  "carefully": "adv. 小心地",
+  "carry": "v. 搬運；攜帶",
+  "cars": "n. 汽車（car 的複數）",
+  "change": "v. 改變",
+  "changed": "v. 改變（change 的過去式；change one's mind 改變主意）",
+  "checking": "v. 檢查（check 的 -ing）",
+  "chen": "n. 陳（姓氏）",
+  "chess": "n. 西洋棋",
+  "chicken": "n. 雞肉（fried chicken 炸雞）",
+  "class": "n. 班級；課堂",
+  "classmates": "n. 同學（classmate 的複數）",
+  "classroom": "n. 教室",
+  "clean": "v. 清潔；打掃",
+  "clean-ups": "n. 清潔活動（beach clean-up 淨灘）",
+  "cleaned": "v. 打掃（clean 的過去式）",
+  "cleans": "v. 打掃（clean 的第三人稱單數）",
+  "coffee": "n. 咖啡",
+  "come": "v. 來（come back 回來）",
+  "completely": "adv. 完全地",
+  "cooked": "v. 煮（cook 的過去式）",
+  "cookies": "n. 餅乾（cookie 的複數）",
+  "cousin": "n. 表（堂）兄弟姊妹",
+  "cram": "v. 填塞（cram school 補習班）",
+  "creative": "adj. 有創意的",
+  "cried": "v. 哭（cry 的過去式）",
+  "crowd": "n. 人群；觀眾",
+  "crowds": "n. 人群（crowd 的複數）",
+  "cups": "n. 杯子（cup 的複數）",
+  "customers": "n. 顧客（customer 的複數）",
+  "daily": "adj. 日常的",
+  "dangerous": "adj. 危險的",
+  "day": "n. 一天；日子",
+  "deep": "adv. 深地；adj. 深的",
+  "delicious": "adj. 美味的",
+  "depend": "v. 依賴（depend on）",
+  "did": "v./aux. 做（do 的過去式）",
+  "die": "v. 死亡",
+  "difference": "n. 差異；影響（make a difference 帶來改變）",
+  "different": "adj. 不同的",
+  "dinner": "n. 晚餐",
+  "dishes": "n. 菜餚；盤子（dish 的複數）",
+  "do": "v./aux. 做",
+  "doctors": "n. 醫生（doctor 的複數）",
+  "does": "v./aux. 做（do 的第三人稱單數）",
+  "doesn't": "aux. 不（does not 的縮寫）",
+  "doing": "v. 做（do 的 -ing）",
+  "don't": "aux. 不要（do not 的縮寫）",
+  "down": "adv. 向下（write down 寫下來）",
+  "drinks": "n. 飲料（drink 的複數）",
+  "during": "prep. 在…期間",
+  "each": "pron./adj. 每個（each other 彼此）",
+  "early": "adv. 早地",
+  "earthquake": "n. 地震",
+  "easier": "adj. 較容易的（easy 的比較級）",
+  "easy": "adj. 容易的",
+  "eat": "v. 吃",
+  "eggs": "n. 蛋（egg 的複數）",
+  "eight": "num. 八",
+  "emma": "n. 艾瑪（人名）",
+  "end": "n. 結束；v. 結束（end up 最後落入）",
+  "english": "n. 英文",
+  "enough": "adv./adj. 足夠地",
+  "even": "adv. 甚至；即使",
+  "evening": "n. 傍晚；晚上",
+  "every": "adj. 每一個",
+  "everyone": "pron. 每個人",
+  "example": "n. 例子（for example 例如）",
+  "experts": "n. 專家（expert 的複數）",
+  "explained": "v. 解釋（explain 的過去式）",
+  "fact": "n. 事實（in fact 事實上）",
+  "factory": "n. 工廠",
+  "fall": "v. 落下（fall asleep 入睡）",
+  "family": "n. 家庭；家人",
+  "famous": "adj. 有名的",
+  "father": "n. 父親",
+  "feed": "v. 餵食",
+  "feel": "v. 感覺（feel sorry for oneself 自憐）",
+  "feelings": "n. 感受（feeling 的複數）",
+  "felt": "v. 感覺（feel 的過去式）",
+  "fewer": "adj. 較少的（few 的比較級，接可數名詞）",
+  "fifty": "num. 五十",
+  "final": "adj. 最後的；決賽的",
+  "first": "adj./adv. 第一；首先",
+  "fish": "n. 魚",
+  "five": "num. 五",
+  "floor": "n. 地板",
+  "flowers": "n. 花（flower 的複數）",
+  "food": "n. 食物",
+  "for": "prep. 為了；（時間）長達",
+  "forget": "v. 忘記",
+  "friday": "n. 星期五",
+  "fried": "adj. 油炸的",
+  "friend": "n. 朋友",
+  "friends": "n. 朋友（friend 的複數）",
+  "from": "prep. 從；來自",
+  "front": "n. 前面（in front of 在…前面）",
+  "fun": "adj. 有趣的；n. 樂趣",
+  "future": "n. 未來",
+  "game": "n. 遊戲；比賽",
+  "games": "n. 遊戲；比賽（game 的複數）",
+  "get": "v. 得到；變得（get up 起床；get rid of 擺脫）",
+  "gets": "v. 得到（get 的第三人稱單數；gets up 起床）",
+  "getting": "v. 變得（get 的 -ing；getting tired 變累）",
+  "gift": "n. 禮物",
+  "girl": "n. 女孩",
+  "give": "v. 給",
+  "glad": "adj. 高興的",
+  "go": "v. 去",
+  "good": "adj. 好的（be good at 擅長）",
+  "got": "v. 得到（get 的過去式；got up 起床）",
+  "grade": "n. 年級",
+  "grandfather": "n. 祖父；外公",
+  "grandmother": "n. 祖母；外婆",
+  "grandparents": "n. 祖父母",
+  "great": "adj. 很棒的",
+  "green": "adj. 綠色的（green pepper 青椒）",
+  "ground": "n. 地面",
+  "grow": "v. 成長",
+  "had": "v. 有（have 的過去式）",
+  "happy": "adj. 快樂的",
+  "hard": "adj. 困難的",
+  "harder": "adj. 更困難的（hard 的比較級）",
+  "has": "v. 有（have 的第三人稱單數）",
+  "have": "v. 有；必須（have to）",
+  "he": "pron. 他",
+  "health": "n. 健康",
+  "healthy": "adj. 健康的",
+  "hello": "int. 哈囉；你好",
+  "help": "v. 幫助",
+  "helps": "v. 幫助（help 的第三人稱單數）",
+  "her": "pron. 她；她的",
+  "here": "adv. 這裡",
+  "herself": "pron. 她自己",
+  "high": "adj. 高的（junior high school 國中）",
+  "him": "pron. 他（受格）",
+  "himself": "pron. 他自己",
+  "his": "pron. 他的",
+  "home": "n. 家",
+  "homework": "n. 回家作業",
+  "hospitals": "n. 醫院（hospital 的複數）",
+  "hot": "adj. 熱的；燙的",
+  "hour": "n. 小時",
+  "hours": "n. 小時（hour 的複數）",
+  "house": "n. 房子",
+  "how": "adv. 如何；怎樣",
+  "however": "adv. 然而",
+  "humans": "n. 人類（human 的複數）",
+  "hundreds": "n. 數百（hundreds of 數以百計的）",
+  "i": "pron. 我",
+  "i'm": "我是（I am 的縮寫）",
+  "if": "conj. 如果",
+  "important": "adj. 重要的",
+  "in": "prep. 在…裡面",
+  "inside": "adv. 在裡面",
+  "instead": "adv. 反而；取而代之",
+  "into": "prep. 進入",
+  "is": "v. 是（be 動詞）",
+  "it": "pron. 它",
+  "it's": "它是（it is 的縮寫）",
+  "jason": "n. 傑森（人名）",
+  "jellyfish": "n. 水母",
+  "jenny": "n. 珍妮（人名）",
+  "job": "n. 工作；職責",
+  "jobs": "n. 工作（job 的複數）",
+  "join": "v. 參加",
+  "joined": "v. 加入（join 的過去式）",
+  "junior": "adj. 初級的（junior high school 國中）",
+  "just": "adv. 只是；正好",
+  "keep": "v. 保留；持續（keep getting better 持續進步）",
+  "keeps": "v. 使保持（keep 的第三人稱單數）",
+  "kevin": "n. 凱文（人名）",
+  "key": "n. 關鍵",
+  "kind": "adj. 親切的；仁慈的",
+  "kitchen": "n. 廚房",
+  "know": "v. 知道",
+  "last": "adj. 上一個；最後的",
+  "late": "adv. 晚地",
+  "later": "adv. 之後（two years later 兩年後）",
+  "laughed": "v. 笑（laugh 的過去式；laugh at 嘲笑）",
+  "learn": "v. 學習",
+  "learned": "v. 學習；得知（learn 的過去式）",
+  "least": "adv. 最少（at least 至少）",
+  "lessons": "n. 課；教訓（lesson 的複數）",
+  "life": "n. 生活；生命",
+  "lifted": "v. 舉起（lift 的過去式）",
+  "light": "n. 光",
+  "like": "prep. 像；v. 喜歡",
+  "likes": "v. 喜歡（like 的第三人稱單數）",
+  "lily": "n. 莉莉（人名）",
+  "lin": "n. 林（姓氏）",
+  "little": "adj. 小的；a little 有一點",
+  "lives": "n. 生活（life 的複數）",
+  "living": "adj. 起居的（living room 客廳）",
+  "long": "adj./adv. 長；久（not long ago 不久前）",
+  "look": "v. 看起來（look like 看起來像）",
+  "looked": "v. 看；看起來（look 的過去式）",
+  "looking": "v. 尋找（look for，-ing）",
+  "lost": "v. 輸；失去（lose 的過去式）",
+  "lot": "n. 許多（a lot of）",
+  "loved": "v. 喜愛（love 的過去式）",
+  "lunch": "n. 午餐",
+  "machines": "n. 機器（machine 的複數）",
+  "made": "v. 做；犯（make 的過去式；make a mistake 犯錯）",
+  "make": "v. 製作；使得",
+  "makes": "v. 製作（make 的第三人稱單數）",
+  "many": "adj. 許多的",
+  "market": "n. 市場（night market 夜市）",
+  "markets": "n. 市場（market 的複數）",
+  "math": "n. 數學",
+  "may": "aux. 可能",
+  "maybe": "adv. 也許",
+  "me": "pron. 我（受格）",
+  "mike": "n. 麥克（人名）",
+  "milk": "n. 牛奶",
+  "millions": "n. 數百萬（millions of 數以百萬計的）",
+  "mind": "n. 心意（change one's mind 改變主意）",
+  "mine": "pron. 我的（東西）",
+  "minutes": "n. 分鐘（minute 的複數）",
+  "missed": "v. 沒投中；錯過（miss 的過去式）",
+  "mistake": "n. 錯誤",
+  "mistakes": "n. 錯誤（mistake 的複數）",
+  "money": "n. 錢",
+  "month": "n. 月",
+  "more": "adj./adv. 更多",
+  "morning": "n. 早上",
+  "most": "adj. 大部分的；最",
+  "mother": "n. 母親",
+  "moved": "v. 搬家（move 的過去式；move into 搬進）",
+  "movies": "n. 電影（movie 的複數）",
+  "mr": "n. 先生（Mr.）",
+  "much": "adv. 非常；…得多（修飾比較級）",
+  "my": "pron. 我的",
+  "named": "adj. 名叫…的",
+  "nap": "n. 小睡；午睡（take a nap）",
+  "near": "prep. 在…附近",
+  "need": "v. 需要",
+  "neighbor": "n. 鄰居",
+  "nervous": "adj. 緊張的",
+  "new": "adj. 新的",
+  "newspaper": "n. 報紙（school newspaper 校刊）",
+  "next": "adj. 下一個；隔壁的（next to 在…旁邊）",
+  "night": "n. 夜晚",
+  "nine": "num. 九",
+  "no": "adv. 不",
+  "not": "adv. 不",
+  "noticed": "v. 注意到（notice 的過去式）",
+  "now": "adv. 現在",
+  "o'clock": "adv. …點鐘",
+  "ocean": "n. 海洋",
+  "of": "prep. …的",
+  "officer": "n. 警官；官員（police officer 警察）",
+  "often": "adv. 經常",
+  "old": "adj. 老的；…歲的",
+  "omelets": "n. 煎蛋捲（oyster omelet 蚵仔煎）",
+  "on": "prep. 在…上",
+  "one": "num. 一；pron. 一個",
+  "only": "adj./adv. 唯一的；只",
+  "operations": "n. 手術（operation 的複數）",
+  "or": "conj. 或者",
+  "organizing": "v. 整理（organize 的 -ing）",
+  "other": "adj. 其他的（each other 彼此）",
+  "others": "pron. 其他人",
+  "our": "pron. 我們的",
+  "own": "adj. 自己的",
+  "oyster": "n. 牡蠣；蚵仔",
+  "park": "n. 公園",
+  "part": "n. 部分",
+  "passed": "v. 經過（pass away 過世，過去式）",
+  "pay": "v. 支付（pay back 償還；此處指補回睡眠）",
+  "people": "n. 人們",
+  "peppers": "n. 椒類（green pepper 青椒）",
+  "person": "n. 人",
+  "phone": "n. 手機；電話",
+  "phones": "n. 手機（phone 的複數）",
+  "photo": "n. 照片",
+  "picked": "v. 撿起（pick up，過去式）",
+  "picture": "n. 照片；圖畫",
+  "pictures": "n. 照片（take pictures 拍照）",
+  "piece": "n. 一片；一塊",
+  "pieces": "n. 碎片（piece 的複數）",
+  "pipes": "n. 管線（pipe 的複數）",
+  "places": "n. 地方（place 的複數）",
+  "plastic": "n. 塑膠；adj. 塑膠的",
+  "played": "v. 玩；下（棋）（play 的過去式）",
+  "player": "n. 球員；選手",
+  "players": "n. 球員（player 的複數）",
+  "police": "n. 警察（police station 警察局）",
+  "popular": "adj. 受歡迎的",
+  "practiced": "v. 練習（practice 的過去式）",
+  "pretty": "adj. 漂亮的",
+  "probably": "adv. 很可能；大概",
+  "problem": "n. 問題",
+  "protect": "v. 保護",
+  "proud": "adj. 驕傲的（be proud of 以…為榮）",
+  "put": "v. 放（put away 收起來）",
+  "puts": "v. 放（put 的第三人稱單數；put back 放回）",
+  "question": "n. 問題",
+  "quit": "v. 放棄；退出",
+  "ran": "v. 跑（run 的過去式）",
+  "real": "adj. 真正的",
+  "really": "adv. 真的",
+  "refused": "v. 拒絕（refuse 的過去式）",
+  "remember": "v. 記得",
+  "repeating": "adj./v. 重複的（repeat 的 -ing）",
+  "reporter": "n. 記者",
+  "restaurants": "n. 餐廳（restaurant 的複數）",
+  "resting": "v. 休息（rest 的 -ing）",
+  "rice": "n. 米飯",
+  "rid": "adj. 擺脫的（get rid of 除去、擺脫）",
+  "ride": "v. 騎",
+  "right": "adj. 正確的（the right thing 對的事）",
+  "ring": "n. 圈；環（ring toss 套圈圈）",
+  "robot": "n. 機器人（robot vacuum 掃地機器人）",
+  "robots": "n. 機器人（robot 的複數）",
+  "room": "n. 房間（living room 客廳）",
+  "row": "n. 排；列（in a row 連續）",
+  "run": "v. 跑",
+  "safer": "adj. 更安全的（safe 的比較級）",
+  "said": "v. 說（say 的過去式）",
+  "same": "adj. 相同的",
+  "saturday": "n. 星期六",
+  "saw": "v. 看見（see 的過去式）",
+  "say": "v. 說",
+  "says": "v. 說（say 的第三人稱單數）",
+  "school": "n. 學校",
+  "scientists": "n. 科學家（scientist 的複數）",
+  "scored": "v. 得分（score 的過去式）",
+  "screens": "n. 螢幕（screen 的複數）",
+  "sea": "n. 海（sea turtle 海龜）",
+  "season": "n. 球季；季節",
+  "second": "adv. 第二",
+  "seconds": "n. 秒（second 的複數）",
+  "secret": "n. 秘密；秘訣",
+  "seem": "v. 似乎；看起來",
+  "seventh": "adj. 第七的（seventh grade 七年級）",
+  "she": "pron. 她",
+  "shoot": "v. 投籃；射擊",
+  "shooters": "n. 射手（shooter 的複數）",
+  "shooting": "n. 投籃（shoot 的 -ing）",
+  "shopping": "n. 購物（go shopping 去購物）",
+  "short": "adj. 短的（a short nap 短暫午睡）",
+  "shortest": "adj. 最矮的（short 的最高級）",
+  "shot": "n. 投籃；射擊",
+  "shy": "adj. 害羞的",
+  "sick": "adj. 生病的",
+  "simple": "adj. 簡單的",
+  "sister": "n. 姊妹",
+  "six": "num. 六",
+  "skills": "n. 技能（skill 的複數）",
+  "sleep": "v. 睡覺；n. 睡眠",
+  "sleeping": "v. 睡覺（sleep 的 -ing）",
+  "sleepy": "adj. 想睡的",
+  "slowest": "adj. 最慢的（slow 的最高級）",
+  "small": "adj. 小的",
+  "smelled": "v. 聞起來（smell 的過去式）",
+  "smells": "v. 聞起來（smell 的第三人稱單數）",
+  "smiled": "v. 微笑（smile 的過去式）",
+  "so": "adv. 如此；conj. 所以",
+  "solve": "v. 解決",
+  "some": "adj. 一些",
+  "someone": "pron. 某人",
+  "sometimes": "adv. 有時候",
+  "soon": "adv. 很快（as soon as 一…就…）",
+  "sorry": "adj. 難過的；抱歉的",
+  "soup": "n. 湯",
+  "stand": "n. 攤位（food stand 小吃攤）",
+  "starts": "v. 開始（start 的第三人稱單數）",
+  "states": "n. 州（the United States 美國）",
+  "station": "n. 站；局（police station 警察局）",
+  "stay": "v. 停留（stay up late 熬夜）",
+  "still": "adv. 仍然",
+  "stinky": "adj. 臭的（stinky tofu 臭豆腐）",
+  "stop": "n. 站牌（bus stop 公車站）",
+  "straws": "n. 吸管（straw 的複數）",
+  "street": "n. 街道",
+  "student": "n. 學生",
+  "students": "n. 學生（student 的複數）",
+  "studies": "n. 學業（study 的複數）",
+  "studying": "v. 研究（study 的 -ing）",
+  "such": "adj. 如此的（such as 例如）",
+  "summer": "n. 夏天",
+  "sunday": "n. 星期日",
+  "supermarket": "n. 超市",
+  "surprise": "n. 驚訝（to one's surprise 令某人驚訝的是）",
+  "surprised": "adj. 感到驚訝的",
+  "tables": "n. 桌子（table 的複數）",
+  "taipei": "n. 台北",
+  "taiwan": "n. 台灣",
+  "take": "v. 拿；搶走；搭乘（take turns 輪流）",
+  "talk": "v. 說話；聊天",
+  "talked": "v. 談話（talk 的過去式）",
+  "tallest": "adj. 最高的（tall 的最高級）",
+  "tasks": "n. 任務；工作（task 的複數）",
+  "tasted": "v. 嚐起來（taste 的過去式）",
+  "taught": "v. 教（teach 的過去式）",
+  "tea": "n. 茶（bubble tea 珍珠奶茶）",
+  "teacher": "n. 老師",
+  "team": "n. 隊伍",
+  "teammates": "n. 隊友（teammate 的複數）",
+  "teas": "n. 茶類（tea 的複數）",
+  "teenagers": "n. 青少年（teenager 的複數）",
+  "tell": "v. 告訴",
+  "tells": "v. 告訴（tell 的第三人稱單數）",
+  "ten": "num. 十",
+  "terrible": "adj. 可怕的；糟糕的",
+  "than": "conj. 比",
+  "thank-you": "adj. 感謝的（thank-you gift 謝禮）",
+  "that": "pron. 那個；conj. 引導子句",
+  "the": "art. 這個；那個（定冠詞）",
+  "their": "pron. 他們的",
+  "them": "pron. 他們（受格）",
+  "themselves": "pron. 他們自己",
+  "then": "adv. 然後；那麼",
+  "there": "adv. 那裡（there is/are 有）",
+  "these": "pron. 這些",
+  "they": "pron. 他們",
+  "thing": "n. 事情",
+  "things": "n. 事情；東西（thing 的複數）",
+  "think": "v. 想；認為",
+  "thinking": "n. 思考",
+  "thinks": "v. 認為（think 的第三人稱單數）",
+  "third": "adv. 第三",
+  "thirty": "num. 三十",
+  "this": "pron. 這個",
+  "thought": "v. 想（think 的過去式）；n. 想法",
+  "three": "num. 三",
+  "time": "n. 時間（have a good time 玩得愉快）",
+  "tiny": "adj. 微小的",
+  "tired": "adj. 疲倦的",
+  "to": "prep. 到；向",
+  "today": "adv. 今天；現今",
+  "tofu": "n. 豆腐",
+  "together": "adv. 一起",
+  "told": "v. 告訴（tell 的過去式）",
+  "tons": "n. 噸（ton 的複數）",
+  "too": "adv. 太；也",
+  "took": "v. 拿；帶去；投（球）（take 的過去式）",
+  "toss": "n. 拋擲（ring toss 套圈圈）",
+  "toy": "n. 玩具",
+  "tried": "v. 嘗試（try 的過去式）",
+  "tries": "v. 嘗試（try 的第三人稱單數）",
+  "trip": "n. 旅行",
+  "try": "v. 嘗試",
+  "turn": "n. 輪流的順序（it's one's turn 輪到某人）",
+  "turns": "n. 輪流（take turns 輪流）",
+  "turtles": "n. 龜（sea turtle 海龜）",
+  "twelve": "num. 十二",
+  "two": "num. 二",
+  "underground": "adv. 在地底下",
+  "understanding": "n. 理解（understand 的 -ing）",
+  "unfortunately": "adv. 不幸地；可惜",
+  "united": "adj. 聯合的（the United States 美國）",
+  "up": "adv. 向上（get up 起床；pick up 撿起）",
+  "us": "pron. 我們（受格）",
+  "use": "v. 使用",
+  "used": "v. 被使用（use 的過去分詞）",
+  "useful": "adj. 有用的",
+  "usually": "adv. 通常",
+  "vacuums": "n. 吸塵器（robot vacuum 掃地機器人）",
+  "vegetables": "n. 蔬菜（vegetable 的複數）",
+  "very": "adv. 非常",
+  "video": "n. 影片（video game 電玩）",
+  "videos": "n. 影片（video 的複數）",
+  "visit": "v. 拜訪",
+  "visited": "v. 拜訪；遊覽（visit 的過去式）",
+  "waiting": "v. 等待（wait for，-ing）",
+  "walked": "v. 走（walk 的過去式）",
+  "wallet": "n. 皮夾",
+  "want": "v. 想要",
+  "wanted": "v. 想要（want 的過去式）",
+  "was": "v. 是（be 的過去式）",
+  "wash": "v. 洗",
+  "washed": "v. 洗（wash 的過去式）",
+  "waste": "v. 浪費；n. 浪費",
+  "watched": "v. 觀看（watch 的過去式）",
+  "way": "n. 路；方法（on one's way home 在回家路上）",
+  "ways": "n. 方法（way 的複數）",
+  "we": "pron. 我們",
+  "weekends": "n. 週末（weekend 的複數）",
+  "went": "v. 去（go 的過去式）",
+  "were": "v. 是（be 的過去式複數）",
+  "what": "pron. 什麼",
+  "when": "conj. 當…時；adv. 何時",
+  "whenever": "conj. 每當",
+  "while": "conj. 當…時；n. 一會兒（for a while）",
+  "who": "pron. 誰；（關係代名詞）",
+  "whole": "adj. 整個的",
+  "why": "adv. 為什麼（That is why 這就是為什麼）",
+  "will": "aux. 將會",
+  "willing": "adj. 願意的（be willing to）",
+  "winning": "adj. 致勝的（winning basket 致勝球）",
+  "with": "prep. 和；用",
+  "without": "prep. 沒有",
+  "woman": "n. 女人",
+  "won": "v. 贏得（win 的過去式）",
+  "work": "n. 工作；v. 工作（work on 致力於）",
+  "workers": "n. 工人（worker 的複數）",
+  "world": "n. 世界",
+  "worry": "v. 擔心",
+  "wrote": "v. 寫（write 的過去式）",
+  "year": "n. 年",
+  "years": "n. 年（year 的複數）",
+  "yes": "adv. 是",
+  "you": "pron. 你；你們",
+  "your": "pron. 你的；你們的"
+ }
+}
