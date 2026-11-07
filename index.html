@@ -182,6 +182,21 @@ header{position:sticky;top:0;z-index:20;background:rgba(251,247,239,.94);backdro
 .kpg .fn{background:#E4DCCB;font-size:17px}
 .kpg .go{background:var(--brand);color:#fff;font-size:17px}
 body.kpon .wrap{padding-bottom:300px}
+.dbar{display:flex;align-items:center;gap:10px;margin:6px 0 12px}
+.dprog{flex:1;height:8px;background:#EFE9DC;border-radius:8px;overflow:hidden}
+.dprog i{display:block;height:100%;background:var(--brand);transition:width .3s}
+.mult{font-weight:800;font-size:14px;padding:6px 12px;border-radius:99px;background:#F1EDE4;color:var(--muted);white-space:nowrap}
+.mult.hot{background:linear-gradient(90deg,#F2A516,#EF6C3A);color:#fff;animation:bump .4s}
+.streak{font-size:13px;color:var(--muted);margin:-4px 0 10px}
+.nextb{width:100%;margin-top:12px;padding:14px;border-radius:14px;background:var(--brand);color:#fff;font-weight:800;font-size:16px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.mode{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px;text-align:left}
+.mode b{display:block;font-size:15.5px}
+.mode small{color:var(--muted);font-size:12.5px;line-height:1.5;display:block;margin-top:2px}
+.mode .st{color:var(--brand);font-weight:700;font-size:12px;margin-top:6px;display:block}
+.dcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.dcard h3{margin:0 0 4px;font-size:18px}
+.rules{font-size:13.5px;line-height:1.7;color:#3d4660;background:#FFF8E6;border:1px solid #F5DFA8;border-radius:12px;padding:10px 12px;margin-top:4px}
 .toast{position:fixed;left:50%;top:76px;transform:translate(-50%,-20px);opacity:0;z-index:70;background:var(--gold);color:#fff;font-weight:800;padding:8px 16px;border-radius:99px;transition:all .3s;pointer-events:none;box-shadow:0 4px 14px rgba(242,165,22,.4)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .warn{font-size:13px;background:var(--bad-soft);color:var(--bad);padding:8px 12px;border-radius:10px;margin-top:10px;display:none}
@@ -444,11 +459,13 @@ function stats(p){
   const words=p.text.replace(/[{}]/g,"").match(/[A-Za-z]+/g).length;
   return {r,qd,qok,cd,cok,words};
 }
-function subjBar(){return `<div class="subj"><button class="sj ${S.subj!=="math"?"on":""}" data-s="en">📖 英文</button><button class="sj ${S.subj==="math"?"on":""}" data-s="math">🔢 數學</button></div>`}
+function subjBar(){const s=S.subj||"en";return `<div class="subj"><button class="sj ${s==="en"?"on":""}" data-s="en">📖 英文</button><button class="sj ${s==="math"?"on":""}" data-s="math">🔢 數學</button><button class="sj ${s==="drill"?"on":""}" data-s="drill">⚡ 特訓</button></div>`}
 function bindSubj(){document.querySelectorAll(".sj").forEach(b=>b.onclick=()=>{S.subj=b.dataset.s;save();home()})}
 function home(){
   stopReading(); closeSheet(); kpClose(); cur=null; mcur=null; location.hash="";
+  dcur=null;
   if(S.subj==="math") return mathHome();
+  if(S.subj==="drill") return drillHome();
   const list=PASSAGES.filter(p=>p.level===S.level);
   $("#app").innerHTML=`
   ${subjBar()}
@@ -695,6 +712,7 @@ function markM(qi,res){
 function kpOpen(){$("#kp").classList.add("on");document.body.classList.add("kpon")}
 function kpClose(){kpQ=null;kpVal="";$("#kp").classList.remove("on");document.body.classList.remove("kpon")}
 function submitNum(){
+  if(kpQ==="d") return drillNum();
   const q=mcur.qs[kpQ], qi=kpQ, msg=t=>{const e=$("#nmsg"+qi); if(e) e.textContent=t;};
   const v=parseNum(kpVal); if(!v){msg(kpVal?"格式看不懂，請檢查一下（分數用 /，帶分數用「又」）":"請先輸入答案");return;}
   const ans=parseNum(q.ans);
@@ -714,13 +732,163 @@ document.querySelectorAll("#kp button").forEach(b=>b.onclick=()=>{
   const box=document.querySelector(`.nin[data-n="${kpQ}"]`);
   if(box) box.innerHTML=(kpVal?fmt(ansMarkup(kpVal)):"")+'<span class="caret"></span>';
 });
-document.addEventListener("click",e=>{ if(kpQ!==null&&!e.target.closest("#kp")&&!e.target.closest(".nin")){ const q=kpQ; kpClose(); const box=document.querySelector(`.nin[data-n="${q}"]`); if(box) box.innerHTML='<span class="ph">點這裡作答</span>'; box&&box.classList.remove("act"); } });
+document.addEventListener("click",e=>{ if(kpQ!==null&&kpQ!=="d"&&!e.target.closest("#kp")&&!e.target.closest(".nin")){ const q=kpQ; kpClose(); const box=document.querySelector(`.nin[data-n="${q}"]`); if(box) box.innerHTML='<span class="ph">點這裡作答</span>'; box&&box.classList.remove("act"); } });
+
+// ───────── 特別練習區：公因數與公倍數（程式出題）─────────
+let dcur=null;
+const DMODES={
+  basic:{n:"基礎",g:"小五",d:"兩數的公因數、公倍數，數字 60 以內"},
+  adv:{n:"進階",g:"小六",d:"較大的數、公因數個數、互質判斷"},
+  app:{n:"應用題",g:"小五～國一",d:"分組、裁紙、公車發車、拼磁磚"},
+  chal:{n:"挑戰",g:"國一",d:"三個數、標準分解式、乘積關係"}
+};
+const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const lcm=(a,b)=>a/gcd(a,b)*b;
+const PR=[2,3,5,7,11,13,17,19,23,29,31,37];
+function pf(n){const o=[];for(const p of PR){let e=0;while(n%p===0){n/=p;e++}if(e)o.push([p,e])}if(n>1)o.push([n,1]);return o}
+function pfStr(n){return pf(n).map(([p,e])=>e>1?`${p}^${e}`:`${p}`).join(" × ")||"1"}
+function divCount(n){return pf(n).reduce((s,[,e])=>s*(e+1),1)}
+function divisors(n){const o=[];for(let i=1;i<=n;i++)if(n%i===0)o.push(i);return o}
+function pairWithGcd(gMin,gMax,mMin,mMax,max){
+  for(let t=0;t<200;t++){const g=R(gMin,gMax),m1=R(mMin,mMax),m2=R(mMin,mMax);
+    if(m1===m2||gcd(m1,m2)!==1)continue; const a=g*m1,b=g*m2; if(a>max||b>max)continue; return a<b?[a,b]:[b,a];}
+  return [12,18];
+}
+function shortDiv(a,b){
+  let x=a,y=b,steps=[],ps=[];
+  for(const p of PR){while(x%p===0&&y%p===0){steps.push(`${p}）${x}　${y}`);x/=p;y/=p;ps.push(p)}}
+  const g=ps.reduce((s,p)=>s*p,1);
+  if(!ps.length) return {txt:`${a} 和 ${b} 沒有 1 以外的公因數（互質），最大公因數是 1，最小公倍數 = ${a} × ${b} = ${a*b}。`,g:1,l:a*b};
+  return {txt:`短除法：${steps.join("；")}，剩下 ${x} 和 ${y} 互質。最大公因數 = ${ps.join(" × ")} = ${g}；最小公倍數 = ${g} × ${x} × ${y} = ${g*x*y}。`,g,l:g*x*y};
+}
+function shuffleOpts(correct,wrongs){return {opts:[String(correct),...wrongs.slice(0,3).map(String)]}}
+function genQ(mode){
+  const T={
+    basic:["gcd","gcd","lcmS","lcmS","cf","cnt"],
+    adv:["gcdA","gcdA","lcmA","lcmA","cnt","cop"],
+    app:["aGroup","aSquare","aBus","aTile","aGroup3","aBus3"],
+    chal:["gcd3","lcm3","pfG","pfL","rel","gcdA"]
+  }[mode];
+  const k=pick(T); let a,b,c,sd;
+  switch(k){
+  case "gcd": [a,b]=pairWithGcd(2,9,1,7,60); sd=shortDiv(a,b);
+    return {t:"num",q:`${a} 和 ${b} 的最大公因數是多少？`,ans:String(sd.g),exp:sd.txt};
+  case "gcdA": [a,b]=pairWithGcd(3,16,2,9,150); sd=shortDiv(a,b);
+    return {t:"num",q:`${a} 和 ${b} 的最大公因數是多少？`,ans:String(sd.g),exp:sd.txt};
+  case "lcmS": do{a=R(2,15);b=R(2,15)}while(a===b||a*b<12); [a,b]=[Math.min(a,b),Math.max(a,b)]; sd=shortDiv(a,b);
+    return {t:"num",q:`${a} 和 ${b} 的最小公倍數是多少？`,ans:String(sd.l),exp:sd.txt};
+  case "lcmA": [a,b]=pairWithGcd(2,12,2,9,120); sd=shortDiv(a,b);
+    return {t:"num",q:`${a} 和 ${b} 的最小公倍數是多少？`,ans:String(sd.l),exp:sd.txt};
+  case "cf": { [a,b]=pairWithGcd(4,12,1,6,60); const g=gcd(a,b); const good=divisors(g).filter(d=>d>1); const ans=pick(good);
+    const pool=[...new Set([...divisors(a),...divisors(b),R(5,11),R(7,13),b+1])].filter(d=>d>1&&(a%d||b%d));
+    const w=[]; while(w.length<3&&pool.length){const x=pool.splice(Math.floor(Math.random()*pool.length),1)[0]; if(!w.includes(x))w.push(x)}
+    while(w.length<3){const x=R(5,40); if((a%x||b%x)&&!w.includes(x)&&x!==ans)w.push(x)}
+    return {t:"mc",q:`下列哪一個數是 ${a} 和 ${b} 的公因數？`,...shuffleOpts(ans,w),exp:`${a} 的因數：${divisors(a).join("、")}；${b} 的因數：${divisors(b).join("、")}。共同的因數有 ${divisors(g).join("、")}，選項中只有 ${ans} 是公因數。`};}
+  case "cnt": [a,b]=pairWithGcd(4,24,1,6,mode==="basic"?72:160); { const g=gcd(a,b);
+    return {t:"num",q:`${a} 和 ${b} 一共有幾個公因數？`,ans:String(divCount(g)),unit:"個",exp:`公因數就是最大公因數 ${g} 的因數：${divisors(g).join("、")}，共 ${divCount(g)} 個。`};}
+  case "cop": { let ok; do{a=R(6,40);b=R(6,40)}while(a===b||gcd(a,b)!==1); ok=`${a} 和 ${b}`;
+    const w=[]; while(w.length<3){const [x,y]=pairWithGcd(2,7,2,7,60); const s=`${x} 和 ${y}`; if(!w.includes(s))w.push(s)}
+    return {t:"mc",q:"下列哪一組數「互質」（最大公因數是 1）？",...shuffleOpts(ok,w),exp:`${a} = ${pfStr(a)}，${b} = ${pfStr(b)}，沒有共同的質因數，所以互質。其他各組都有大於 1 的公因數。`};}
+  case "aGroup": [a,b]=pairWithGcd(3,12,2,7,90); sd=shortDiv(a,b);
+    return {t:"num",q:`老師有 ${a} 顆糖果和 ${b} 塊餅乾，要平分給一些小朋友，每種都剛好分完、沒有剩。最多可以分給幾位小朋友？`,ans:String(sd.g),unit:"位",exp:`人數要同時是 ${a} 和 ${b} 的因數，最多就是最大公因數。${sd.txt}`};
+  case "aGroup3": { const g=R(2,8); let m=[R(2,6),R(2,6),R(3,7)]; while(gcd(gcd(m[0],m[1]),m[2])!==1||new Set(m).size<3) m=[R(2,6),R(2,6),R(3,7)];
+    [a,b,c]=m.map(x=>x*g); const G=gcd(gcd(a,b),c);
+    return {t:"num",q:`有紅筆 ${a} 枝、藍筆 ${b} 枝、黑筆 ${c} 枝，要包成相同的禮物包，每包裡三種筆的數量都一樣，且全部用完。最多可以包成幾包？`,ans:String(G),unit:"包",exp:`包數是三數的公因數，最多取最大公因數：${a} = ${pfStr(a)}、${b} = ${pfStr(b)}、${c} = ${pfStr(c)}，最大公因數是 ${G}。`};}
+  case "aSquare": [a,b]=pairWithGcd(3,15,2,6,120); sd=shortDiv(a,b);
+    return {t:"num",q:`一張長 ${b} 公分、寬 ${a} 公分的長方形紙，要剪成大小相同的正方形，而且沒有剩。正方形的邊長最大是幾公分？`,ans:String(sd.g),unit:"公分",exp:`邊長必須同時整除 ${b} 和 ${a}，最大就是最大公因數。${sd.txt}`};
+  case "aBus": [a,b]=pairWithGcd(2,6,2,7,30); sd=shortDiv(a,b);
+    return {t:"num",q:`甲路公車每 ${a} 分鐘發一班，乙路公車每 ${b} 分鐘發一班。早上 7:00 兩路同時發車，至少再過幾分鐘會再次同時發車？`,ans:String(sd.l),unit:"分鐘",exp:`再次同時發車的時間要同時是 ${a} 和 ${b} 的倍數，最少就是最小公倍數。${sd.txt}`};
+  case "aBus3": { let m; do{m=[R(2,8),R(3,10),R(4,12)]}while(new Set(m).size<3); [a,b,c]=m; const L=lcm(lcm(a,b),c);
+    return {t:"num",q:`三盞燈分別每 ${a} 秒、${b} 秒、${c} 秒閃一次。現在同時閃，至少再過幾秒會再一起閃？`,ans:String(L),unit:"秒",exp:`求 ${a}、${b}、${c} 的最小公倍數：${a} = ${pfStr(a)}、${b} = ${pfStr(b)}、${c} = ${pfStr(c)}，每個質因數取最高次方相乘得 ${L}。`};}
+  case "aTile": [a,b]=pairWithGcd(2,5,2,6,30); sd=shortDiv(a,b);
+    return {t:"num",q:`用長 ${b} 公分、寬 ${a} 公分的長方形磁磚，同一方向排列拼成一個正方形。這個正方形的邊長最小是幾公分？`,ans:String(sd.l),unit:"公分",exp:`正方形邊長要同時是 ${b} 和 ${a} 的倍數，最小就是最小公倍數。${sd.txt}`};
+  case "gcd3": case "lcm3": { const g=R(2,6); let m; do{m=[R(2,8),R(2,8),R(2,8)]}while(new Set(m).size<3||gcd(gcd(m[0],m[1]),m[2])!==1);
+    [a,b,c]=m.map(x=>x*g).sort((x,y)=>x-y); const G=gcd(gcd(a,b),c), L=lcm(lcm(a,b),c);
+    const base=`${a} = ${pfStr(a)}，${b} = ${pfStr(b)}，${c} = ${pfStr(c)}。`;
+    return k==="gcd3"?{t:"num",q:`${a}、${b}、${c} 的最大公因數是多少？`,ans:String(G),exp:base+`共同質因數取最低次方相乘 = ${G}。`}
+                     :{t:"num",q:`${a}、${b}、${c} 的最小公倍數是多少？`,ans:String(L),exp:base+`所有質因數取最高次方相乘 = ${pfStr(L)} = ${L}。`};}
+  case "pfG": case "pfL": { const e=()=>R(0,3); let A,B; do{A=[e(),e(),R(0,1)];B=[e(),e(),R(0,1)]}while(A.every(x=>!x)||B.every(x=>!x)||A.join()===B.join());
+    const ps=[2,3,5], str=E=>ps.map((p,i)=>E[i]?(E[i]>1?`${p}^${E[i]}`:`${p}`):"").filter(Boolean).join(" × ");
+    const val=E=>ps.reduce((s,p,i)=>s*p**E[i],1);
+    const G=ps.map((p,i)=>Math.min(A[i],B[i])), L=ps.map((p,i)=>Math.max(A[i],B[i]));
+    return k==="pfG"?{t:"num",q:`A = ${str(A)}，B = ${str(B)}。A 和 B 的最大公因數是多少？（填數值）`,ans:String(val(G)),exp:`每個質因數取「較小」的次方：${str(G)||"1"} = ${val(G)}。`}
+                    :{t:"num",q:`A = ${str(A)}，B = ${str(B)}。A 和 B 的最小公倍數是多少？（填數值）`,ans:String(val(L)),exp:`每個質因數取「較大」的次方：${str(L)} = ${val(L)}。`};}
+  case "rel": { [a,b]=pairWithGcd(3,12,2,7,100); const g=gcd(a,b), l=lcm(a,b);
+    return pick([0,1])?{t:"num",q:`兩個正整數的乘積是 ${a*b}，它們的最大公因數是 ${g}。它們的最小公倍數是多少？`,ans:String(l),exp:`兩數乘積 = 最大公因數 × 最小公倍數，所以最小公倍數 = ${a*b} ÷ ${g} = ${l}。（例如 ${a} 和 ${b}）`}
+                       :{t:"num",q:`兩個正整數的最大公因數是 ${g}、最小公倍數是 ${l}，其中一個數是 ${a}。另一個數是多少？`,ans:String(b),exp:`兩數乘積 = 最大公因數 × 最小公倍數 = ${g} × ${l} = ${g*l}，另一數 = ${g*l} ÷ ${a} = ${b}。`};}
+  }
+}
+function multOf(s){return s>=10?3:s>=5?2:s>=3?1.5:1}
+function drillStats(){S.drill=S.drill||{};return S.drill}
+function drillHome(){
+  const st=drillStats();
+  $("#app").innerHTML=`${subjBar()}
+  <section class="hero"><h1>⚡ 特別練習區</h1><p>題目由程式隨機產生、做不完，適合大量練習。連續答對越多，點數加成越高！</p></section>
+  <div class="dcard"><h3>🔢 公因數與公倍數</h3>
+    <div class="rules">每題答對 <b>10 點</b>，連對加成：<br>連對 3 題 <b>×1.5</b>｜連對 5 題 <b>×2</b>｜連對 10 題 <b>×3</b><br>一回 10 題全對，再加 <b>50 點</b>。答錯連對歸零。</div>
+    <div class="modes">${Object.entries(DMODES).map(([k,m])=>{const s=st[k]||{};return `<button class="mode" data-m="${k}"><b>${m.n}</b><small>${m.g}・${m.d}</small><span class="st">${s.n?`已練 ${s.n} 題・答對 ${s.ok}・最高連對 ${s.best||0}`:"開始練習 ›"}</span></button>`}).join("")}</div>
+  </div>
+  <p class="hint">更多特訓主題（例如分數四則、方程式）之後可以陸續加入。</p>`;
+  document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{S.dmode=b.dataset.m;save();startDrill(b.dataset.m)});
+  bindSubj(); window.scrollTo(0,0);
+}
+function startDrill(mode){
+  kpClose(); cur=null; mcur=null; location.hash="drill-gcd";
+  dcur={mode,i:0,n:10,ok:0,streak:0,earned:0,q:genQ(mode),ans:null};
+  renderDrill(); window.scrollTo(0,0);
+}
+function renderDrill(){
+  const d=dcur, q=d.q, m=multOf(d.streak), done=d.i>=d.n;
+  let h=`<button class="back" id="back">‹ 特別練習區</button>
+    <h2 class="ptitle">公因數與公倍數・${DMODES[d.mode].n}</h2><p class="psub">${DMODES[d.mode].g}・本回已得 ${d.earned} 點</p>
+    <div class="dbar"><div class="dprog"><i style="width:${Math.min(d.i,d.n)/d.n*100}%"></i></div><span class="mult ${m>1?"hot":""}">加成 ×${m}</span></div>
+    <div class="streak">🔥 連對 ${d.streak} 題　｜　第 ${Math.min(d.i+1,d.n)} / ${d.n} 題</div>`;
+  if(done){
+    h+=`<div class="sum"><div><div class="big">${d.ok} / ${d.n}</div><div class="s">本回得 ${d.earned} 點${d.ok===d.n?"（含全對獎勵 50）":""}</div></div></div>
+      <button class="nextb" id="again">再來一回 ▶</button>`;
+  }else{
+    const a=d.ans;
+    h+=`<div class="q"><div class="qh"><span>${fmt(q.q)}</span></div>`;
+    if(q.t==="num"){
+      h+=`<div class="nrow"><div class="nin ${a?(a.ok?"ok":"bad"):"act"}" data-n="d">${a?fmt(ansMarkup(a.v)):(kpVal?fmt(ansMarkup(kpVal)):"")}${a?"":'<span class="caret"></span>'}</div>${q.unit?`<span class="nunit">${esc(q.unit)}</span>`:""}</div><div class="nmsg" id="nmsgd"></div>`;
+    }else{
+      const ord=d.ord||(d.ord=order(q.opts.length,String(Math.random())));
+      ord.forEach((oi,pos)=>{let c=""; if(a){ if(oi===0) c="ok"; else if(oi===a.pick) c="bad"; }
+        h+=`<button class="opt ${c}" data-o="${oi}" ${a?"disabled":""}><span class="k">${KEYS[pos]}</span><span>${fmt(q.opts[oi])}</span></button>`;});
+    }
+    if(a) h+=`<div class="exp">${a.ok?`<b class="okc">答對了！+${a.pts} 點</b>`:`<b class="badc">正確答案：${fmt(ansMarkup(q.t==="num"?q.ans:q.opts[0]))}${q.unit?" "+esc(q.unit):""}</b>`}<br>${fmt(q.exp)}</div>`;
+    h+=`</div>`;
+    if(a) h+=`<button class="nextb" id="next">${d.i+1>=d.n?"看結果":"下一題 ▶"}</button>`;
+  }
+  $("#app").innerHTML=h;
+  $("#back").onclick=()=>{S.subj="drill";home()};
+  const ag=$("#again"); if(ag) ag.onclick=()=>startDrill(d.mode);
+  const nx=$("#next"); if(nx) nx.onclick=()=>{d.i++; if(d.i<d.n){d.q=genQ(d.mode);d.ans=null;d.ord=null;} else if(d.ok===d.n){d.earned+=50;addPoints(50,"全對獎勵！");}
+    renderDrill(); window.scrollTo(0,0); if(d.i<d.n&&d.q.t==="num"){kpQ="d";kpVal="";kpOpen();}};
+  document.querySelectorAll(".opt[data-o]").forEach(b=>b.onclick=()=>drillAnswer({pick:+b.dataset.o,ok:+b.dataset.o===0}));
+  const box=document.querySelector('.nin[data-n="d"]'); if(box&&!d.ans) box.onclick=()=>{kpQ="d";kpOpen()};
+  if(!done&&!d.ans&&q.t==="num"){kpQ="d";kpOpen();}
+}
+function drillAnswer(res){
+  const d=dcur; if(d.ans) return;
+  const st=drillStats(), s=st[d.mode]||(st[d.mode]={n:0,ok:0,best:0}); s.n++;
+  if(res.ok){ d.streak++; d.ok++; s.ok++; s.best=Math.max(s.best,d.streak); const pts=Math.round(10*multOf(d.streak)); res.pts=pts; d.earned+=pts; save(); addPoints(pts,d.streak>=3?`連對 ${d.streak}！`:"答對了！"); }
+  else { d.streak=0; save(); }
+  d.ans=res; renderDrill();
+}
+function drillNum(){
+  const v=parseNum(kpVal), msg=t=>{const e=$("#nmsgd"); if(e) e.textContent=t;};
+  if(!v){msg(kpVal?"格式看不懂，請再檢查一下":"請先輸入答案");return;}
+  const ok=sameVal(v,parseNum(dcur.q.ans)), val=kpVal; kpClose(); drillAnswer({v:val,ok});
+}
 
 // routing
 function route(){const id=location.hash.slice(1);
   if(id&&PASSAGES.some(p=>p.id===id)){ if(!cur||cur.id!==id) openPassage(id,"read"); }
   else if(id&&MATH.some(u=>u.id===id)){ if(!mcur||mcur.id!==id) openUnit(id); }
-  else if(cur||mcur) home();}
+  else if(id==="drill-gcd"){ if(!dcur) startDrill(S.dmode||"basic"); }
+  else if(cur||mcur||dcur) home();}
 window.addEventListener("hashchange",route);
 $("#app").innerHTML='<div class="loading">載入題庫中…</div>';
 loadContent().then(()=>{
@@ -733,7 +901,8 @@ loadContent().then(()=>{
   if(!S.mver) S.mseen=MATH.map(u=>u.id);
   S.mver=MATHV; save();
   if(startId&&PASSAGES.some(p=>p.id===startId)) openPassage(startId,"read");
-  else if(startId&&MATH.some(u=>u.id===startId)) openUnit(startId); else home();
+  else if(startId&&MATH.some(u=>u.id===startId)) openUnit(startId);
+  else if(startId==="drill-gcd"){S.subj="drill";startDrill(S.dmode||"basic");} else home();
 });
 if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
