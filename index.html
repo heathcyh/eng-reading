@@ -155,6 +155,33 @@ header{position:sticky;top:0;z-index:20;background:rgba(251,247,239,.94);backdro
 .mmsg{font-size:13px;color:var(--ok);min-height:1em;text-align:center}
 .loading{text-align:center;color:var(--muted);padding:80px 0}
 .new{font-size:11px;background:var(--bad);color:#fff;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+.subj{display:flex;gap:6px;background:#EFE9DC;padding:4px;border-radius:14px;margin:16px 0 4px}
+.sj{flex:1;padding:10px 4px;border-radius:11px;font-weight:800;font-size:15px;color:var(--muted)}
+.sj.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:.85em;line-height:1.1;margin:0 2px}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 3px}
+.frac>span:last-child{padding:0 3px}
+.ov{border-top:1.5px solid currentColor;padding-top:1px}
+.keyc{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;font-size:15px;line-height:1.8}
+.keyc h3{margin:0 0 6px;font-size:15px}
+.keyc ul{margin:0;padding-left:20px}
+.nrow{display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap}
+.nin{min-width:150px;min-height:48px;border:2px solid var(--line);border-radius:12px;padding:8px 12px;font-size:20px;font-weight:800;display:flex;align-items:center;gap:2px;background:#fff;cursor:text}
+.nin.act{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.nin.ok{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.nin.bad{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.nin .ph{color:#B8B0A0;font-weight:600;font-size:15px}
+.caret{display:inline-block;width:2px;height:22px;background:var(--brand);animation:blink 1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.nunit{color:var(--muted);font-weight:700}
+.nmsg{font-size:13.5px;color:var(--bad);margin-top:6px;min-height:0}
+.kp{position:fixed;left:0;right:0;bottom:0;z-index:45;background:#F3EEE3;border-top:1px solid var(--line);padding:10px 10px calc(10px + env(safe-area-inset-bottom));transform:translateY(110%);transition:transform .2s}
+.kp.on{transform:none}
+.kpg{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.kpg button{background:#fff;border-radius:12px;padding:13px 0;font-size:21px;font-weight:800;box-shadow:0 1px 0 rgba(0,0,0,.08)}
+.kpg .fn{background:#E4DCCB;font-size:17px}
+.kpg .go{background:var(--brand);color:#fff;font-size:17px}
+body.kpon .wrap{padding-bottom:300px}
 .toast{position:fixed;left:50%;top:76px;transform:translate(-50%,-20px);opacity:0;z-index:70;background:var(--gold);color:#fff;font-weight:800;padding:8px 16px;border-radius:99px;transition:all .3s;pointer-events:none;box-shadow:0 4px 14px rgba(242,165,22,.4)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .warn{font-size:13px;background:var(--bad-soft);color:var(--bad);padding:8px 12px;border-radius:10px;margin-top:10px;display:none}
@@ -197,6 +224,12 @@ header{position:sticky;top:0;z-index:20;background:rgba(251,247,239,.94);backdro
   <div class="mrow"><button id="mClose">關閉</button><button class="danger" id="mReset">清除積點紀錄</button></div>
 </div></div>
 <div class="toast" id="toast"></div>
+<div class="kp" id="kp"><div class="kpg">
+  <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button class="fn" data-k="bs">⌫</button>
+  <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button class="fn" data-k="/">分數 /</button>
+  <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button class="fn" data-k="-">負 −</button>
+  <button data-k="0">0</button><button class="fn" data-k=".">.</button><button class="fn" data-k="又">又</button><button class="go" data-k="ok">確定</button>
+</div></div>
 
 <script>
 let PASSAGES=[], DICT={}, CONTENT={version:0,updated:""};
@@ -215,6 +248,26 @@ function validate(c){
   });
   return c;
 }
+let MATH=[], MATHV=0, MIMP=0;
+const MIMP_KEY="eng-points-imported-math-v1";
+function applyMath(m){
+  let imp=null; try{imp=JSON.parse(localStorage.getItem(MIMP_KEY)||"null")}catch(e){}
+  const map=new Map((m.units||[]).map(u=>[u.id,u])); MIMP=0;
+  if(imp) imp.units.forEach(u=>{map.set(u.id,u);MIMP++});
+  MATH=[...map.values()]; MATHV=m.version||0;
+}
+function validateMath(c){
+  c.units.forEach((u,i)=>{
+    const tag=`數學第 ${i+1} 單元（${u.id||"無 id"}）`;
+    if(!u.id||!u.title||![4,5,6,7,8,9].includes(+u.level)||!Array.isArray(u.qs)) throw new Error(tag+"缺少 id / title / level(4～9) / qs");
+    u.level=+u.level;
+    u.qs.forEach((q,j)=>{
+      if(q.t==="num"){ if(!q.q||!parseNum(String(q.ans))) throw new Error(`${tag} 第 ${j+1} 題的 ans 格式無法辨識`); }
+      else if(!q.q||!Array.isArray(q.opts)||q.opts.length<2) throw new Error(`${tag} 第 ${j+1} 題格式錯誤`);
+    });
+  });
+  return c;
+}
 function applyContent(base){
   const imp=getImported();
   const map=new Map(); (base.passages||[]).forEach(p=>map.set(p.id,p));
@@ -229,6 +282,10 @@ async function loadContent(){
   if(!base){ try{ const r=await fetch("content.json"); if(r.ok) base=await r.json(); }catch(e){} }
   if(!base) base={version:0,passages:[],dict:{}};
   applyContent(base);
+  let m=null;
+  try{ const r=await fetch("math.json?t="+Date.now(),{cache:"no-store"}); if(r.ok) m=await r.json(); }catch(e){}
+  if(!m){ try{ const r=await fetch("math.json"); if(r.ok) m=await r.json(); }catch(e){} }
+  applyMath(m||{version:0,units:[]});
   return base;
 }
 </script>
@@ -356,20 +413,25 @@ $("#sSlow").onclick=()=>sheetCtx&&sayOnce(sheetCtx.word,0.45);
 $("#sSent").onclick=()=>sheetCtx&&sayOnce(sheetCtx.sent,rate);
 
 // settings
-function cinfo(){$("#cinfo").textContent=`v${CONTENT.version}・共 ${PASSAGES.length} 篇`+(CONTENT.impN?`（含匯入 ${CONTENT.impN} 篇）`:"");}
+function cinfo(){$("#cinfo").textContent=`英文 v${CONTENT.version}・${PASSAGES.length} 篇｜數學 v${MATHV}・${MATH.length} 單元`+((CONTENT.impN||MIMP)?"（含匯入）":"");}
 $("#gear").onclick=()=>{cinfo();$("#mmsg").textContent="";$("#modal").classList.add("on")};
 $("#mUpd").onclick=async()=>{const before=PASSAGES.length,v=CONTENT.version;$("#mmsg").textContent="檢查中…";
   await loadContent(); cinfo();
   $("#mmsg").textContent=CONTENT.version>v?`已更新到 v${CONTENT.version}，新增 ${PASSAGES.length-before} 篇`:(navigator.onLine===false?"目前離線，使用已下載的題庫":"已是最新題庫");
   cur?openPassage(cur.id,tab):home();};
 $("#mImp").onchange=e=>{const f=e.target.files[0]; if(!f) return; const rd=new FileReader();
-  rd.onload=()=>{try{const c=validate(JSON.parse(rd.result)); const old=getImported();
+  rd.onload=()=>{try{const raw=JSON.parse(rd.result);
+      if(raw&&Array.isArray(raw.units)){ const c=validateMath(raw); let old=null; try{old=JSON.parse(localStorage.getItem(MIMP_KEY)||"null")}catch(e){}
+        const m=new Map(((old&&old.units)||[]).map(u=>[u.id,u])); c.units.forEach(u=>m.set(u.id,u));
+        localStorage.setItem(MIMP_KEY,JSON.stringify({units:[...m.values()]}));
+        loadContent().then(()=>{cinfo();$("#mmsg").style.color="var(--ok)";$("#mmsg").textContent=`數學題匯入成功，目前共 ${MATH.length} 單元`;S.subj="math";save();home();}); return; }
+      const c=validate(raw); const old=getImported();
       if(old){const m=new Map(old.passages.map(p=>[p.id,p])); c.passages.forEach(p=>m.set(p.id,p)); c.passages=[...m.values()]; c.dict=Object.assign({},old.dict||{},c.dict||{});}
       localStorage.setItem(IMP_KEY,JSON.stringify({passages:c.passages,dict:c.dict||{}}));
       loadContent().then(()=>{cinfo();$("#mmsg").style.color="var(--ok)";$("#mmsg").textContent=`匯入成功，目前共 ${PASSAGES.length} 篇`;home();});
     }catch(err){$("#mmsg").style.color="var(--bad)";$("#mmsg").textContent="匯入失敗："+err.message}};
   rd.readAsText(f); e.target.value="";};
-$("#mClrImp").onclick=()=>{try{localStorage.removeItem(IMP_KEY)}catch(e){} loadContent().then(()=>{cinfo();$("#mmsg").textContent="已移除匯入的題目";home();});};
+$("#mClrImp").onclick=()=>{try{localStorage.removeItem(IMP_KEY);localStorage.removeItem(MIMP_KEY)}catch(e){} loadContent().then(()=>{cinfo();$("#mmsg").textContent="已移除匯入的題目";home();});};
 $("#mClose").onclick=()=>$("#modal").classList.remove("on");
 $("#mReset").onclick=()=>{S={points:0,done:{},level:S.level};save();$("#ptsv").textContent=0;$("#modal").classList.remove("on");cur?openPassage(cur.id,tab):home()};
 
@@ -382,10 +444,14 @@ function stats(p){
   const words=p.text.replace(/[{}]/g,"").match(/[A-Za-z]+/g).length;
   return {r,qd,qok,cd,cok,words};
 }
+function subjBar(){return `<div class="subj"><button class="sj ${S.subj!=="math"?"on":""}" data-s="en">📖 英文</button><button class="sj ${S.subj==="math"?"on":""}" data-s="math">🔢 數學</button></div>`}
+function bindSubj(){document.querySelectorAll(".sj").forEach(b=>b.onclick=()=>{S.subj=b.dataset.s;save();home()})}
 function home(){
-  stopReading(); closeSheet(); cur=null; location.hash="";
+  stopReading(); closeSheet(); kpClose(); cur=null; mcur=null; location.hash="";
+  if(S.subj==="math") return mathHome();
   const list=PASSAGES.filter(p=>p.level===S.level);
   $("#app").innerHTML=`
+  ${subjBar()}
   <section class="hero"><h1>英文短文閱讀</h1>
   <p>小四到國三共六級，國中部分依會考程度設計。每篇可整篇聽讀、點單字看翻譯與發音，並完成文意理解與克漏字賺積點。</p></section>
   <div class="levels">${[4,5,6,7,8,9].map(l=>`<button class="lv ${l===S.level?"on":""}" data-l="${l}"><b>${LV[l].n}</b><small>${LV[l].d}</small></button>`).join("")}</div>
@@ -403,7 +469,7 @@ function home(){
   <p class="hint">🎯 積點規則：聽完全文 +5｜文意理解首答正確 +10｜克漏字首答正確 +5</p>`;
   document.querySelectorAll(".lv").forEach(b=>b.onclick=()=>{S.level=+b.dataset.l;save();home()});
   document.querySelectorAll(".pcard").forEach(b=>b.onclick=()=>openPassage(b.dataset.id,"read"));
-  window.scrollTo(0,0);
+  bindSubj(); window.scrollTo(0,0);
 }
 function openPassage(id,t){
   stopReading(); closeSheet();
@@ -543,8 +609,118 @@ function renderCloze(){
   const cl=$("#clListen"); if(cl) cl.onclick=()=>{tab="read";document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.dataset.t==="read"));renderPane();readFrom(0)};
 }
 
+
+// ───────── 數學 ─────────
+let mcur=null, kpQ=null, kpVal="";
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a}
+function parseNum(s){
+  s=String(s).replace(/[−–]/g,"-").replace(/[,\s%]/g,"");
+  let m;
+  if((m=s.match(/^(-?)(\d+)又(\d+)\/(\d+)$/))){const w=+m[2],a=+m[3],b=+m[4]; if(!b) return null; const n=w*b+a; return {n:m[1]?-n:n,d:b,kind:"mixed",fa:a,fb:b};}
+  if((m=s.match(/^(-?)(\d+)\/(\d+)$/))){const a=+m[2],b=+m[3]; if(!b) return null; return {n:m[1]?-a:a,d:b,kind:"frac",fa:a,fb:b};}
+  if((m=s.match(/^(-?)(\d*)\.?(\d*)$/))&&(m[2]||m[3])){const k=m[3].length, d=10**k, n=+(m[2]||0)*d+(+(m[3]||0)); return {n:m[1]?-n:n,d,kind:"dec"};}
+  return null;
+}
+function sameVal(a,b){return a.n*b.d===b.n*a.d}
+function fmt(s){
+  s=esc(String(s));
+  s=s.replace(/√\{([^}]+)\}/g,'√<span class="ov">$1</span>');
+  s=s.replace(/\[([^\]\/]+)\/([^\]]+)\]/g,'<span class="frac"><span>$1</span><span>$2</span></span>');
+  s=s.replace(/\^\{([^}]+)\}/g,'<sup>$1</sup>').replace(/\^(−?-?[\w.]+)/g,'<sup>$1</sup>');
+  s=s.replace(/_(\w)/g,'<sub>$1</sub>');
+  return s;
+}
+function ansMarkup(a){a=String(a).replace(/^-/,"−");return a.replace(/(\d+)又(\d+)\/(\d+)/,"$1[$2/$3]").replace(/(^|[^\d\[])(\d+)\/(\d+)/,"$1[$2/$3]")}
+function mrec(id){S.math=S.math||{};return S.math[id]||(S.math[id]={a:{},paid:{}})}
+function mstats(u){const r=(S.math||{})[u.id]||{a:{}};const done=Object.keys(r.a).length, ok=Object.values(r.a).filter(x=>x.ok).length;return {done,ok}}
+function mathHome(){
+  const list=MATH.filter(u=>u.level===S.level);
+  $("#app").innerHTML=`${subjBar()}
+  <section class="hero"><h1>數學練習</h1>
+  <p>小四到國三共六級，依 108 課綱主題分單元。每單元先看重點，再做選擇題與計算題，每題附詳解。</p></section>
+  <div class="levels">${[4,5,6,7,8,9].map(l=>`<button class="lv ${l===S.level?"on":""}" data-l="${l}"><b>${LV[l].n}</b><small>${LV[l].d}</small></button>`).join("")}</div>
+  <div class="plist">${list.length?list.map((u,i)=>{const s=mstats(u);return `
+    <button class="pcard" data-id="${u.id}">
+      <div class="pnum" style="background:#FFF3D6;color:#B87500">${i+1}</div>
+      <div class="pinfo"><div class="t">${esc(u.title)}${(S.mseen||[]).includes(u.id)?"":'<span class="new">NEW</span>'}</div><div class="z">${LV[u.level].n}・${u.qs.length} 題</div>
+        <div class="badges"><span class="bdg ${s.done===u.qs.length?"done":""}">✏️ 已作答 ${s.done}/${u.qs.length}</span><span class="bdg ${s.done&&s.ok===s.done?"done":""}">✅ 答對 ${s.ok}</span></div></div>
+      <div class="chev">›</div></button>`}).join(""):'<p class="hint">這個年級還沒有題目。</p>'}</div>
+  <p class="hint">🎯 積點規則：每題首次作答正確 +10。計算題用下方鍵盤作答，分數用「/」，帶分數用「又」（例：2又1/3）。</p>`;
+  document.querySelectorAll(".lv").forEach(b=>b.onclick=()=>{S.level=+b.dataset.l;save();home()});
+  document.querySelectorAll(".pcard").forEach(b=>b.onclick=()=>openUnit(b.dataset.id));
+  bindSubj(); window.scrollTo(0,0);
+}
+function openUnit(id){
+  stopReading(); closeSheet(); kpClose();
+  mcur=MATH.find(u=>u.id===id); if(!mcur) return home(); cur=null; location.hash=id;
+  S.mseen=S.mseen||[]; if(!S.mseen.includes(id)){S.mseen.push(id);save();}
+  renderUnit(); window.scrollTo(0,0);
+}
+function renderUnit(){
+  const u=mcur, r=mrec(u.id), s=mstats(u);
+  let h=`<button class="back" id="back">‹ ${LV[u.level].n}數學單元</button>
+    <h2 class="ptitle">${esc(u.title)}</h2><p class="psub">${LV[u.level].n}（${LV[u.level].d}）・${u.qs.length} 題</p><div style="height:14px"></div>`;
+  if(u.key&&u.key.length) h+=`<div class="keyc"><h3>📌 重點整理</h3><ul>${u.key.map(k=>`<li>${fmt(k)}</li>`).join("")}</ul></div>`;
+  if(s.done===u.qs.length) h+=`<div class="sum"><div><div class="big">${s.ok} / ${u.qs.length}</div><div class="s">本單元完成</div></div><button id="redo">重新練習</button></div>`;
+  u.qs.forEach((q,qi)=>{
+    const a=r.a[qi];
+    h+=`<div class="q" id="mq${qi}"><div class="qh"><span class="n">${qi+1}.</span><span>${fmt(q.q)}</span></div>`;
+    if(q.t==="num"){
+      const shown=a?a.v:(kpQ===qi?kpVal:"");
+      h+=`<div class="nrow"><div class="nin ${a?(a.ok?"ok":"bad"):(kpQ===qi?"act":"")}" data-n="${qi}">${shown?fmt(ansMarkup(shown)):(kpQ===qi?"":'<span class="ph">點這裡作答</span>')}${!a&&kpQ===qi?'<span class="caret"></span>':""}</div>${q.unit?`<span class="nunit">${esc(q.unit)}</span>`:""}</div>
+        <div class="nmsg" id="nmsg${qi}"></div>`;
+      if(a) h+=`<div class="exp">${a.ok?'<b class="okc">答對了！</b>':'<b class="badc">正確答案：'+fmt(ansMarkup(q.ans))+(q.unit?" "+esc(q.unit):"")+'</b>'}<br>${fmt(q.exp)}</div>`;
+    }else{
+      const ord=order(q.opts.length,u.id+"m"+qi);
+      ord.forEach((oi,pos)=>{let c=""; if(a){ if(oi===0) c="ok"; else if(oi===a.pick) c="bad"; }
+        h+=`<button class="opt ${c}" data-q="${qi}" data-o="${oi}" ${a?"disabled":""}><span class="k">${KEYS[pos]}</span><span>${fmt(q.opts[oi])}</span></button>`;});
+      if(a) h+=`<div class="exp">${a.ok?'<b class="okc">答對了！</b>':'<b class="badc">正確答案是 '+KEYS[ord.indexOf(0)]+'。</b>'} ${fmt(q.exp)}</div>`;
+    }
+    h+=`</div>`;
+  });
+  $("#app").innerHTML=h;
+  $("#back").onclick=home;
+  document.querySelectorAll(".opt[data-q]").forEach(b=>b.onclick=()=>{
+    const qi=+b.dataset.q, oi=+b.dataset.o; markM(qi,{pick:oi,ok:oi===0});
+  });
+  document.querySelectorAll(".nin").forEach(b=>b.onclick=()=>{const qi=+b.dataset.n; if(r.a[qi]) return; if(kpQ!==qi){kpQ=qi;kpVal="";} kpOpen(); keepY(renderUnit); setTimeout(()=>{const e=$("#mq"+qi); if(e) e.scrollIntoView({block:"center",behavior:"smooth"})},50);});
+  const rd=$("#redo"); if(rd) rd.onclick=()=>{r.a={};save();renderUnit();window.scrollTo(0,0)};
+}
+function keepY(fn){const y=window.scrollY; fn(); window.scrollTo(0,y);}
+function markM(qi,res){
+  const r=mrec(mcur.id); r.a[qi]=res; const first=!r.paid[qi]; r.paid[qi]=true; save();
+  if(res.ok&&first) addPoints(10,"答對了！");
+  keepY(renderUnit);
+}
+function kpOpen(){$("#kp").classList.add("on");document.body.classList.add("kpon")}
+function kpClose(){kpQ=null;kpVal="";$("#kp").classList.remove("on");document.body.classList.remove("kpon")}
+function submitNum(){
+  const q=mcur.qs[kpQ], qi=kpQ, msg=t=>{const e=$("#nmsg"+qi); if(e) e.textContent=t;};
+  const v=parseNum(kpVal); if(!v){msg(kpVal?"格式看不懂，請檢查一下（分數用 /，帶分數用「又」）":"請先輸入答案");return;}
+  const ans=parseNum(q.ans);
+  if(sameVal(v,ans)){
+    if((v.kind==="frac"||v.kind==="mixed")&&gcd(v.fa,v.fb)!==1){msg("答案的值對了，但請約分成最簡分數再按確定");return;}
+    if(v.kind==="mixed"&&v.fa>=v.fb){msg("帶分數的分數部分要小於分母，請再化簡");return;}
+  }
+  const val=kpVal; kpClose(); markM(qi,{v:val,ok:sameVal(v,ans)});
+}
+document.querySelectorAll("#kp button").forEach(b=>b.onclick=()=>{
+  if(kpQ===null) return; const k=b.dataset.k;
+  if(k==="ok") return submitNum();
+  if(k==="bs") kpVal=kpVal.slice(0,-1);
+  else if(k==="-"){ kpVal=kpVal.startsWith("-")?kpVal.slice(1):"-"+kpVal; }
+  else if(kpVal.length<14) kpVal+=k;
+  const e=$("#nmsg"+kpQ); if(e) e.textContent="";
+  const box=document.querySelector(`.nin[data-n="${kpQ}"]`);
+  if(box) box.innerHTML=(kpVal?fmt(ansMarkup(kpVal)):"")+'<span class="caret"></span>';
+});
+document.addEventListener("click",e=>{ if(kpQ!==null&&!e.target.closest("#kp")&&!e.target.closest(".nin")){ const q=kpQ; kpClose(); const box=document.querySelector(`.nin[data-n="${q}"]`); if(box) box.innerHTML='<span class="ph">點這裡作答</span>'; box&&box.classList.remove("act"); } });
+
 // routing
-function route(){const id=location.hash.slice(1); if(id&&PASSAGES.some(p=>p.id===id)){ if(!cur||cur.id!==id) openPassage(id,"read"); } else if(cur) home();}
+function route(){const id=location.hash.slice(1);
+  if(id&&PASSAGES.some(p=>p.id===id)){ if(!cur||cur.id!==id) openPassage(id,"read"); }
+  else if(id&&MATH.some(u=>u.id===id)){ if(!mcur||mcur.id!==id) openUnit(id); }
+  else if(cur||mcur) home();}
 window.addEventListener("hashchange",route);
 $("#app").innerHTML='<div class="loading">載入題庫中…</div>';
 loadContent().then(()=>{
@@ -553,7 +729,11 @@ loadContent().then(()=>{
   if(!S.cver) S.seen=PASSAGES.map(p=>p.id);
   S.cver=CONTENT.version; save();
   const startId=location.hash.slice(1);
-  if(startId&&PASSAGES.some(p=>p.id===startId)) openPassage(startId,"read"); else home();
+  if(S.mver&&MATHV>S.mver) setTimeout(()=>addPoints(0,"數學題庫已更新！"),900);
+  if(!S.mver) S.mseen=MATH.map(u=>u.id);
+  S.mver=MATHV; save();
+  if(startId&&PASSAGES.some(p=>p.id===startId)) openPassage(startId,"read");
+  else if(startId&&MATH.some(u=>u.id===startId)) openUnit(startId); else home();
 });
 if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
