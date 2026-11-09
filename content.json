@@ -1,6 +1,6 @@
 {
- "version": 2,
- "updated": "2026-11-07",
+ "version": 3,
+ "updated": "2026-11-09",
  "passages": [
   {
    "id": "g4-1",
@@ -203,6 +203,441 @@
       "By car."
      ],
      "exp": "she goes to school by bus."
+    }
+   ]
+  },
+  {
+   "id": "g4-4",
+   "level": 4,
+   "title": "What's in My Bag?",
+   "zh": "我的書包裡有什麼？",
+   "text": "My name is Sam. I am a fourth grader. Every morning, I {put} my books in my school bag. There are four books in it: Chinese, English, math, and science. I also have a pencil box. There are three pencils, two erasers, and a ruler {in} it.\nMy bag is blue and {heavy}. My mom always says, \"Don't put toys in your bag!\" But today I have a small robot in it. Shh! It's a {secret}. I want to show it to my friend Ken after lunch.",
+   "cloze": [
+    {
+     "opts": [
+      "put",
+      "puts",
+      "putting",
+      "to put"
+     ],
+     "exp": "主詞 I 搭配原形動詞：I put my books...。"
+    },
+    {
+     "opts": [
+      "in",
+      "on",
+      "under",
+      "at"
+     ],
+     "exp": "鉛筆放在鉛筆盒「裡面」：in it。"
+    },
+    {
+     "opts": [
+      "heavy",
+      "hungry",
+      "sad",
+      "tall"
+     ],
+     "exp": "裝了四本書，書包很「重」：heavy。"
+    },
+    {
+     "opts": [
+      "secret",
+      "student",
+      "song",
+      "sister"
+     ],
+     "exp": "不想讓媽媽知道，所以是「祕密」：It's a secret."
+    }
+   ],
+   "qs": [
+    {
+     "q": "How many books are in Sam's bag?",
+     "opts": [
+      "Four.",
+      "Three.",
+      "Two.",
+      "Five."
+     ],
+     "exp": "There are four books in it: Chinese, English, math, and science."
+    },
+    {
+     "q": "What is NOT in Sam's pencil box?",
+     "opts": [
+      "A robot.",
+      "Pencils.",
+      "Erasers.",
+      "A ruler."
+     ],
+     "exp": "鉛筆盒裡有鉛筆、橡皮擦和尺；機器人是放在書包裡。"
+    },
+    {
+     "q": "Why does Sam say \"Shh!\"?",
+     "opts": [
+      "He doesn't want his mom to know about the robot.",
+      "He is in the library.",
+      "His friend Ken is sleeping.",
+      "He is sick."
+     ],
+     "exp": "媽媽說不要帶玩具，但他偷偷帶了機器人，所以說這是祕密。"
+    },
+    {
+     "q": "When does Sam want to show the robot to Ken?",
+     "opts": [
+      "After lunch.",
+      "Before school.",
+      "After dinner.",
+      "On Sunday."
+     ],
+     "exp": "I want to show it to my friend Ken after lunch."
+    }
+   ]
+  },
+  {
+   "id": "g4-5",
+   "level": 4,
+   "title": "Lucky, My Dog",
+   "zh": "我的狗狗 Lucky",
+   "text": "I have a dog. His name is Lucky. He is three years old. He is brown and white, and he has big ears. Lucky can run fast, and he {can} swim, too. But he can't climb trees.\nEvery evening, my dad and I {walk} Lucky in the park. He likes to play with a ball. When I throw the ball, he runs and brings it {back} to me.\nLucky is very smart. When I am sad, he sits next to me and puts his head on my leg. He is not only my pet. He is my {best} friend.",
+   "cloze": [
+    {
+     "opts": [
+      "can",
+      "is",
+      "does",
+      "are"
+     ],
+     "exp": "與前句 can run fast 對應：he can swim, too。"
+    },
+    {
+     "opts": [
+      "walk",
+      "walks",
+      "walking",
+      "walked"
+     ],
+     "exp": "主詞 my dad and I 是複數，Every evening 表習慣，用原形 walk（遛狗）。"
+    },
+    {
+     "opts": [
+      "back",
+      "up",
+      "down",
+      "off"
+     ],
+     "exp": "bring it back 把它帶回來。"
+    },
+    {
+     "opts": [
+      "best",
+      "good",
+      "better",
+      "well"
+     ],
+     "exp": "my best friend 我最好的朋友。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "What can't Lucky do?",
+     "opts": [
+      "Climb trees.",
+      "Run fast.",
+      "Swim.",
+      "Play with a ball."
+     ],
+     "exp": "But he can't climb trees."
+    },
+    {
+     "q": "When do they walk Lucky?",
+     "opts": [
+      "Every evening.",
+      "Every morning.",
+      "At noon.",
+      "On weekends only."
+     ],
+     "exp": "Every evening, my dad and I walk Lucky in the park."
+    },
+    {
+     "q": "What does Lucky do when the writer is sad?",
+     "opts": [
+      "He sits next to the writer.",
+      "He runs to the park.",
+      "He climbs a tree.",
+      "He brings a ball."
+     ],
+     "exp": "When I am sad, he sits next to me and puts his head on my leg."
+    },
+    {
+     "q": "Which sentence is true?",
+     "opts": [
+      "Lucky has big ears.",
+      "Lucky is five years old.",
+      "Lucky is black.",
+      "Lucky walks alone in the park."
+     ],
+     "exp": "He is brown and white, and he has big ears. 他三歲、棕白色，和爸爸、作者一起散步。"
+    }
+   ]
+  },
+  {
+   "id": "g4-6",
+   "level": 4,
+   "title": "Four Seasons",
+   "zh": "四季",
+   "text": "There are four seasons in a year: spring, summer, fall, and winter. Which one do you like?\nIn spring, it is warm, and there are many flowers. In summer, it is hot and sunny. Many people go to the beach to {swim}. In fall, it is cool and windy. It is a good time to fly a kite. In winter, it is cold. People wear coats and {drink} hot tea.\nMy sister likes summer {because} she loves ice cream. I like winter best. Why? My birthday is in December, and I can get many presents! What {about} you?",
+   "cloze": [
+    {
+     "opts": [
+      "swim",
+      "sleep",
+      "cook",
+      "read"
+     ],
+     "exp": "去海邊「游泳」：go to the beach to swim。"
+    },
+    {
+     "opts": [
+      "drink",
+      "drinks",
+      "drinking",
+      "eat"
+     ],
+     "exp": "主詞 People 複數用原形；喝熱茶用 drink（不能 eat tea）。"
+    },
+    {
+     "opts": [
+      "because",
+      "but",
+      "so",
+      "or"
+     ],
+     "exp": "喜歡夏天的「原因」是愛吃冰淇淋：because。"
+    },
+    {
+     "opts": [
+      "about",
+      "for",
+      "to",
+      "of"
+     ],
+     "exp": "What about you? 那你呢？"
+    }
+   ],
+   "qs": [
+    {
+     "q": "Which season is cool and windy?",
+     "opts": [
+      "Fall.",
+      "Spring.",
+      "Summer.",
+      "Winter."
+     ],
+     "exp": "In fall, it is cool and windy."
+    },
+    {
+     "q": "Why does the writer's sister like summer?",
+     "opts": [
+      "She loves ice cream.",
+      "She can fly a kite.",
+      "Her birthday is in summer.",
+      "She likes to wear coats."
+     ],
+     "exp": "My sister likes summer because she loves ice cream."
+    },
+    {
+     "q": "When is the writer's birthday?",
+     "opts": [
+      "In December.",
+      "In summer.",
+      "In spring.",
+      "In fall."
+     ],
+     "exp": "My birthday is in December."
+    },
+    {
+     "q": "What is a good thing to do in fall?",
+     "opts": [
+      "Fly a kite.",
+      "Go swimming.",
+      "Wear coats.",
+      "Look at flowers."
+     ],
+     "exp": "In fall... It is a good time to fly a kite."
+    }
+   ]
+  },
+  {
+   "id": "g4-7",
+   "level": 4,
+   "title": "At the Bookstore",
+   "zh": "在書店",
+   "text": "Today is Sunday. Amy and her brother Ben go to a bookstore. Amy wants {to} buy a storybook. Ben wants a comic book.\n\"How much is this storybook?\" Amy asks. \"It's 150 dollars,\" says the clerk. Ben's comic book is 80 dollars. They have 300 dollars. \"We can buy them both,\" Ben says. \"And we still have {some} money.\"\nAfter that, they go to the store next door and buy two cups of juice. Each cup is 35 dollars. Now they {have} no money, but they are very happy. They go home and read their new books {together}.",
+   "cloze": [
+    {
+     "opts": [
+      "to",
+      "for",
+      "at",
+      "and"
+     ],
+     "exp": "want to + 原形動詞：wants to buy。"
+    },
+    {
+     "opts": [
+      "some",
+      "any",
+      "many",
+      "a"
+     ],
+     "exp": "肯定句中表示「一些」錢用 some；money 不可數，不能用 many 或 a。"
+    },
+    {
+     "opts": [
+      "have",
+      "has",
+      "having",
+      "is"
+     ],
+     "exp": "主詞 they 是複數，用 have：they have no money。"
+    },
+    {
+     "opts": [
+      "together",
+      "alone",
+      "again",
+      "never"
+     ],
+     "exp": "兄妹兩人「一起」看新書：together。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "How much is Ben's comic book?",
+     "opts": [
+      "80 dollars.",
+      "150 dollars.",
+      "35 dollars.",
+      "300 dollars."
+     ],
+     "exp": "Ben's comic book is 80 dollars."
+    },
+    {
+     "q": "How much money do they have after they buy the two books?",
+     "opts": [
+      "70 dollars.",
+      "230 dollars.",
+      "150 dollars.",
+      "0 dollars."
+     ],
+     "exp": "300 − 150 − 80 = 70 元。"
+    },
+    {
+     "q": "How much do they pay for the juice?",
+     "opts": [
+      "70 dollars.",
+      "35 dollars.",
+      "30 dollars.",
+      "60 dollars."
+     ],
+     "exp": "兩杯果汁，每杯 35 元：35 × 2 = 70 元，剛好把剩下的錢用完。"
+    },
+    {
+     "q": "What do Amy and Ben do at home?",
+     "opts": [
+      "They read their new books.",
+      "They drink juice.",
+      "They go shopping again.",
+      "They sleep."
+     ],
+     "exp": "They go home and read their new books together."
+    }
+   ]
+  },
+  {
+   "id": "g4-8",
+   "level": 4,
+   "title": "A Sunny Afternoon",
+   "zh": "晴朗的午後",
+   "text": "It is a sunny afternoon. Many people are at the park. Look! A girl is {flying} a kite. Her kite looks like a big red bird. Two boys are playing basketball. Their dog is running {after} the ball, too.\nUnder a big tree, an old man is reading a newspaper. Next to him, a woman is {feeding} the birds. A little boy is crying because he dropped his ice cream. His mother says, \"Don't cry. I {will} buy you another one.\"\nWhat a nice afternoon in the park!",
+   "cloze": [
+    {
+     "opts": [
+      "flying",
+      "flies",
+      "fly",
+      "flew"
+     ],
+     "exp": "現在進行式 is + V-ing：is flying a kite。"
+    },
+    {
+     "opts": [
+      "after",
+      "before",
+      "under",
+      "over"
+     ],
+     "exp": "run after 追著跑。"
+    },
+    {
+     "opts": [
+      "feeding",
+      "feeds",
+      "feed",
+      "fed"
+     ],
+     "exp": "現在進行式 is + V-ing：is feeding the birds。"
+    },
+    {
+     "opts": [
+      "will",
+      "am",
+      "do",
+      "was"
+     ],
+     "exp": "媽媽答應等一下「會」再買一個：will + 原形動詞。"
+    }
+   ],
+   "qs": [
+    {
+     "q": "What does the girl's kite look like?",
+     "opts": [
+      "A big red bird.",
+      "A small blue fish.",
+      "A big red dog.",
+      "A basketball."
+     ],
+     "exp": "Her kite looks like a big red bird."
+    },
+    {
+     "q": "What is the old man doing?",
+     "opts": [
+      "Reading a newspaper.",
+      "Feeding the birds.",
+      "Playing basketball.",
+      "Flying a kite."
+     ],
+     "exp": "an old man is reading a newspaper. 餵鳥的是旁邊的女士。"
+    },
+    {
+     "q": "Why is the little boy crying?",
+     "opts": [
+      "He dropped his ice cream.",
+      "He lost his kite.",
+      "His dog ran away.",
+      "He fell down."
+     ],
+     "exp": "A little boy is crying because he dropped his ice cream."
+    },
+    {
+     "q": "What is the weather like?",
+     "opts": [
+      "It is sunny.",
+      "It is rainy.",
+      "It is snowy.",
+      "It is windy and cold."
+     ],
+     "exp": "It is a sunny afternoon."
     }
    ]
   },
@@ -2358,7 +2793,7 @@
   "fold": "v. 摺疊",
   "follow": "v. 遵循；跟隨",
   "four": "num. 四",
-  "fourth": "adv. 第四",
+  "fourth": "adj. 第四的",
   "fresh": "adj. 新鮮的",
   "fruit": "n. 水果",
   "funny": "adj. 好笑的；有趣的",
@@ -2452,6 +2887,76 @@
   "window": "n. 窗戶",
   "wish": "n. 願望（make a wish 許願）",
   "words": "n. 字；詞（word 的複數）",
-  "zoo": "n. 動物園"
+  "zoo": "n. 動物園",
+  "asks": "v. 問（ask 的第三人稱單數）",
+  "bag": "n. 袋子；書包（school bag）",
+  "ball": "n. 球",
+  "bird": "n. 鳥",
+  "blue": "adj. 藍色的",
+  "books": "n. 書（book 的複數）",
+  "bookstore": "n. 書店",
+  "both": "pron. 兩者都",
+  "box": "n. 盒子（pencil box 鉛筆盒）",
+  "boy": "n. 男孩",
+  "boys": "n. 男孩（boy 的複數）",
+  "brings": "v. 帶來（bring 的第三人稱單數）",
+  "brother": "n. 兄弟",
+  "clerk": "n. 店員",
+  "climb": "v. 爬",
+  "coats": "n. 外套（coat 的複數）",
+  "cold": "adj. 冷的",
+  "comic": "adj. 漫畫的（comic book 漫畫書）",
+  "cool": "adj. 涼爽的",
+  "cry": "v. 哭",
+  "crying": "v. 哭（cry 的 -ing）",
+  "cup": "n. 杯",
+  "december": "n. 十二月",
+  "dog": "n. 狗",
+  "dollars": "n. 元（dollar 的複數）",
+  "door": "n. 門（next door 隔壁）",
+  "dropped": "v. 掉落（drop 的過去式）",
+  "ears": "n. 耳朵（ear 的複數）",
+  "erasers": "n. 橡皮擦（eraser 的複數）",
+  "fast": "adv. 快地",
+  "feeding": "v. 餵食（feed 的 -ing）",
+  "fly": "v. 放（風箏）；飛",
+  "flying": "v. 放（風箏）（fly 的 -ing）",
+  "grader": "n. …年級生（fourth grader 四年級生）",
+  "head": "n. 頭",
+  "heavy": "adj. 重的",
+  "juice": "n. 果汁",
+  "ken": "n. 肯（人名）",
+  "kite": "n. 風箏",
+  "leg": "n. 腿",
+  "loves": "v. 愛（love 的第三人稱單數）",
+  "lucky": "n. 樂奇（狗的名字）；adj. 幸運的",
+  "man": "n. 男人",
+  "nice": "adj. 美好的",
+  "pencil": "n. 鉛筆（pencil box 鉛筆盒）",
+  "pencils": "n. 鉛筆（pencil 的複數）",
+  "pet": "n. 寵物",
+  "playing": "v. 玩；打（球）（play 的 -ing）",
+  "presents": "n. 禮物（present 的複數）",
+  "reading": "v. 閱讀（read 的 -ing）",
+  "ruler": "n. 尺",
+  "running": "v. 跑（run 的 -ing；run after 追）",
+  "runs": "v. 跑（run 的第三人稱單數）",
+  "sam": "n. 山姆（人名）",
+  "seasons": "n. 季節（season 的複數）",
+  "shh": "int. 噓",
+  "show": "v. 給…看；展示",
+  "smart": "adj. 聰明的",
+  "spring": "n. 春天",
+  "store": "n. 商店",
+  "sunny": "adj. 晴朗的",
+  "throw": "v. 丟；擲",
+  "toys": "n. 玩具（toy 的複數）",
+  "walk": "v. 遛（狗）；走路",
+  "warm": "adj. 溫暖的",
+  "wear": "v. 穿",
+  "which": "pron. 哪一個",
+  "windy": "adj. 多風的",
+  "winter": "n. 冬天",
+  "seen": "v. 看見（see 的過去分詞）"
  }
 }
