@@ -971,30 +971,148 @@ function genQ1(mode){
   return null;
 }
 
+// ───────── 特訓：國一四則運算（有理數，精確分數計算）─────────
+const OMODES={
+  as:{n:"整數加減",g:"國一",d:"正負數加減、去括號、絕對值、數線距離"},
+  md:{n:"整數乘除與指數",g:"國一",d:"由左往右、−3² 與 (−3)²、正負號判斷"},
+  mix:{n:"整數四則混合",g:"國一",d:"先乘除後加減、括號、指數、分配律"},
+  fr:{n:"分數四則",g:"國一",d:"負分數加減乘除、帶分數、運算順序"},
+  ch:{n:"綜合挑戰",g:"國一",d:"分數次方、絕對值、分配律簡算、(−1)ⁿ"}
+};
+const Qn=(n,d=1)=>{if(d<0){n=-n;d=-d} const g=gcd(n,d)||1; return {n:n/g,d:d/g}};
+const Qadd=(a,b)=>Qn(a.n*b.d+b.n*a.d,a.d*b.d), Qsub=(a,b)=>Qn(a.n*b.d-b.n*a.d,a.d*b.d);
+const Qmul=(a,b)=>Qn(a.n*b.n,a.d*b.d), Qdiv=(a,b)=>Qn(a.n*b.d,a.d*b.n);
+const Qpow=(a,e)=>Qn(a.n**e,a.d**e), Qabs=a=>Qn(Math.abs(a.n),a.d), I=n=>Qn(n,1);
+const Qstr=a=>a.d===1?String(a.n):`${a.n}/${a.d}`;               // 答案字串（-7/12）
+const Qtxt=a=>{const s=a.n<0?"−":"", n=Math.abs(a.n); return a.d===1?s+n:s+`[${n}/${a.d}]`}; // 顯示
+const Qmk=a=>a.n<0?`(${Qtxt(a)})`:Qtxt(a);                         // 非首項：負數加括號
+const Qmk0=Qtxt;
+const nz=(a,b)=>{let x;do{x=R(a,b)}while(!x);return x};
+const sgn=()=>pick([1,-1]);
+function rfrac(maxD=12){for(;;){const d=R(2,maxD), n=R(1,Math.floor(d*1.6)); const q=Qn(sgn()*n,d); if(q.d>1) return q;}}
+function mixed(){ // 帶分數
+  const w=R(1,3), d=R(2,6), p=R(1,d-1); if(gcd(p,d)!==1) return null; const s=sgn();
+  return {v:Qn(s*(w*d+p),d), t:`${s<0?"−":""}${w}[${p}/${d}]`, mk:s<0?`(−${w}[${p}/${d}])`:`${w}[${p}/${d}]`};
+}
+const asQ=(expr,v,exp)=>({t:"num",q:`計算：${expr} = ?`,ans:Qstr(v),exp});
+
+function genOps(mode){ for(let t=0;t<60;t++){const q=genOps1(mode); if(q) return q;} return genOps1("as"); }
+function genOps1(mode){
+  const T={as:["a3","a3","paren","abs","dist","a4"], md:["mdv","dvm","pow","pow","pmd","msign","prod"], mix:["m1","m2","m3","m4","m5","dist99"],
+           fr:["fas","fas","fmd","ford","fmix","fint","fpar"], ch:["cpow","cdist","cneg1","cnest","fmd","cabs"]}[mode];
+  const k=pick(T);
+  switch(k){
+  // ── 整數加減 ──
+  case "a3": { const a=I(nz(-60,60)), b=I(nz(-60,60)), c=I(nz(-60,60)); const o1=pick(["+","−"]), o2=pick(["+","−"]); if(a.n>0&&b.n>0&&c.n>0) return null;
+    const t2=o1==="+"?b:Qn(-b.n), t3=o2==="+"?c:Qn(-c.n), s1=Qadd(a,t2), v=Qadd(s1,t3);
+    return asQ(`${Qmk0(a)} ${o1} ${Qmk(b)} ${o2} ${Qmk(c)}`,v,`減去一數等於加上它的相反數，改寫成 ${Qmk0(a)} + ${Qmk(t2)} + ${Qmk(t3)}。${Qmk0(a)} + ${Qmk(t2)} = ${Qtxt(s1)}，${Qmk0(s1)} + ${Qmk(t3)} = ${Qtxt(v)}。`);}
+  case "a4": { const xs=[I(nz(-40,40)),I(nz(-40,40)),I(nz(-40,40)),I(nz(-40,40))]; const os=["+",pick(["+","−"]),pick(["+","−"]),pick(["+","−"])]; if(xs.every(x=>x.n>0)) return null;
+    const ts=xs.map((x,i)=>os[i]==="−"?Qn(-x.n):x); const pos=ts.filter(x=>x.n>0).reduce((s,x)=>s+x.n,0), neg=ts.filter(x=>x.n<0).reduce((s,x)=>s+x.n,0);
+    const expr=Qmk0(xs[0])+xs.slice(1).map((x,i)=>` ${os[i+1]} ${Qmk(x)}`).join("");
+    return asQ(expr,I(pos+neg),`先把減號改成加上相反數：${ts.map((x,i)=>i?Qmk(x):Qmk0(x)).join(" + ")}。正數合計 ${pos}，負數合計 ${neg<0?"−"+(-neg):0}，${pos} + ${Qmk(I(neg))} = ${Qtxt(I(pos+neg))}。`);}
+  case "paren": { const a=I(nz(-50,50)), b=I(nz(-50,50)), c=I(nz(-50,50)); const inner=Qsub(b,c), v=Qsub(a,inner);
+    return asQ(`${Qmk0(a)} − (${Qmk0(b)} − ${Qmk(c)})`,v,`先算括號：${Qmk0(b)} − ${Qmk(c)} = ${Qtxt(inner)}；再算 ${Qmk0(a)} − ${Qmk(inner)} = ${Qtxt(v)}。`);}
+  case "abs": { const a=I(-R(2,30)), b=I(nz(-30,30)), c=I(nz(-30,30)); const in2=Qsub(b,c), v=Qsub(Qabs(a),Qabs(in2));
+    return asQ(`|${Qmk0(a)}| − |${Qmk0(b)} − ${Qmk(c)}|`,v,`|${Qmk0(a)}| = ${Qtxt(Qabs(a))}；${Qmk0(b)} − ${Qmk(c)} = ${Qtxt(in2)}，|${Qtxt(in2)}| = ${Qtxt(Qabs(in2))}；${Qtxt(Qabs(a))} − ${Qtxt(Qabs(in2))} = ${Qtxt(v)}。`);}
+  case "dist": { const a=nz(-40,10), b=nz(-10,40); if(a===b) return null; const d=Math.abs(a-b);
+    return {t:"num",q:`數線上 A 點表示 ${Qtxt(I(a))}，B 點表示 ${Qtxt(I(b))}，A、B 兩點的距離是多少？`,ans:String(d),exp:`兩點距離 = |大數 − 小數| = |${Qmk0(I(Math.max(a,b)))} − ${Qmk(I(Math.min(a,b)))}| = ${d}。`};}
+  // ── 整數乘除與指數 ──
+  case "mdv": { const c=I(nz(-9,9)); if(Math.abs(c.n)<2) return null; const kk=nz(-12,12), a=I(c.n*kk), b=I(nz(-9,9)); const p=Qmul(a,b), v=Qdiv(p,c);
+    return asQ(`${Qmk0(a)} × ${Qmk(b)} ÷ ${Qmk(c)}`,v,`由左往右：${Qmk0(a)} × ${Qmk(b)} = ${Qtxt(p)}，${Qmk0(p)} ÷ ${Qmk(c)} = ${Qtxt(v)}。`);}
+  case "dvm": { const b=I(nz(-9,9)); if(Math.abs(b.n)<2) return null; const kk=nz(-9,9), a=I(b.n*kk), c=I(nz(-8,8)); if(Math.abs(c.n)<2) return null; const q1=Qdiv(a,b), v=Qmul(q1,c);
+    return asQ(`${Qmk0(a)} ÷ ${Qmk(b)} × ${Qmk(c)}`,v,`乘除同級，要由左往右算：${Qmk0(a)} ÷ ${Qmk(b)} = ${Qtxt(q1)}，${Qmk0(q1)} × ${Qmk(c)} = ${Qtxt(v)}。（不可以先算 ${Qmk(b)} × ${Qmk(c)}）`);}
+  case "pow": { const b=R(2,5), e=R(2,b<=3?5:3), f=pick([0,1,2]); const p=b**e;
+    if(f===0){const v=I((-b)**e); return asQ(`(−${b})^${e}`,v,`(−${b})^${e} 表示 ${e} 個 (−${b}) 相乘，${e%2?"奇數":"偶數"}個負數相乘為${e%2?"負":"正"}：${Qtxt(v)}。`);}
+    if(f===1){const v=I(-p); return asQ(`−${b}^${e}`,v,`−${b}^${e} 是 ${b}^${e} 的相反數（負號不在次方裡）：${b}^${e} = ${p}，所以答案是 −${p}。`);}
+    {const v=I(-((-b)**e)); return asQ(`−(−${b})^${e}`,v,`先算 (−${b})^${e} = ${Qtxt(I((-b)**e))}，再取相反數：${Qtxt(v)}。`);} }
+  case "pmd": { const a=R(2,5), c=I(nz(-6,6)); if(Math.abs(c.n)<2) return null; const sq=a*a; const b=I(Math.abs(c.n)/gcd(sq,Math.abs(c.n))*nz(-4,4));
+    const p=Qmul(I(sq),b), v=Qdiv(p,c);
+    return asQ(`(−${a})^2 × ${Qmk(b)} ÷ ${Qmk(c)}`,v,`先算指數：(−${a})^2 = ${sq}；再由左往右：${sq} × ${Qmk(b)} = ${Qtxt(p)}，${Qmk0(p)} ÷ ${Qmk(c)} = ${Qtxt(v)}。`);}
+  case "msign": { const pool=[];
+    for(let i=0;i<40;i++){ const a=R(2,5), e=R(2,4), f=R(0,6); let s,v;
+      if(f===0){s=`(−${a})^${e}`;v=(-a)**e} else if(f===1){s=`−${a}^${e}`;v=-(a**e)} else if(f===2){s=`−(−${a})`;v=a}
+      else if(f===3){const b=R(2,9);s=`(−${a}) × (−${b})`;v=a*b} else if(f===4){const b=R(2,9);s=`(−${a}) × ${b}`;v=-a*b}
+      else if(f===5){s=`|−${a*3}|`;v=a*3} else {const n=R(10,99);s=`(−1)^{${n}} × (−${a})`;v=((n%2)?-1:1)*-a}
+      if(!pool.some(x=>x.s===s)) pool.push({s,v}); }
+    const negs=pool.filter(x=>x.v<0), poss=pool.filter(x=>x.v>0); if(!negs.length||poss.length<3) return null;
+    const c=pick(negs), w=poss.sort(()=>Math.random()-.5).slice(0,3);
+    return {t:"mc",q:"下列哪一個算式的值是「負數」？",opts:[c.s,...w.map(x=>x.s)],exp:`${c.s} = ${Qtxt(I(c.v))}；其他：${w.map(x=>`${x.s} = ${x.v}`).join("，")}。`};}
+  case "prod": { const n=R(3,5), neg=R(2,n); const fs=[...Array(n)].map((_,i)=>i<neg?-(i+1):(i+1)); const v=fs.reduce((s,x)=>s*x,1);
+    return asQ(fs.map((x,i)=>i?Qmk(I(x)):Qmk0(I(x))).join(" × "),I(v),`共有 ${neg} 個負數，${neg%2?"奇數個負數相乘為負":"偶數個負數相乘為正"}；絕對值相乘 = ${Math.abs(v)}，答案 ${Qtxt(I(v))}。`);}
+  // ── 整數四則混合 ──
+  case "m1": { const a=I(nz(-50,50)), b=I(nz(-12,12)), c=I(nz(-12,12)); const p=Qmul(b,c), v=Qsub(a,p);
+    return asQ(`${Qmk0(a)} − ${Qmk(b)} × ${Qmk(c)}`,v,`先乘後減：${Qmk0(b)} × ${Qmk(c)} = ${Qtxt(p)}；${Qmk0(a)} − ${Qmk(p)} = ${Qtxt(v)}。`);}
+  case "m2": { const a=I(nz(-20,20)), b=I(nz(-20,20)), c=I(nz(-6,6)), e=I(nz(-6,6)); if(Math.abs(e.n)<2) return null; const d=I(e.n*nz(-9,9));
+    const s=Qsub(a,b), p=Qmul(s,c), q=Qdiv(d,e), v=Qadd(p,q);
+    return asQ(`(${Qmk0(a)} − ${Qmk(b)}) × ${Qmk(c)} + ${Qmk(d)} ÷ ${Qmk(e)}`,v,`括號：${Qmk0(a)} − ${Qmk(b)} = ${Qtxt(s)}；乘除：${Qmk0(s)} × ${Qmk(c)} = ${Qtxt(p)}，${Qmk0(d)} ÷ ${Qmk(e)} = ${Qtxt(q)}；最後 ${Qmk0(p)} + ${Qmk(q)} = ${Qtxt(v)}。`);}
+  case "m3": { const b=I(nz(-9,9)); if(Math.abs(b.n)<2) return null; const a=I(b.n*nz(-12,12)), c=I(nz(-9,9)), d=I(nz(-9,9)); const q=Qdiv(a,b), p=Qmul(c,d), v=Qsub(q,p);
+    return asQ(`${Qmk0(a)} ÷ ${Qmk(b)} − ${Qmk(c)} × ${Qmk(d)}`,v,`先算乘除：${Qmk0(a)} ÷ ${Qmk(b)} = ${Qtxt(q)}，${Qmk0(c)} × ${Qmk(d)} = ${Qtxt(p)}；再減：${Qmk0(q)} − ${Qmk(p)} = ${Qtxt(v)}。`);}
+  case "m4": { const p=R(2,5), q=I(nz(-9,9)), r=I(nz(-9,9)), s=I(nz(-9,9)); const sq=p*p, in1=Qsub(r,s), m=Qmul(q,in1), v=Qadd(I(-sq),m);
+    return asQ(`−${p}^2 + ${Qmk(q)} × (${Qmk0(r)} − ${Qmk(s)})`,v,`−${p}^2 = −${sq}（不是 ${sq}）；括號：${Qmk0(r)} − ${Qmk(s)} = ${Qtxt(in1)}；${Qmk0(q)} × ${Qmk(in1)} = ${Qtxt(m)}；−${sq} + ${Qmk(m)} = ${Qtxt(v)}。`);}
+  case "m5": { const a=I(nz(-9,9)), b=I(nz(-12,12)), c=R(2,4); const in1=Qadd(b,I(c*c)), v=Qmul(a,in1);
+    return asQ(`${Qmk0(a)} × [${Qmk0(b)} + (−${c})^2]`,v,`先算中括號內：(−${c})^2 = ${c*c}，${Qmk0(b)} + ${c*c} = ${Qtxt(in1)}；${Qmk0(a)} × ${Qmk(in1)} = ${Qtxt(v)}。`);}
+  case "dist99": { const a=R(12,48), m=pick([99,101,98,102]); const v=I(-a*m), dlt=m-100;
+    return asQ(`(−${a}) × ${m}`,v,`利用分配律：(−${a}) × (100 ${dlt<0?"−":"+"} ${Math.abs(dlt)}) = −${a*100} ${dlt<0?"+":"−"} ${a*Math.abs(dlt)} = ${Qtxt(v)}。`);}
+  // ── 分數四則 ──
+  case "fas": { const a=rfrac(), b=rfrac(); const o=pick(["+","−"]); const v=o==="+"?Qadd(a,b):Qsub(a,b);
+    const L=lcm(a.d,b.d);
+    return asQ(`${Qmk0(a)} ${o} ${Qmk(b)}`,v,`${o==="−"?"減去一數等於加上它的相反數；":""}通分（公分母 ${L}）：${Qmk0(a)} ${o} ${Qmk(b)} = ${Qtxt(v)}。${v.d>1?"記得約成最簡分數。":""}`);}
+  case "fmd": { const a=rfrac(9), b=rfrac(9), c=rfrac(9); const p=Qmul(a,b), v=Qdiv(p,c); if(Math.abs(v.n)>60||v.d>40) return null;
+    return asQ(`${Qmk0(a)} × ${Qmk(b)} ÷ ${Qmk(c)}`,v,`除以 ${Qmk(c)} 等於乘以它的倒數 ${Qmk(Qdiv(I(1),c))}。由左往右：${Qmk0(a)} × ${Qmk(b)} = ${Qtxt(p)}，${Qmk0(p)} × ${Qmk(Qdiv(I(1),c))} = ${Qtxt(v)}。`);}
+  case "ford": { const a=rfrac(8), b=rfrac(8), c=rfrac(8); const p=Qmul(b,c), v=Qsub(a,p); if(v.d>48) return null;
+    return asQ(`${Qmk0(a)} − ${Qmk(b)} × ${Qmk(c)}`,v,`先乘後減：${Qmk0(b)} × ${Qmk(c)} = ${Qtxt(p)}；${Qmk0(a)} − ${Qmk(p)} = ${Qtxt(v)}。`);}
+  case "fmix": { const x=mixed(), y=mixed(); if(!x||!y) return null; const o=pick(["+","−"]); const v=o==="+"?Qadd(x.v,y.v):Qsub(x.v,y.v);
+    return asQ(`${x.t} ${o} ${y.mk}`,v,`帶分數先化成假分數：${x.t} = ${Qtxt(x.v)}，${y.t} = ${Qtxt(y.v)}；${Qmk0(x.v)} ${o} ${Qmk(y.v)} = ${Qtxt(v)}。`);}
+  case "fint": { const d=R(2,9), n=R(1,d-1); if(gcd(n,d)!==1) return null; const a=Qn(sgn()*n,d), kk=d*R(1,4)*sgn(), m=I(nz(-12,12)); const p=Qmul(a,I(kk)), v=Qsub(p,m);
+    return asQ(`${Qmk0(a)} × ${Qmk(I(kk))} − ${Qmk(m)}`,v,`先乘：${Qmk0(a)} × ${Qmk(I(kk))} = ${Qtxt(p)}；再減：${Qmk0(p)} − ${Qmk(m)} = ${Qtxt(v)}。`);}
+  case "fpar": { const a=rfrac(6), b=rfrac(6), c=rfrac(6); const s=Qadd(a,b); if(!s.n) return null; const v=Qdiv(s,c); if(v.d>36||Math.abs(v.n)>60) return null;
+    return asQ(`(${Qmk0(a)} + ${Qmk(b)}) ÷ ${Qmk(c)}`,v,`先算括號：${Qmk0(a)} + ${Qmk(b)} = ${Qtxt(s)}；${Qmk0(s)} ÷ ${Qmk(c)} = ${Qmk0(s)} × ${Qmk(Qdiv(I(1),c))} = ${Qtxt(v)}。`);}
+  // ── 綜合挑戰 ──
+  case "cpow": { const base=pick([Qn(-1,2),Qn(1,2),Qn(-1,3),Qn(2,3),Qn(-2,3),Qn(-3,2)]), e=base.d===2&&Math.abs(base.n)===1?pick([2,3,4]):pick([2,3]);
+    const pw=Qpow(base,e), M=I(base.d**e*R(1,3)*sgn()), x=rfrac(6), y=rfrac(6); const p=Qmul(pw,M), q=Qdiv(Qabs(x),Qabs(y)), v=Qsub(p,q); if(v.d>36) return null;
+    return asQ(`${Qmk(base)}^${e} × ${Qmk(M)} − |${Qmk0(x)}| ÷ ${Qmk(Qabs(y))}`,v,`指數：${Qmk(base)}^${e} = ${Qtxt(pw)}；絕對值：|${Qmk0(x)}| = ${Qtxt(Qabs(x))}；乘除：${Qmk0(pw)} × ${Qmk(M)} = ${Qtxt(p)}，${Qtxt(Qabs(x))} ÷ ${Qmk(Qabs(y))} = ${Qtxt(q)}；最後 ${Qmk0(p)} − ${Qmk(q)} = ${Qtxt(v)}。`);}
+  case "cdist": { const d1=pick([2,3,4,5,6,8]), d2=pick([3,4,6,8,12]); if(d1===d2) return null; const n1=R(1,d1-1), n2=R(1,d2-1); if(gcd(n1,d1)!==1||gcd(n2,d2)!==1) return null;
+    const N=I(-lcm(d1,d2)*R(1,3)), a=Qn(n1,d1), b=Qn(n2,d2), s=Qadd(a,b), v=Qmul(s,N);
+    return asQ(`${Qmk0(a)} × ${Qmk(N)} + ${Qmk(b)} × ${Qmk(N)}`,v,`利用分配律：(${Qmk0(a)} + ${Qmk(b)}) × ${Qmk(N)} = ${Qtxt(s)} × ${Qmk(N)} = ${Qtxt(v)}。（也可分別相乘：${Qtxt(Qmul(a,N))} + ${Qmk(Qmul(b,N))}）`);}
+  case "cneg1": { const n1=R(2020,2035), n2=R(2020,2035), kk=R(2,9), k2=R(2,9); const p1=n1%2?-1:1, p2=n2%2?-1:1; const v=I(p1-p2*kk+k2);
+    return asQ(`(−1)^{${n1}} − (−1)^{${n2}} × ${kk} + |−${k2}|`,v,`(−1) 的奇數次方 = −1、偶數次方 = 1：(−1)^{${n1}} = ${p1<0?"−1":"1"}，(−1)^{${n2}} = ${p2<0?"−1":"1"}；${p1<0?"−1":"1"} − ${Qmk(I(p2*kk))} + ${k2} = ${Qtxt(v)}。`);}
+  case "cnest": { const b=R(2,4), c=I(nz(-9,9)), d=I(nz(-9,9)), f=rfrac(5); const s=Qadd(c,d); if(!s.n) return null; const p=Qmul(I(-b*b),s), v=Qdiv(p,f); if(v.d>30) return null;
+    return asQ(`−${b}^2 × [${Qmk0(c)} + ${Qmk(d)}] ÷ ${Qmk(f)}`,v,`−${b}^2 = −${b*b}；中括號：${Qmk0(c)} + ${Qmk(d)} = ${Qtxt(s)}；由左往右：−${b*b} × ${Qmk(s)} = ${Qtxt(p)}，${Qmk0(p)} ÷ ${Qmk(f)} = ${Qtxt(v)}。`);}
+  case "cabs": { const a=rfrac(8), b=rfrac(8), c=I(R(2,4)); const s=Qsub(a,b), v=Qmul(Qabs(s),Qn(-c.n)); if(v.d>40||!s.n) return null;
+    return asQ(`|${Qmk0(a)} − ${Qmk(b)}| × (−${c.n})`,v,`絕對值內：${Qmk0(a)} − ${Qmk(b)} = ${Qtxt(s)}，|${Qtxt(s)}| = ${Qtxt(Qabs(s))}；${Qtxt(Qabs(s))} × (−${c.n}) = ${Qtxt(v)}。`);}
+  }
+  return null;
+}
+
+const TOPICS={
+  ops:{t:"四則運算",icon:"➗",lv:"國一",modes:OMODES,gen:genOps,tip:"建議順序：整數加減 → 整數乘除與指數 → 整數四則混合 → 分數四則 → 綜合挑戰。"},
+  gcd:{t:"公因數與公倍數",icon:"🔢",lv:"國一～國三",modes:DMODES,gen:genQ,tip:"建議順序：標準分解式 → 最大公因數與最小公倍數 → 性質與關係 → 會考應用題 → 公因式 → 會考挑戰。"}
+};
 function multOf(s){return s>=10?3:s>=5?2:s>=3?1.5:1}
 function drillStats(){S.drill=S.drill||{};return S.drill}
+const skey=(tp,m)=>tp==="gcd"?m:`${tp}:${m}`;
 function drillHome(){
   const st=drillStats();
   $("#app").innerHTML=`${subjBar()}
-  <section class="hero"><h1>⚡ 特別練習區</h1><p>題目由程式隨機產生、做不完，適合大量練習。連續答對越多，點數加成越高！</p></section>
-  <div class="dcard"><h3>🔢 公因數與公倍數（國一～國三）</h3>
-    <div class="rules">每題答對 <b>10 點</b>，連對加成：<br>連對 3 題 <b>×1.5</b>｜連對 5 題 <b>×2</b>｜連對 10 題 <b>×3</b><br>一回 10 題全對，再加 <b>50 點</b>。答錯連對歸零。</div>
-    <div class="modes">${Object.entries(DMODES).map(([k,m])=>{const s=st[k]||{};return `<button class="mode" data-m="${k}"><b>${m.n}</b><small>${m.g}・${m.d}</small><span class="st">${s.n?`已練 ${s.n} 題・答對 ${s.ok}・最高連對 ${s.best||0}`:"開始練習 ›"}</span></button>`}).join("")}</div>
-  </div>
-  <p class="hint">建議順序：標準分解式 → 最大公因數與最小公倍數 → 性質與關係 → 會考應用題 → 公因式 → 會考挑戰。</p>`;
-  document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{S.dmode=b.dataset.m;save();startDrill(b.dataset.m)});
+  <section class="hero"><h1>⚡ 特別練習區</h1><p>題目由程式隨機產生、做不完，適合大量練習。連續答對越多，點數加成越高！</p>
+  <div class="rules" style="margin-top:10px">每題答對 <b>10 點</b>，連對加成：<br>連對 3 題 <b>×1.5</b>｜連對 5 題 <b>×2</b>｜連對 10 題 <b>×3</b><br>一回 10 題全對，再加 <b>50 點</b>。答錯連對歸零。</div></section>
+  ${Object.entries(TOPICS).map(([tp,T])=>`<div class="dcard"><h3>${T.icon} ${T.t}（${T.lv}）</h3>
+    <div class="modes">${Object.entries(T.modes).map(([k,m])=>{const s=st[skey(tp,k)]||{};return `<button class="mode" data-t="${tp}" data-m="${k}"><b>${m.n}</b><small>${m.g}・${m.d}</small><span class="st">${s.n?`已練 ${s.n} 題・答對 ${s.ok}・最高連對 ${s.best||0}`:"開始練習 ›"}</span></button>`}).join("")}</div>
+    <p class="hint">${T.tip}</p></div>`).join("")}`;
+  document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{S.dtopic=b.dataset.t;S.dmode=b.dataset.m;save();startDrill(b.dataset.t,b.dataset.m)});
   bindSubj(); window.scrollTo(0,0);
 }
-function startDrill(mode){
-  if(!DMODES[mode]) mode="std";
-  kpClose(); cur=null; mcur=null; location.hash="drill-gcd";
-  dcur={mode,i:0,n:10,ok:0,streak:0,earned:0,q:genQ(mode),ans:null};
+function startDrill(tp,mode){
+  if(!TOPICS[tp]) tp="ops";
+  const T=TOPICS[tp]; if(!T.modes[mode]) mode=Object.keys(T.modes)[0];
+  kpClose(); cur=null; mcur=null; location.hash="drill-"+tp;
+  dcur={tp,mode,i:0,n:10,ok:0,streak:0,earned:0,q:T.gen(mode),ans:null};
   renderDrill(); window.scrollTo(0,0);
 }
 function renderDrill(){
-  const d=dcur, q=d.q, m=multOf(d.streak), done=d.i>=d.n;
+  const d=dcur, T=TOPICS[d.tp], M=T.modes[d.mode], q=d.q, m=multOf(d.streak), done=d.i>=d.n;
   let h=`<button class="back" id="back">‹ 特別練習區</button>
-    <h2 class="ptitle">公因數與公倍數・${DMODES[d.mode].n}</h2><p class="psub">${DMODES[d.mode].g}・本回已得 ${d.earned} 點</p>
+    <h2 class="ptitle">${T.t}・${M.n}</h2><p class="psub">${M.g}・本回已得 ${d.earned} 點</p>
     <div class="dbar"><div class="dprog"><i style="width:${Math.min(d.i,d.n)/d.n*100}%"></i></div><span class="mult ${m>1?"hot":""}">加成 ×${m}</span></div>
     <div class="streak">🔥 連對 ${d.streak} 題　｜　第 ${Math.min(d.i+1,d.n)} / ${d.n} 題</div>`;
   if(done){
@@ -1002,7 +1120,7 @@ function renderDrill(){
       <button class="nextb" id="again">再來一回 ▶</button>`;
   }else{
     const a=d.ans;
-    h+=`<div class="q"><div class="qh"><span>${fmt(q.q)}</span></div>`;
+    h+=`<div class="q"><div class="qh"><span style="font-size:${q.q.length<40?"19px":"inherit"}">${fmt(q.q)}</span></div>`;
     if(q.t==="num"){
       h+=`<div class="nrow"><div class="nin ${a?(a.ok?"ok":"bad"):"act"}" data-n="d">${a?fmt(ansMarkup(a.v)):(kpVal?fmt(ansMarkup(kpVal)):"")}${a?"":'<span class="caret"></span>'}</div>${q.unit?`<span class="nunit">${esc(q.unit)}</span>`:""}</div><div class="nmsg" id="nmsgd"></div>`;
     }else{
@@ -1016,8 +1134,8 @@ function renderDrill(){
   }
   $("#app").innerHTML=h;
   $("#back").onclick=()=>{S.subj="drill";home()};
-  const ag=$("#again"); if(ag) ag.onclick=()=>startDrill(d.mode);
-  const nx=$("#next"); if(nx) nx.onclick=()=>{d.i++; if(d.i<d.n){d.q=genQ(d.mode);d.ans=null;d.ord=null;} else if(d.ok===d.n){d.earned+=50;addPoints(50,"全對獎勵！");}
+  const ag=$("#again"); if(ag) ag.onclick=()=>startDrill(d.tp,d.mode);
+  const nx=$("#next"); if(nx) nx.onclick=()=>{d.i++; if(d.i<d.n){d.q=T.gen(d.mode);d.ans=null;d.ord=null;} else if(d.ok===d.n){d.earned+=50;addPoints(50,"全對獎勵！");}
     renderDrill(); window.scrollTo(0,0); if(d.i<d.n&&d.q.t==="num"){kpQ="d";kpVal="";kpOpen();}};
   document.querySelectorAll(".opt[data-o]").forEach(b=>b.onclick=()=>drillAnswer({pick:+b.dataset.o,ok:+b.dataset.o===0}));
   const box=document.querySelector('.nin[data-n="d"]'); if(box&&!d.ans) box.onclick=()=>{kpQ="d";kpOpen()};
@@ -1025,22 +1143,25 @@ function renderDrill(){
 }
 function drillAnswer(res){
   const d=dcur; if(d.ans) return;
-  const st=drillStats(), s=st[d.mode]||(st[d.mode]={n:0,ok:0,best:0}); s.n++;
+  const st=drillStats(), key=skey(d.tp,d.mode), s=st[key]||(st[key]={n:0,ok:0,best:0}); s.n++;
   if(res.ok){ d.streak++; d.ok++; s.ok++; s.best=Math.max(s.best,d.streak); const pts=Math.round(10*multOf(d.streak)); res.pts=pts; d.earned+=pts; save(); addPoints(pts,d.streak>=3?`連對 ${d.streak}！`:"答對了！"); }
   else { d.streak=0; save(); }
   d.ans=res; renderDrill();
 }
 function drillNum(){
   const v=parseNum(kpVal), msg=t=>{const e=$("#nmsgd"); if(e) e.textContent=t;};
-  if(!v){msg(kpVal?"格式看不懂，請再檢查一下":"請先輸入答案");return;}
-  const ok=sameVal(v,parseNum(dcur.q.ans)), val=kpVal; kpClose(); drillAnswer({v:val,ok});
+  if(!v){msg(kpVal?"格式看不懂，請再檢查一下（分數用 /，帶分數用「又」，負號按「負 −」）":"請先輸入答案");return;}
+  const ans=parseNum(dcur.q.ans), ok=sameVal(v,ans);
+  if(ok&&(v.kind==="frac"||v.kind==="mixed")&&gcd(v.fa,v.fb)!==1){msg("答案的值對了，但請約分成最簡分數再按確定");return;}
+  if(ok&&v.kind==="mixed"&&v.fa>=v.fb){msg("帶分數的分數部分要小於分母，請再化簡");return;}
+  const val=kpVal; kpClose(); drillAnswer({v:val,ok});
 }
 
 // routing
 function route(){const id=location.hash.slice(1);
   if(id&&PASSAGES.some(p=>p.id===id)){ if(!cur||cur.id!==id) openPassage(id,"read"); }
   else if(id&&MATH.some(u=>u.id===id)){ if(!mcur||mcur.id!==id) openUnit(id); }
-  else if(id==="drill-gcd"){ if(!dcur) startDrill(S.dmode||"basic"); }
+  else if(id.startsWith("drill-")){ if(!dcur) startDrill(id.slice(6),S.dmode); }
   else if(cur||mcur||dcur) home();}
 window.addEventListener("hashchange",route);
 $("#app").innerHTML='<div class="loading">載入題庫中…</div>';
@@ -1055,7 +1176,7 @@ loadContent().then(()=>{
   S.mver=MATHV; save();
   if(startId&&PASSAGES.some(p=>p.id===startId)) openPassage(startId,"read");
   else if(startId&&MATH.some(u=>u.id===startId)) openUnit(startId);
-  else if(startId==="drill-gcd"){S.subj="drill";startDrill(S.dmode||"basic");} else home();
+  else if(startId.startsWith("drill-")){S.subj="drill";startDrill(startId.slice(6),S.dmode);} else home();
 });
 if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
