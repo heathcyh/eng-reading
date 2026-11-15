@@ -36,6 +36,16 @@ header{position:sticky;top:0;z-index:20;background:rgba(251,247,239,.94);backdro
 .pts{display:flex;align-items:center;gap:6px;background:var(--gold-soft);border:1.5px solid var(--gold);padding:5px 12px 5px 6px;border-radius:99px;font-weight:800;white-space:nowrap}
 .pts .p{width:24px;height:24px;border-radius:50%;background:var(--gold);color:#fff;display:grid;place-items:center;font-size:13px}
 .pts.bump{animation:bump .5s}
+.pbar{max-width:720px;margin:0 auto;padding:0 16px 10px;display:flex;gap:8px}
+.pbar .pts{flex:1;justify-content:center;opacity:.55;transition:opacity .2s;font-size:14.5px}
+.pbar .pts b{font-size:17px;margin-left:2px}
+.pbar .pts.act{opacity:1;box-shadow:0 2px 8px rgba(242,165,22,.25)}
+.pts.yz{background:#FFF0E0;border-color:#F08A24}
+.pts.yz .p{background:#F08A24}
+.pts .p{font-size:12px}
+.mpts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.mpts button{padding:10px;border-radius:12px;background:#F1EDE4;font-weight:700;font-size:13.5px}
+.mpts button.warn2{background:var(--bad);color:#fff}
 @keyframes bump{40%{transform:scale(1.15)}}
 .gear{font-size:18px;padding:6px;border-radius:10px}
 
@@ -69,7 +79,7 @@ header{position:sticky;top:0;z-index:20;background:rgba(251,247,239,.94);backdro
 .tab{flex:1;padding:10px 4px;border-radius:11px;font-weight:700;font-size:14px;color:var(--muted)}
 .tab.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 
-.player{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;position:sticky;top:58px;z-index:10}
+.player{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;position:sticky;top:104px;z-index:10}
 .play{background:var(--brand);color:#fff;font-weight:800;padding:10px 16px;border-radius:12px;display:flex;align-items:center;gap:6px}
 .stopb{background:#F1EDE4;padding:10px 12px;border-radius:12px;font-weight:700}
 .speeds{display:flex;gap:4px;margin-left:auto}
@@ -209,7 +219,7 @@ body.kpon .wrap{padding-bottom:300px}
 .qh .w,.opt .w,.ctext .w{cursor:pointer}
 .lookbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px}
 .lookbar .hint{margin:0}
-.toast{position:fixed;left:50%;top:76px;transform:translate(-50%,-20px);opacity:0;z-index:70;background:var(--gold);color:#fff;font-weight:800;padding:8px 16px;border-radius:99px;transition:all .3s;pointer-events:none;box-shadow:0 4px 14px rgba(242,165,22,.4)}
+.toast{position:fixed;left:50%;top:122px;white-space:nowrap;transform:translate(-50%,-20px);opacity:0;z-index:70;background:var(--gold);color:#fff;font-weight:800;padding:8px 16px;border-radius:99px;transition:all .3s;pointer-events:none;box-shadow:0 4px 14px rgba(242,165,22,.4)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .warn{font-size:13px;background:var(--bad-soft);color:var(--bad);padding:8px 12px;border-radius:10px;margin-top:10px;display:none}
 @media (max-width:420px){.text{font-size:18px}.speeds{margin-left:0}.logo{font-size:17px}}
@@ -220,8 +230,11 @@ body.kpon .wrap{padding-bottom:300px}
   <div class="logo">🏆 英文積點樂園</div>
   <span class="local">📱 本機</span>
   <div class="spacer"></div>
-  <div class="pts" id="pts"><span class="p">P</span><span id="ptsv">0</span>點</div>
   <button class="gear" id="gear" aria-label="設定">⚙️</button>
+</div>
+<div class="pbar">
+  <div class="pts" id="pts-didi"><span class="p">弟</span><span class="pl">弟弟點數</span><b id="pv-didi">0</b></div>
+  <div class="pts yz" id="pts-yuzu"><span class="p">柚</span><span class="pl">柚子點數</span><b id="pv-yuzu">0</b></div>
 </div></header>
 
 <main class="wrap" id="app"></main>
@@ -248,8 +261,9 @@ body.kpon .wrap{padding-bottom:300px}
     <button class="mbtn" id="mClrImp">🗑 移除匯入的題目</button>
     <div class="mmsg" id="mmsg"></div>
   </div>
-  <p>積點與作答紀錄只存在這台裝置中，清除後無法復原。</p>
-  <div class="mrow"><button id="mClose">關閉</button><button class="danger" id="mReset">清除積點紀錄</button></div>
+  <div class="mpts"><button id="rz-didi">弟弟點數歸零</button><button id="rz-yuzu">柚子點數歸零</button></div>
+  <p>弟弟點數：小四～小六的英文、數學。柚子點數：國一～國三的英文、數學與特訓區。<br>點數與作答紀錄只存在這台裝置中，清除後無法復原。</p>
+  <div class="mrow"><button id="mClose">關閉</button><button class="danger" id="mReset">清除全部紀錄</button></div>
 </div></div>
 <div class="toast" id="toast"></div>
 <div class="kp" id="kp"><div class="kpg">
@@ -322,19 +336,31 @@ async function loadContent(){
 const KEY="eng-points-reading-v1";
 let S={points:0,done:{},level:7,seen:[]};
 try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
+// 點數分成：小學（小四～小六）→ 弟弟點數；國中（國一～國三）與特訓 → 柚子點數
+if(!S.pts){ S.pts={didi:0,yuzu:S.points||0}; }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function rec(pid){return S.done[pid]||(S.done[pid]={qs:{},cl:{},listened:false,words:[]})}
 const $=s=>document.querySelector(s);
 function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 
+const WHO={didi:"弟弟點數",yuzu:"柚子點數"};
+function whoNow(){
+  if(typeof dcur!=="undefined"&&dcur) return "yuzu";
+  const lv=(typeof mcur!=="undefined"&&mcur&&mcur.level)||(typeof cur!=="undefined"&&cur&&cur.level)||(S.subj==="drill"?9:S.level);
+  return lv<=6?"didi":"yuzu";
+}
+function updatePills(){
+  const w=whoNow();
+  ["didi","yuzu"].forEach(k=>{ $("#pv-"+k).textContent=S.pts[k]; $("#pts-"+k).classList.toggle("act",k===w); });
+}
 function addPoints(n,msg){
   const t0=$("#toast"); if(!n){t0.textContent=msg; t0.classList.add("on"); clearTimeout(addPoints._t); addPoints._t=setTimeout(()=>t0.classList.remove("on"),1800); return;}
-  S.points+=n; save(); $("#ptsv").textContent=S.points;
-  const p=$("#pts"); p.classList.remove("bump"); void p.offsetWidth; p.classList.add("bump");
-  const t=$("#toast"); t.textContent=`+${n} 點　${msg||""}`; t.classList.add("on");
+  const w=whoNow(); S.pts[w]+=n; save(); updatePills();
+  const p=$("#pts-"+w); p.classList.remove("bump"); void p.offsetWidth; p.classList.add("bump");
+  const t=$("#toast"); t.textContent=`+${n} ${WHO[w]}　${msg||""}`; t.classList.add("on");
   clearTimeout(addPoints._t); addPoints._t=setTimeout(()=>t.classList.remove("on"),1500);
 }
-$("#ptsv").textContent=S.points;
+$("#pv-didi").textContent=S.pts.didi; $("#pv-yuzu").textContent=S.pts.yuzu;
 
 // seeded shuffle so option order stays stable for each question
 function seeded(str){let h=2166136261;for(const c of str){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return()=>{h^=h<<13;h^=h>>>17;h^=h<<5;return((h>>>0)%10000)/10000}}
@@ -485,7 +511,11 @@ $("#mImp").onchange=e=>{const f=e.target.files[0]; if(!f) return; const rd=new F
   rd.readAsText(f); e.target.value="";};
 $("#mClrImp").onclick=()=>{try{localStorage.removeItem(IMP_KEY);localStorage.removeItem(MIMP_KEY)}catch(e){} loadContent().then(()=>{cinfo();$("#mmsg").textContent="已移除匯入的題目";home();});};
 $("#mClose").onclick=()=>$("#modal").classList.remove("on");
-$("#mReset").onclick=()=>{S={points:0,done:{},level:S.level};save();$("#ptsv").textContent=0;$("#modal").classList.remove("on");cur?openPassage(cur.id,tab):home()};
+function confirm2(btn,label,fn){ if(btn.dataset.armed){fn(); btn.dataset.armed=""; btn.textContent=label; btn.classList.remove("warn2"); return;}
+  btn.dataset.armed="1"; btn.textContent="再按一次確認"; btn.classList.add("warn2");
+  setTimeout(()=>{btn.dataset.armed=""; btn.textContent=label; btn.classList.remove("warn2");},3000); }
+["didi","yuzu"].forEach(k=>{const b=$("#rz-"+k); b.onclick=()=>confirm2(b,`${WHO[k].replace("點數","")}點數歸零`,()=>{S.pts[k]=0;save();updatePills();$("#mmsg").style.color="var(--ok)";$("#mmsg").textContent=`${WHO[k]}已歸零`;});});
+$("#mReset").onclick=()=>confirm2($("#mReset"),"清除全部紀錄",()=>{S={points:0,pts:{didi:0,yuzu:0},done:{},level:S.level};save();updatePills();$("#modal").classList.remove("on");cur?openPassage(cur.id,tab):home()});
 
 // ───────── views ─────────
 let cur=null, tab="read";
@@ -1179,6 +1209,10 @@ loadContent().then(()=>{
   else if(startId.startsWith("drill-")){S.subj="drill";startDrill(startId.slice(6),S.dmode);} else home();
 });
 if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(()=>{});
+
+// 換頁時更新「目前累積到誰」的點數標示
+["home","openPassage","openUnit","renderDrill"].forEach(fn=>{const f=window[fn]; window[fn]=function(){const r=f.apply(this,arguments); updatePills(); return r;};});
+updatePills();
 </script>
 </body>
 </html>
