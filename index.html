@@ -46,6 +46,9 @@ header{position:sticky;top:0;z-index:20;background:rgba(251,247,239,.94);backdro
 .mpts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
 .mpts button{padding:10px;border-radius:12px;background:#F1EDE4;font-weight:700;font-size:13.5px}
 .mpts button.warn2{background:var(--bad);color:#fff}
+.mxfer{display:flex;gap:6px;margin-bottom:6px}
+.mxfer input{width:76px;border:1.5px solid var(--line);border-radius:10px;padding:8px;font:inherit;font-weight:700}
+.mxfer button{flex:1;padding:9px 4px;border-radius:10px;background:var(--brand-soft);color:var(--brand);font-weight:800;font-size:13px}
 @keyframes bump{40%{transform:scale(1.15)}}
 .gear{font-size:18px;padding:6px;border-radius:10px}
 
@@ -262,6 +265,7 @@ body.kpon .wrap{padding-bottom:300px}
     <div class="mmsg" id="mmsg"></div>
   </div>
   <div class="mpts"><button id="rz-didi">弟弟點數歸零</button><button id="rz-yuzu">柚子點數歸零</button></div>
+  <div class="mxfer"><input id="xn" type="number" inputmode="numeric" min="1" placeholder="點數"><button id="x-y2d">柚子 → 弟弟</button><button id="x-d2y">弟弟 → 柚子</button></div>
   <p>弟弟點數：小四～小六的英文、數學。柚子點數：國一～國三的英文、數學與特訓區。<br>點數與作答紀錄只存在這台裝置中，清除後無法復原。</p>
   <div class="mrow"><button id="mClose">關閉</button><button class="danger" id="mReset">清除全部紀錄</button></div>
 </div></div>
@@ -338,6 +342,8 @@ let S={points:0,done:{},level:7,seen:[]};
 try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
 // 點數分成：小學（小四～小六）→ 弟弟點數；國中（國一～國三）與特訓 → 柚子點數
 if(!S.pts){ S.pts={didi:0,yuzu:S.points||0}; }
+// 一次性修正：舊版累積的點數中，350 點屬於弟弟，其餘屬於柚子
+if(!S.fix1){ const old=S.points||0; if(old>=350){ const mv=Math.min(350,S.pts.yuzu); S.pts.yuzu-=mv; S.pts.didi+=mv; } S.fix1=1; try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){} }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function rec(pid){return S.done[pid]||(S.done[pid]={qs:{},cl:{},listened:false,words:[]})}
 const $=s=>document.querySelector(s);
@@ -515,6 +521,11 @@ function confirm2(btn,label,fn){ if(btn.dataset.armed){fn(); btn.dataset.armed="
   btn.dataset.armed="1"; btn.textContent="再按一次確認"; btn.classList.add("warn2");
   setTimeout(()=>{btn.dataset.armed=""; btn.textContent=label; btn.classList.remove("warn2");},3000); }
 ["didi","yuzu"].forEach(k=>{const b=$("#rz-"+k); b.onclick=()=>confirm2(b,`${WHO[k].replace("點數","")}點數歸零`,()=>{S.pts[k]=0;save();updatePills();$("#mmsg").style.color="var(--ok)";$("#mmsg").textContent=`${WHO[k]}已歸零`;});});
+function xfer(from,to){const n=Math.floor(+$("#xn").value||0), m=$("#mmsg");
+  if(n<=0){m.style.color="var(--bad)";m.textContent="請先輸入要轉移的點數";return;}
+  if(n>S.pts[from]){m.style.color="var(--bad)";m.textContent=`${WHO[from]}只有 ${S.pts[from]} 點`;return;}
+  S.pts[from]-=n; S.pts[to]+=n; save(); updatePills(); $("#xn").value=""; m.style.color="var(--ok)"; m.textContent=`已從${WHO[from]}轉 ${n} 點到${WHO[to]}`;}
+$("#x-y2d").onclick=()=>xfer("yuzu","didi"); $("#x-d2y").onclick=()=>xfer("didi","yuzu");
 $("#mReset").onclick=()=>confirm2($("#mReset"),"清除全部紀錄",()=>{S={points:0,pts:{didi:0,yuzu:0},done:{},level:S.level};save();updatePills();$("#modal").classList.remove("on");cur?openPassage(cur.id,tab):home()});
 
 // ───────── views ─────────
