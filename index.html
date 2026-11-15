@@ -197,6 +197,18 @@ body.kpon .wrap{padding-bottom:300px}
 .dcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px}
 .dcard h3{margin:0 0 4px;font-size:18px}
 .rules{font-size:13.5px;line-height:1.7;color:#3d4660;background:#FFF8E6;border:1px solid #F5DFA8;border-radius:12px;padding:10px 12px;margin-top:4px}
+.strbox{background:#FAF7F0;border-radius:12px;padding:10px 12px;margin:-4px 0 14px}
+.sen{font-size:15px;line-height:1.6;color:#3d4660}
+.trbtn{margin-top:8px;font-size:14px;font-weight:800;color:var(--brand);background:var(--brand-soft);padding:7px 12px;border-radius:10px}
+.szh2{font-size:16px;line-height:1.6;margin-top:6px;color:var(--ink);display:none}
+.szh2.on{display:block}
+.zh{display:none}
+.text.trmode .sent{display:block;margin-top:4px}
+.text.trmode .zh{display:block;color:#7a6f5a;font-size:15.5px;line-height:1.6;margin:0 0 8px;padding-left:10px;border-left:3px solid #EADFC6}
+.opt[data-done]{cursor:default}
+.qh .w,.opt .w,.ctext .w{cursor:pointer}
+.lookbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+.lookbar .hint{margin:0}
 .toast{position:fixed;left:50%;top:76px;transform:translate(-50%,-20px);opacity:0;z-index:70;background:var(--gold);color:#fff;font-weight:800;padding:8px 16px;border-radius:99px;transition:all .3s;pointer-events:none;box-shadow:0 4px 14px rgba(242,165,22,.4)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .warn{font-size:13px;background:var(--bad-soft);color:var(--bad);padding:8px 12px;border-radius:10px;margin-top:10px;display:none}
@@ -220,6 +232,7 @@ body.kpon .wrap{padding-bottom:300px}
   <div class="sw" id="sw"></div>
   <div class="spos" id="sipa"></div>
   <div class="szh" id="szh"></div>
+  <div class="strbox" id="strbox"><div class="sen" id="sen"></div><button class="trbtn" id="sTr">🈶 看整句翻譯</button><div class="szh2" id="str"></div></div>
   <div class="sbtns">
     <button class="sbtn pri" id="sSay">🔊 發音</button>
     <button class="sbtn" id="sSlow">🐢 慢速</button>
@@ -329,11 +342,28 @@ function order(n,seed){const r=seeded(seed),a=[...Array(n).keys()];for(let i=n-1
 
 // ───────── text parsing ─────────
 const LV={4:{n:"小四",d:"入門"},5:{n:"小五",d:"初級"},6:{n:"小六",d:"銜接"},7:{n:"國一",d:"基礎"},8:{n:"國二",d:"進階"},9:{n:"國三",d:"會考"}};
+function splitSents(par){
+  const out=[]; let start=0;
+  const re=/[.!?]+["”]?(\s+|$)/g; let m;
+  while((m=re.exec(par))){
+    const end=m.index+m[0].length;
+    const seg=par.slice(start,end);
+    if(/\b(Mr|Mrs|Ms|Dr)\.\s*$/.test(seg)) continue;
+    const next=par.slice(end);
+    if(next && /^[a-z]/.test(next)) continue;
+    out.push(seg); start=end;
+  }
+  if(start<par.length && par.slice(start).trim()) out.push(par.slice(start));
+  // 合併「Amy asks.」這類說話者短句
+  const merged=[];
+  for(const s of out){ if(merged.length && /^\s*[A-Z][\w']*( [A-Z][\w']*)? (asks|says|said|asked|answered)\.\s*$/.test(s)) merged[merged.length-1]+=s; else merged.push(s); }
+  return merged;
+}
 function parse(p){
-  // → paragraphs[ sentences[ {text, tokens:[{t:'w'|'x', s, blank}]} ] ]
-  let bi=0;
+  // → paragraphs[ sentences[ {text, tokens:[{t:'w'|'x', s, blank}], si} ] ]
+  let bi=0, si=0;
   return p.text.split("\n").map(par=>{
-    const sents=par.match(/[^.!?]+[.!?]+["”]?\s*|[^.!?]+$/g)||[par];
+    const sents=splitSents(par);
     return sents.map(raw=>{
       const tokens=[]; const re=/\{([^}]+)\}|([A-Za-z]+(?:['’-][A-Za-z]+)*)|([^A-Za-z{]+)/g; let m;
       while((m=re.exec(raw))){
@@ -341,9 +371,13 @@ function parse(p){
         else if(m[2]) tokens.push({t:"w",s:m[2]});
         else tokens.push({t:"x",s:m[3]});
       }
-      return {text:raw.replace(/[{}]/g,"").trim(),tokens};
+      return {text:raw.replace(/[{}]/g,"").trim(),tokens,si:si++};
     });
   });
+}
+function trOf(si){return cur&&Array.isArray(cur.tr)&&cur.tr[si]||null}
+function wordify(s){ // 把文字中的英文單字包成可點的 span
+  return String(s).split(/([A-Za-z]+(?:['’-][A-Za-z]+)*)/).map((x,i)=>i%2?`<span class="w" data-w="${esc(x)}">${esc(x)}</span>`:esc(x)).join("");
 }
 function lookup(w){
   let k=w.toLowerCase().replace(/’/g,"'");
@@ -410,13 +444,15 @@ function updateProg(){const i=$("#prog i"); if(i&&reading.sents.length) i.style.
 
 // ───────── word sheet ─────────
 let sheetCtx=null;
-function openSheet(word,sentText,el){
+function openSheet(word,sentText,el,trText){
   document.querySelectorAll(".w.sel").forEach(x=>x.classList.remove("sel"));
   if(el) el.classList.add("sel");
   const {k,v}=lookup(word); const m=v.match(/^([a-z./]+)\s+(.*)$/i);
   $("#sw").textContent=k; $("#sipa").textContent=m?m[1]:""; $("#szh").textContent=m?m[2]:v;
   sheetCtx={word:k,sent:sentText};
   $("#sSent").style.display=sentText?"":"none";
+  $("#strbox").style.display=trText?"":"none";
+  $("#sen").textContent=sentText||""; $("#str").textContent=trText||""; $("#str").classList.remove("on"); $("#sTr").style.display="";
   $("#scrim").classList.add("on"); $("#sheet").classList.add("on");
   sayOnce(k,0.8);
   if(cur){const r=rec(cur.id); if(!r.words.includes(k)){r.words.push(k); save(); renderVocab();}}
@@ -426,6 +462,7 @@ $("#scrim").onclick=closeSheet;
 $("#sSay").onclick=()=>sheetCtx&&sayOnce(sheetCtx.word,0.8);
 $("#sSlow").onclick=()=>sheetCtx&&sayOnce(sheetCtx.word,0.45);
 $("#sSent").onclick=()=>sheetCtx&&sayOnce(sheetCtx.sent,rate);
+$("#sTr").onclick=()=>{$("#str").classList.add("on");$("#sTr").style.display="none";};
 
 // settings
 function cinfo(){$("#cinfo").textContent=`英文 v${CONTENT.version}・${PASSAGES.length} 篇｜數學 v${MATHV}・${MATH.length} 單元`+((CONTENT.impN||MIMP)?"（含匯入）":"");}
@@ -505,6 +542,14 @@ function openPassage(id,t){
     <div id="pane"></div>`;
   $("#back").onclick=home;
   document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{stopReading();closeSheet();tab=b.dataset.t;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===b));renderPane()});
+  $("#pane").addEventListener("click",e=>{
+    if(tab==="read") return;
+    const w=e.target.closest(".w"); if(!w) return;
+    if(w.closest(".opt")&&!S.look) return;
+    e.stopPropagation(); e.preventDefault();
+    const ctx=w.closest("[data-say]");
+    openSheet(w.dataset.w, ctx?ctx.dataset.say:null, w, null);
+  },true);
   renderPane(); window.scrollTo(0,0);
 }
 function renderPane(){ if(tab==="read") renderRead(); else if(tab==="qs") renderQs(); else renderCloze(); }
@@ -516,32 +561,36 @@ function renderRead(){
       <button class="play" id="playBtn">▶ 播放全文</button>
       <button class="stopb" id="stopBtn">⏹</button>
       <div class="speeds">${[0.6,0.75,0.85,1].map(r=>`<button class="spd ${r===rate?"on":""}" data-r="${r}">${r}x</button>`).join("")}</div>
-      <div class="toggles"><button class="tg" id="hideTg">🙈 隱藏文字（純聽力）</button></div>
+      <div class="toggles"><button class="tg" id="hideTg">🙈 隱藏文字（純聽力）</button><button class="tg ${S.showTr?"on":""}" id="trTg">🈶 逐句翻譯</button></div>
       <div class="prog" id="prog"><i></i></div>
     </div>
     <div class="warn" id="warn">這個環境不支援語音朗讀（常見於 App 內建瀏覽器）。請用 Android 的 Chrome 或 iPhone 的 Safari 開啟，或安裝到主畫面。</div>
     <div class="text" id="text"></div>
-    <p class="hint">👆 點任一單字：看中文意思、聽發音（可慢速），也能唸出整句。<br>💡 點句子中的單字後按「唸這句」，可單句反覆練聽。播放中會以黃色標示正在唸的句子。</p>
+    <p class="hint">👆 點任一單字：看中文意思、聽發音（可慢速），還能看「整句翻譯」或唸出整句。<br>🈶 開啟「逐句翻譯」可在每句下方顯示中文。播放中會以黃色標示正在唸的句子。</p>
     <div class="vocab" id="vocab"></div>`;
   const box=$("#text"); reading.sents=[]; reading.pid=cur.id; reading.idx=0;
   paras.forEach(par=>{
     const pe=document.createElement("p");
     par.forEach(sent=>{
       const se=document.createElement("span"); se.className="sent";
-      const info={text:sent.text,el:se,spans:[]}; let off=0, lead=true;
+      const info={text:sent.text,el:se,spans:[]}; let off=0;
       sent.tokens.forEach(tk=>{
-        if(tk.t==="x"){ se.appendChild(document.createTextNode(tk.s)); if(!lead||tk.s.trim()) {off+= lead?tk.s.trimStart().length:tk.s.length;} lead=false; return;}
-        lead=false;
+        if(tk.t==="x"){ se.appendChild(document.createTextNode(tk.s)); off+=tk.s.length; return;}
         const w=document.createElement("span"); w.className="w"; w.textContent=tk.s;
         info.spans.push({a:off,b:off+tk.s.length,el:w}); off+=tk.s.length;
-        w.onclick=e=>{e.stopPropagation(); openSheet(tk.s,sent.text,w)};
+        w.onclick=e=>{e.stopPropagation(); openSheet(tk.s,sent.text,w,trOf(sent.si))};
         se.appendChild(w);
       });
-      reading.sents.push(info); pe.appendChild(se); pe.appendChild(document.createTextNode(" "));
+      reading.sents.push(info); pe.appendChild(se);
+      const z=trOf(sent.si); if(z){const ze=document.createElement("span"); ze.className="zh"; ze.textContent=z; pe.appendChild(ze);}
+      pe.appendChild(document.createTextNode(" "));
     });
     box.appendChild(pe);
   });
   if(!synth) showWarn();
+  if(S.showTr) box.classList.add("trmode");
+  if(!cur.tr) $("#trTg").style.display="none";
+  $("#trTg").onclick=e=>{S.showTr=!S.showTr; save(); box.classList.toggle("trmode",S.showTr); e.currentTarget.classList.toggle("on",S.showTr);};
   $("#playBtn").onclick=()=>{ if(reading.on) stopReading(true); else readFrom(reading.idx); };
   $("#stopBtn").onclick=()=>stopReading(false);
   document.querySelectorAll(".spd").forEach(b=>b.onclick=()=>{
@@ -561,23 +610,27 @@ function renderVocab(){
 }
 
 const KEYS="ABCD";
+function lookBar(){return `<div class="lookbar"><button class="tg ${S.look?"on":""}" id="lookTg">🔍 選項查單字：${S.look?"開":"關"}</button><span class="hint">題目裡的單字可直接點選查詢；開啟後，點選項裡的單字也只會查字、不會作答。</span></div>`}
+function bindLook(fn){const b=$("#lookTg"); if(b) b.onclick=()=>{S.look=!S.look; save(); const y=window.scrollY; fn(); window.scrollTo(0,y);};}
 function renderQs(){
   const r=rec(cur.id);
   const done=Object.keys(r.qs).length, ok=Object.values(r.qs).filter(x=>x.ok).length;
   let h="";
   if(done===cur.qs.length) h+=`<div class="sum"><div><div class="big">${ok} / ${cur.qs.length}</div><div class="s">文意理解完成</div></div><button id="redo">重新作答</button></div>`;
+  h+=lookBar();
   cur.qs.forEach((q,qi)=>{
     const ord=order(q.opts.length,cur.id+"q"+qi), a=r.qs[qi];
-    h+=`<div class="q"><div class="qh"><span class="n">${qi+1}.</span><span>${esc(q.q)}</span></div>`;
+    h+=`<div class="q"><div class="qh"><span class="n">${qi+1}.</span><span data-say="${esc(q.q)}">${wordify(q.q)}</span></div>`;
     ord.forEach((oi,pos)=>{
       let c=""; if(a){ if(oi===0) c="ok"; else if(oi===a.pick) c="bad"; }
-      h+=`<button class="opt ${c}" data-q="${qi}" data-o="${oi}" ${a?"disabled":""}><span class="k">${KEYS[pos]}</span><span>${esc(q.opts[oi])}</span></button>`;
+      h+=`<button class="opt ${c}" data-q="${qi}" data-o="${oi}" ${a?'data-done="1"':""}><span class="k">${KEYS[pos]}</span><span data-say="${esc(q.opts[oi])}">${wordify(q.opts[oi])}</span></button>`;
     });
     if(a) h+=`<div class="exp">${a.ok?'<b class="okc">答對了！</b>':'<b class="badc">正確答案是 '+KEYS[ord.indexOf(0)]+'。</b>'} ${esc(q.exp)}</div>`;
     h+=`</div>`;
   });
   $("#pane").innerHTML=h;
   document.querySelectorAll(".opt[data-q]").forEach(b=>b.onclick=()=>{
+    if(b.dataset.done) return;
     const qi=+b.dataset.q, oi=+b.dataset.o, okk=oi===0;
     r.qs[qi]={pick:oi,ok:okk}; const first=!(r.qPaid||{})[qi];
     r.qPaid=r.qPaid||{}; r.qPaid[qi]=true; save();
@@ -585,6 +638,7 @@ function renderQs(){
     const y=window.scrollY; renderQs(); window.scrollTo(0,y);
   });
   const rd=$("#redo"); if(rd) rd.onclick=()=>{r.qs={};save();renderQs();window.scrollTo(0,0)};
+  bindLook(renderQs);
 }
 
 let clCur=0;
@@ -595,18 +649,19 @@ function renderCloze(){
   let h="";
   if(done===cur.cloze.length) h+=`<div class="sum"><div><div class="big">${ok} / ${cur.cloze.length}</div><div class="s">克漏字完成</div></div><button id="clListen">🔊 聽全文</button><button id="redo">重做</button></div>`;
   else h+=`<p class="hint" style="margin:0 0 10px">點選文中空格或下方題目作答。每格首答正確 +5 點。</p>`;
+  h+=lookBar();
   h+=`<div class="ctext">`;
   paras.forEach(par=>{h+="<p>"; par.forEach(sent=>sent.tokens.forEach(tk=>{
     if(tk.blank!==undefined){const a=r.cl[tk.blank]; const c=a?(a.ok?"ok":"bad"):(tk.blank===clCur?"cur":"");
       h+=`<span class="blank ${c}" data-b="${tk.blank}">(${tk.blank+1}) ${a?esc(cur.cloze[tk.blank].opts[0]):"&nbsp;"}</span>`;}
-    else h+=esc(tk.s);
+    else h+=tk.t==="w"?`<span class="w" data-w="${esc(tk.s)}">${esc(tk.s)}</span>`:esc(tk.s);
   })); h+="</p>";});
   h+=`</div>`;
   cur.cloze.forEach((c,ci)=>{
     const ord=order(c.opts.length,cur.id+"c"+ci), a=r.cl[ci];
     h+=`<div class="q cq" id="cq${ci}"><div class="qh"><span class="n">(${ci+1})</span><span style="color:var(--muted);font-weight:700;font-size:14px">選出最適合的答案</span></div><div class="opts2">`;
     ord.forEach((oi,pos)=>{let cc=""; if(a){ if(oi===0) cc="ok"; else if(oi===a.pick) cc="bad"; }
-      h+=`<button class="opt ${cc}" data-c="${ci}" data-o="${oi}" ${a?"disabled":""}><span class="k">${KEYS[pos]}</span><span>${esc(c.opts[oi])}</span></button>`;});
+      h+=`<button class="opt ${cc}" data-c="${ci}" data-o="${oi}" ${a?'data-done="1"':""}><span class="k">${KEYS[pos]}</span><span data-say="${esc(c.opts[oi])}">${wordify(c.opts[oi])}</span></button>`;});
     h+=`</div>`;
     if(a) h+=`<div class="exp">${a.ok?'<b class="okc">答對了！</b>':'<b class="badc">正確答案：'+esc(c.opts[0])+'</b>'} ${esc(c.exp)}</div>`;
     h+=`</div>`;
@@ -617,12 +672,14 @@ function renderCloze(){
     const t=$("#cq"+clCur); t.scrollIntoView({block:"center",behavior:"smooth"}); t.classList.remove("flash"); void t.offsetWidth; t.classList.add("flash");
   });
   document.querySelectorAll(".opt[data-c]").forEach(b=>b.onclick=()=>{
+    if(b.dataset.done) return;
     const ci=+b.dataset.c, oi=+b.dataset.o, okk=oi===0;
     r.cl[ci]={pick:oi,ok:okk}; r.cPaid=r.cPaid||{}; const first=!r.cPaid[ci]; r.cPaid[ci]=true; save();
     if(okk&&first) addPoints(5,"克漏字答對！");
     const y=window.scrollY; renderCloze(); window.scrollTo(0,y);
   });
   const rd=$("#redo"); if(rd) rd.onclick=()=>{r.cl={};clCur=0;save();renderCloze();window.scrollTo(0,0)};
+  bindLook(renderCloze);
   const cl=$("#clListen"); if(cl) cl.onclick=()=>{tab="read";document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.dataset.t==="read"));renderPane();readFrom(0)};
 }
 
