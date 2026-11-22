@@ -44,6 +44,8 @@ document.body.insertAdjacentHTML("afterbegin",`
     <div class="mmsg" id="mmsg"></div>
   </div>
   <div class="mpts"><button id="mHist">📜 點數紀錄</button><button id="rz">點數歸零</button></div>
+  <div class="mpts"><button id="mExp">📤 匯出紀錄</button><button id="mImpR">📥 匯入紀錄</button></div>
+  <div id="xbox"></div>
   <a class="mbtn" id="mEd" href="../?pick=1" style="margin-bottom:12px">🔀 切換到${ED==="es"?"國中版":"國小版"}</a>
   <p>${EDN.name}：${EDN.scope}。點數只算在「${EDN.who}」。<br>點數與作答紀錄只存在這台裝置中，清除後無法復原。</p>
   <div class="mrow"><button id="mClose">關閉</button><button class="danger" id="mReset">清除全部紀錄</button></div>
@@ -330,6 +332,32 @@ function confirm2(btn,label,fn){ if(btn.dataset.armed){fn(); btn.dataset.armed="
   btn.dataset.armed="1"; btn.textContent="再按一次確認"; btn.classList.add("warn2");
   setTimeout(()=>{btn.dataset.armed=""; btn.textContent=label; btn.classList.remove("warn2");},3000); }
 $("#rz").onclick=()=>confirm2($("#rz"),"點數歸零",()=>{const n=S.pts; if(n){S.pts=0; logPush(-n,"設定：點數歸零","reset");} save();updatePills();$("#mmsg").style.color="var(--ok)";$("#mmsg").textContent=`${EDN.who}已歸零`;});
+// ── 匯出／匯入紀錄：iPhone/iPad 的「主畫面 App」和 Safari 儲存空間是分開的，用一段代碼搬資料 ──
+const XKEYS=[OLD_KEY,"eng-points-es-v1","eng-points-jh-v1"];
+function xEncode(){const o={app:"jifen",v:1,t:Date.now()}; XKEYS.forEach(k=>{try{const v=localStorage.getItem(k); if(v) o[k]=JSON.parse(v);}catch(e){}});
+  return "JIFEN1:"+btoa(unescape(encodeURIComponent(JSON.stringify(o))));}
+function xDecode(t){t=(t||"").replace(/\s+/g,""); const i=t.indexOf("JIFEN1:"); if(i<0) throw new Error("找不到代碼開頭 JIFEN1:");
+  const o=JSON.parse(decodeURIComponent(escape(atob(t.slice(i+7))))); if(!o||o.app!=="jifen") throw new Error("代碼格式不對"); return o;}
+function xPts(o,ed){const k="eng-points-"+ed+"-v1"; if(o[k]&&typeof o[k].pts==="number") return o[k].pts;
+  const old=o[OLD_KEY]; if(!old) return null; let p=old.pts; if(!p){p={didi:0,yuzu:old.points||0}; if(!old.fix1&&(old.points||0)>=350){p.yuzu-=350;p.didi+=350;}}
+  return ed==="es"?p.didi:p.yuzu;}
+$("#mExp").onclick=()=>{const code=xEncode();
+  $("#xbox").innerHTML=`<div class="xb"><b>📤 匯出代碼</b><small>已含國小版、國中版與舊紀錄。到另一個地方（例如主畫面的 App）→ ⚙️ →「📥 匯入紀錄」貼上。</small><textarea id="xta" readonly>${code}</textarea><button id="xcp">📋 複製代碼</button><span id="xmsg"></span></div>`;
+  const ta=$("#xta"); const cp=()=>{ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);
+    (navigator.clipboard?navigator.clipboard.writeText(code):Promise.reject()).then(()=>{$("#xmsg").textContent="✅ 已複製"}).catch(()=>{try{document.execCommand("copy");$("#xmsg").textContent="✅ 已複製"}catch(e){$("#xmsg").textContent="請長按上方代碼 → 全選 → 拷貝"}});};
+  $("#xcp").onclick=cp; cp();};
+$("#mImpR").onclick=()=>{
+  $("#xbox").innerHTML=`<div class="xb"><b>📥 匯入紀錄</b><small>把匯出的代碼貼在下面。匯入後，這台裝置目前的${EDN.who}紀錄會被取代。</small><textarea id="xta" placeholder="長按 → 貼上（代碼以 JIFEN1: 開頭）"></textarea><div id="xpv"></div><button id="xgo" disabled>確認匯入</button></div>`;
+  const ta=$("#xta"), go=$("#xgo"); let o=null;
+  ta.oninput=()=>{o=null; go.disabled=true; if(!ta.value.trim()){$("#xpv").textContent="";return;}
+    try{o=xDecode(ta.value); const es=xPts(o,"es"), jh=xPts(o,"jh");
+      $("#xpv").innerHTML=`代碼內容：弟弟點數 <b>${es??"—"}</b>、柚子點數 <b>${jh??"—"}</b><br>這是${EDN.name}，匯入後${EDN.who}會變成 <b>${xPts(o,ED)??0}</b> 點。`; go.disabled=false;}
+    catch(e){$("#xpv").innerHTML=`<span class="badc">代碼無法辨識：${esc(e.message)}</span>`;}};
+  go.onclick=()=>confirm2(go,"確認匯入",()=>{ if(!o) return;
+    XKEYS.forEach(k=>{ if(o[k]) localStorage.setItem(k,JSON.stringify(o[k])); });
+    if(!o[KEY]) localStorage.removeItem(KEY);   // 只有舊紀錄 → 重新開啟時自動轉入
+    location.reload(); });
+};
 $("#mHist").onclick=()=>{$("#modal").classList.remove("on"); openWallet("hist");};
 $("#mEd").onclick=()=>{try{localStorage.removeItem("eng-edition")}catch(e){}};
 $("#mReset").onclick=()=>confirm2($("#mReset"),"清除全部紀錄",()=>{S={pts:0,log:[],done:{},level:S.level,cver:S.cver,mver:S.mver,seen:S.seen,mseen:S.mseen};save();updatePills();$("#modal").classList.remove("on");home()});
