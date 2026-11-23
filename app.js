@@ -1287,5 +1287,58 @@ if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigat
 try{localStorage.setItem("eng-edition",ED)}catch(e){}
 
 // 換頁時更新「目前累積到誰」的點數標示
-["home","openPassage","openUnit","renderDrill","openWallet","openSoc"].forEach(fn=>{const f=window[fn]; window[fn]=function(){const r=f.apply(this,arguments); updatePills(); return r;};});
+
+// ───────── ✏️ 計算紙（數學、特訓用的手寫板）─────────
+document.body.insertAdjacentHTML("beforeend",`<button class="padfab" id="padFab">✏️ 計算紙</button>
+<div class="pad" id="pad"><div class="padbar">
+  <button class="pc on" data-c="#1F2A44" style="--c:#1F2A44" aria-label="黑筆"></button><button class="pc" data-c="#2E5BBA" style="--c:#2E5BBA" aria-label="藍筆"></button><button class="pc" data-c="#D64545" style="--c:#D64545" aria-label="紅筆"></button>
+  <button class="pt" id="padEr">🧽 擦</button><button class="pt" id="padUndo">↶ 復原</button><button class="pt" id="padClr">🗑 清除</button><button class="pt pclose" id="padX">▲ 收起</button></div>
+  <canvas id="padCv"></canvas><div class="padgrip" id="padGrip"></div></div>`);
+const PAD={on:false,key:null,col:"#1F2A44",er:false,strokes:[],cur:null,h:0.45};
+const pcv=$("#padCv"), pctx=pcv.getContext("2d");
+function padSize(){const r=pcv.getBoundingClientRect(), d=window.devicePixelRatio||1; if(!r.width) return;
+  pcv.width=Math.round(r.width*d); pcv.height=Math.round(r.height*d); pctx.setTransform(d,0,0,d,0,0); padDraw();}
+function padStroke(s){ if(s.p.length<1) return; pctx.globalCompositeOperation=s.er?"destination-out":"source-over";
+  pctx.strokeStyle=s.c; pctx.fillStyle=s.c; pctx.lineWidth=s.er?26:3; pctx.lineCap="round"; pctx.lineJoin="round";
+  if(s.p.length===1){pctx.beginPath();pctx.arc(s.p[0][0],s.p[0][1],pctx.lineWidth/2,0,7);pctx.fill();return;}
+  pctx.beginPath(); pctx.moveTo(s.p[0][0],s.p[0][1]);
+  for(let i=1;i<s.p.length-1;i++){const mx=(s.p[i][0]+s.p[i+1][0])/2, my=(s.p[i][1]+s.p[i+1][1])/2; pctx.quadraticCurveTo(s.p[i][0],s.p[i][1],mx,my);}
+  const l=s.p[s.p.length-1]; pctx.lineTo(l[0],l[1]); pctx.stroke(); }
+function padDraw(){ const r=pcv.getBoundingClientRect(); pctx.clearRect(0,0,r.width,r.height);
+  // 方格線
+  pctx.globalCompositeOperation="source-over"; pctx.strokeStyle="#E6EBF5"; pctx.lineWidth=1;
+  for(let x=24;x<r.width;x+=24){pctx.beginPath();pctx.moveTo(x,0);pctx.lineTo(x,r.height);pctx.stroke();}
+  for(let y=24;y<r.height;y+=24){pctx.beginPath();pctx.moveTo(0,y);pctx.lineTo(r.width,y);pctx.stroke();}
+  PAD.strokes.forEach(padStroke); if(PAD.cur) padStroke(PAD.cur);
+  // 橡皮擦會擦掉格線：再補一次格線到底層
+  pctx.globalCompositeOperation="destination-over"; pctx.strokeStyle="#E6EBF5";
+  for(let x=24;x<r.width;x+=24){pctx.beginPath();pctx.moveTo(x,0);pctx.lineTo(x,r.height);pctx.stroke();}
+  for(let y=24;y<r.height;y+=24){pctx.beginPath();pctx.moveTo(0,y);pctx.lineTo(r.width,y);pctx.stroke();}
+  pctx.globalCompositeOperation="source-over"; }
+function padPt(e){const r=pcv.getBoundingClientRect(); return [e.clientX-r.left,e.clientY-r.top];}
+pcv.addEventListener("pointerdown",e=>{e.preventDefault(); pcv.setPointerCapture(e.pointerId); PAD.cur={c:PAD.col,er:PAD.er,p:[padPt(e)]}; padDraw();});
+pcv.addEventListener("pointermove",e=>{ if(!PAD.cur) return; e.preventDefault();
+  const ev=e.getCoalescedEvents?e.getCoalescedEvents():[e]; ev.forEach(x=>PAD.cur.p.push(padPt(x))); padDraw();});
+const padUp=()=>{ if(!PAD.cur) return; PAD.strokes.push(PAD.cur); PAD.cur=null; padDraw(); };
+pcv.addEventListener("pointerup",padUp); pcv.addEventListener("pointercancel",padUp);
+function padOpen(){PAD.on=true; $("#pad").classList.add("on"); document.body.classList.add("padon"); document.documentElement.style.setProperty("--padh",Math.round(PAD.h*100)+"vh"); $("#padFab").textContent="✏️ 收起計算紙"; requestAnimationFrame(padSize);}
+function padClose(){PAD.on=false; $("#pad").classList.remove("on"); document.body.classList.remove("padon"); $("#padFab").textContent="✏️ 計算紙";}
+$("#padFab").onclick=()=>PAD.on?padClose():padOpen();
+$("#padX").onclick=padClose;
+$("#padClr").onclick=()=>{PAD.strokes=[];padDraw();};
+$("#padUndo").onclick=()=>{PAD.strokes.pop();padDraw();};
+$("#padEr").onclick=()=>{PAD.er=!PAD.er; $("#padEr").classList.toggle("on",PAD.er); document.querySelectorAll(".pc").forEach(x=>x.classList.toggle("on",!PAD.er&&x.dataset.c===PAD.col));};
+document.querySelectorAll(".pc").forEach(b=>b.onclick=()=>{PAD.col=b.dataset.c; PAD.er=false; $("#padEr").classList.remove("on"); document.querySelectorAll(".pc").forEach(x=>x.classList.toggle("on",x===b));});
+// 拖拉下緣調整高度
+(()=>{const g=$("#padGrip"); let st=null;
+  g.addEventListener("pointerdown",e=>{g.setPointerCapture(e.pointerId); st={y:e.clientY,h:PAD.h};});
+  g.addEventListener("pointermove",e=>{ if(!st) return; PAD.h=Math.min(.75,Math.max(.25,st.h+(e.clientY-st.y)/window.innerHeight)); document.documentElement.style.setProperty("--padh",Math.round(PAD.h*100)+"vh"); });
+  const end=()=>{ if(st){st=null; padSize();} }; g.addEventListener("pointerup",end); g.addEventListener("pointercancel",end);})();
+window.addEventListener("resize",()=>{ if(PAD.on) padSize(); });
+// 只在數學單元、特訓區顯示；換題組時自動清空
+function padSync(){ const k=mcur?"m:"+mcur.id:(dcur?"d:"+dcur.tp+":"+dcur.mode+":"+dcur.i:null);
+  $("#padFab").classList.toggle("on",!!k);
+  if(!k){ if(PAD.on) padClose(); PAD.key=null; return; }
+  if(k!==PAD.key){ PAD.strokes=[]; PAD.key=k; if(PAD.on) padDraw(); } }
+["home","openPassage","openUnit","renderDrill","openWallet","openSoc"].forEach(fn=>{const f=window[fn]; window[fn]=function(){const r=f.apply(this,arguments); updatePills(); padSync(); return r;};});
 updatePills();
