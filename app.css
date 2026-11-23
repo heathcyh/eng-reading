@@ -301,3 +301,4 @@ button.pts{font:inherit;font-weight:800;color:var(--ink);cursor:pointer}
 #xmsg{margin-left:8px;font-weight:700;color:var(--ok)}
 .mbox{max-height:90vh;overflow-y:auto}
 .pnum.snum.civ{background:#E4ECFB;color:var(--brand)}
+.subj:has(.sj:nth-child(5)) .sj{font-size:13.5px;padding:10px 1px;letter-spacing:-.3px;white-space:nowrap}

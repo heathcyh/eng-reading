@@ -76,7 +76,7 @@ function validate(c){
   });
   return c;
 }
-let MATH=[], MATHV=0, MIMP=0, SOC={version:0,units:[]};
+let MATH=[], MATHV=0, MIMP=0, SOC={version:0,units:[]}, SCI={version:0,units:[]};
 const MIMP_KEY="eng-points-imported-math-v1";
 function applyMath(m){
   let imp=null; try{imp=JSON.parse(localStorage.getItem(MIMP_KEY)||"null")}catch(e){}
@@ -121,6 +121,10 @@ async function loadContent(){
     try{ const r=await fetch(BASE+"social.json?t="+Date.now(),{cache:"no-store"}); if(r.ok) so=await r.json(); }catch(e){}
     if(!so){ try{ const r=await fetch(BASE+"social.json"); if(r.ok) so=await r.json(); }catch(e){} }
     SOC=so||{version:0,units:[]};
+    let sc=null;
+    try{ const r=await fetch(BASE+"science.json?t="+Date.now(),{cache:"no-store"}); if(r.ok) sc=await r.json(); }catch(e){}
+    if(!sc){ try{ const r=await fetch(BASE+"science.json"); if(r.ok) sc=await r.json(); }catch(e){} }
+    SCI=sc||{version:0,units:[]};
   }
   return base;
 }
@@ -134,7 +138,7 @@ try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(ra
 if(typeof S.pts!=="number") S.pts=0;
 if(!Array.isArray(S.log)) S.log=[];
 if(!EDN.lv.includes(S.level)) S.level=EDN.def;
-if(ED==="es"&&(S.subj==="drill"||S.subj==="soc")) S.subj="en";
+if(ED==="es"&&["drill","soc","sci"].includes(S.subj)) S.subj="en";
 // 第一次開啟新版：從舊的共用資料中，拿出屬於這一版的點數與作答紀錄（舊資料保留不刪）
 function migrateOld(){
   let o=null; try{o=JSON.parse(localStorage.getItem(OLD_KEY)||"null")}catch(e){}
@@ -161,8 +165,8 @@ function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;
 function updatePills(){ const v=$("#pv"); if(v) v.textContent=S.pts; }
 // 目前在做哪一份練習（寫進點數紀錄）
 function ctxLabel(){
-  if(scur) return "社會｜"+scur.title;
-  if(qz) return "社會｜"+(qz.mode==="mock"?"段考模擬考":"錯題本");
+  if(scur) return RNAME()+"｜"+scur.title;
+  if(qz) return RNAME()+"｜"+(qz.mode==="mock"?"模擬考":"錯題本");
   if(dcur) return "特訓｜"+TOPICS[dcur.tp].t;
   if(mcur) return "數學｜"+mcur.title;
   if(cur) return "英文｜"+cur.title;
@@ -308,7 +312,7 @@ $("#sSent").onclick=()=>sheetCtx&&sayOnce(sheetCtx.sent,rate);
 $("#sTr").onclick=()=>{$("#str").classList.add("on");$("#sTr").style.display="none";};
 
 // settings
-function cinfo(){$("#cinfo").textContent=`英文 v${CONTENT.version}・${PASSAGES.length} 篇｜數學 v${MATHV}・${MATH.length} 單元`+(ED==="jh"?`｜社會 v${SOC.version}・${SOC.units.length} 單元`:"")+((CONTENT.impN||MIMP)?"（含匯入）":"");}
+function cinfo(){$("#cinfo").textContent=`英文 v${CONTENT.version}・${PASSAGES.length} 篇｜數學 v${MATHV}・${MATH.length} 單元`+(ED==="jh"?`｜社會 v${SOC.version}・${SOC.units.length} 單元｜自然 v${SCI.version}・${SCI.units.length} 單元`:"")+((CONTENT.impN||MIMP)?"（含匯入）":"");}
 $("#gear").onclick=()=>{cinfo();$("#mmsg").textContent="";$("#modal").classList.add("on")};
 $("#mUpd").onclick=async()=>{const before=PASSAGES.length,v=CONTENT.version;$("#mmsg").textContent="檢查中…";
   await loadContent(); cinfo();
@@ -371,7 +375,7 @@ function stats(p){
   const words=p.text.replace(/[{}]/g,"").match(/[A-Za-z]+/g).length;
   return {r,qd,qok,cd,cok,words};
 }
-function subjBar(){const s=S.subj||"en";const L=[["en","📖 英文"],["math","🔢 數學"]].concat(ED==="jh"?[["drill","⚡ 特訓"],["soc","🌏 社會"]]:[]);
+function subjBar(){const s=S.subj||"en";const L=[["en","📖 英文"],["math","🔢 數學"]].concat(ED==="jh"?[["drill","⚡ 特訓"],["soc","🌏 社會"],["sci","🔬 自然"]]:[]);
   return `<div class="subj">${L.map(([k,t])=>`<button class="sj ${s===k?"on":""}" data-s="${k}">${t}</button>`).join("")}</div>`}
 function bindSubj(){document.querySelectorAll(".sj").forEach(b=>b.onclick=()=>{S.subj=b.dataset.s;save();home()})}
 function home(){
@@ -379,7 +383,7 @@ function home(){
   dcur=null; scur=null; qz=null; wv=null;
   if(S.subj==="math") return mathHome();
   if(S.subj==="drill"&&ED==="jh") return drillHome();
-  if(S.subj==="soc"&&ED==="jh") return socHome();
+  if((S.subj==="soc"||S.subj==="sci")&&ED==="jh"){ RK=S.subj; return socHome(); }
   const list=PASSAGES.filter(p=>p.level===S.level);
   $("#app").innerHTML=`
   ${subjBar()}
@@ -1113,44 +1117,46 @@ function renderWallet(){
 }
 
 // ───────── 🌏 國中社會：段考特別複習 ─────────
-let scur=null, stab="key", qz=null, sOnlyWeak=false;
+let scur=null, stab="key", qz=null, sOnlyWeak=false, RK="soc";
+function RD(){return RK==="sci"?SCI:SOC}
+function RNAME(){return RK==="sci"?"自然":"社會"}
 const SOPEN=new Set();
-function sst(){S.soc=S.soc||{u:{},wrong:{},mock:{}};return S.soc}
+function sst(){S[RK]=S[RK]||{u:{},wrong:{},mock:{}};return S[RK]}
 function srec(id){const s=sst();return s.u[id]||(s.u[id]={a:{},paid:{},c:{}})}
 function sfmt(s){return esc(String(s)).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>")}
 function socStats(u){const r=sst().u[u.id]||{a:{},c:{}};const a=Object.values(r.a);
   return {done:a.length, ok:a.filter(x=>x.ok).length, known:Object.values(r.c||{}).filter(v=>v===1).length};}
-function wrongKeys(){const w=sst().wrong; return Object.keys(w).filter(k=>{const [id,qi]=k.split(":");const u=SOC.units.find(x=>x.id===id);return u&&u.qs[+qi];});}
+function wrongKeys(){const w=sst().wrong; return Object.keys(w).filter(k=>{const [id,qi]=k.split(":");const u=RD().units.find(x=>x.id===id);return u&&u.qs[+qi];});}
 function socHome(){
-  const units=SOC.units, wk=wrongKeys(), mk=sst().mock||{};
+  const units=RD().units, wk=wrongKeys(), mk=sst().mock||{};
   const grp=[...new Set(units.map(u=>u.sub))];
   $("#app").innerHTML=`${subjBar()}
-  <section class="hero"><h1>🌏 ${esc(SOC.title||"社會複習")}</h1><p>${esc(SOC.desc||"")}</p>
+  <section class="hero"><h1>${RK==="sci"?"🔬":"🌏"} ${esc(RD().title||RNAME()+"複習")}</h1><p>${esc(RD().desc||"")}</p>
   <div class="rules" style="margin-top:10px">選擇題每題首次答對 <b>+10</b>｜模擬考每題答對 <b>+5</b>，100 分再 <b>+50</b>｜錯題本答對 <b>+3</b><br>問答卡用來背誦，自己判斷「會了／還不熟」，不計點。</div></section>
   <div class="sacts">
-    <button class="sact mock" id="sMock"><b>📝 段考模擬考</b><small>從選定單元隨機抽 20 題，算分數${mk.best!=null?`・最高 ${mk.best} 分`:""}</small></button>
+    <button class="sact mock" id="sMock"><b>📝 模擬考</b><small>從選定單元隨機抽 20 題，算分數${mk.best!=null?`・最高 ${mk.best} 分`:""}</small></button>
     <button class="sact wrong" id="sWrong" ${wk.length?"":"disabled"}><b>❌ 錯題本</b><small>${wk.length?`還有 ${wk.length} 題要訂正`:"目前沒有錯題 👍"}</small></button>
   </div>
-  ${grp.map(g=>`<h3 class="sgrp">${g==="地理"?"🗺️":g==="歷史"?"📜":"⚖️"} ${esc(g)}</h3><div class="plist">${units.filter(u=>u.sub===g).map(u=>{const s=socStats(u);return `
+  ${grp.map(g=>`<h3 class="sgrp">${({"地理":"🗺️","歷史":"📜","公民":"⚖️","生物":"🧬","理化":"⚗️"})[g]||"📘"} ${esc(g)}</h3><div class="plist">${units.filter(u=>u.sub===g).map(u=>{const s=socStats(u);return `
     <button class="pcard" data-id="${u.id}">
       <div class="pnum snum ${u.sub==="歷史"?"his":u.sub==="公民"?"civ":""}">${esc(u.no||"")}</div>
-      <div class="pinfo"><div class="t">${esc(u.title)}${u.star?'<span class="star">★ 二段重點</span>':""}</div><div class="z">${esc(u.range||"")}</div>
+      <div class="pinfo"><div class="t">${esc(u.title)}${u.star?`<span class="star">★ ${esc(RD().starLabel||"重點")}</span>`:""}</div><div class="z">${esc(u.range||"")}</div>
         <div class="badges"><span class="bdg ${s.done===u.qs.length?"done":""}">✅ 選擇題 ${s.ok}/${u.qs.length}</span>${(u.cards||[]).length?`<span class="bdg ${s.known===u.cards.length?"done":""}">🃏 問答卡 ${s.known}/${u.cards.length}</span>`:""}</div></div>
       <div class="chev">›</div></button>`}).join("")}</div>`).join("")}
-  ${SOC.note?`<p class="hint">${esc(SOC.note)}</p>`:""}`;
+  ${RD().note?`<p class="hint">${esc(RD().note)}</p>`:""}`;
   document.querySelectorAll(".pcard").forEach(b=>b.onclick=()=>{stab="key";openSoc(b.dataset.id)});
   $("#sMock").onclick=mockPick; const sw=$("#sWrong"); if(sw) sw.onclick=startWrong;
   bindSubj(); window.scrollTo(0,0);
 }
 function openSoc(id){
   stopReading(); closeSheet(); kpClose(); cur=null; mcur=null; dcur=null; qz=null; wv=null;
-  scur=SOC.units.find(u=>u.id===id); if(!scur) return home(); S.subj="soc";
-  location.hash="soc-"+id; SOPEN.clear(); renderSoc(); window.scrollTo(0,0);
+  scur=RD().units.find(u=>u.id===id); if(!scur) return home(); S.subj=RK;
+  location.hash=RK+"-"+id; SOPEN.clear(); renderSoc(); window.scrollTo(0,0);
 }
 function renderSoc(){
   const u=scur, r=srec(u.id), s=socStats(u), cards=u.cards||[];
-  let h=`<button class="back" id="back">‹ 社會複習</button>
-    <h2 class="ptitle">${esc(u.title)}</h2><p class="psub">${esc(u.sub)}・${esc(u.range||"")}${u.star?"・★ 第二次段考重點":""}</p>
+  let h=`<button class="back" id="back">‹ ${RNAME()}複習</button>
+    <h2 class="ptitle">${esc(u.title)}</h2><p class="psub">${esc(u.sub)}・${esc(u.range||"")}${u.star?"・★ "+esc(RD().starLabel||"重點"):""}</p>
     <div class="tabs"><button class="tab ${stab==="key"?"on":""}" data-s="key">📌 重點</button><button class="tab ${stab==="qs"?"on":""}" data-s="qs">✅ 選擇題 ${s.ok}/${u.qs.length}</button>${cards.length?`<button class="tab ${stab==="card"?"on":""}" data-s="card">🃏 問答卡</button>`:""}</div>`;
   if(stab==="key"){
     (u.key||[]).forEach(sec=>{ h+=`<div class="keyc"><h3>${sfmt(sec.h)}</h3><ul>${sec.pts.map(p=>`<li>${sfmt(p)}</li>`).join("")}</ul></div>`; });
@@ -1175,7 +1181,7 @@ function renderSoc(){
         :`<button class="reveal" data-c="${ci}">👀 看答案</button>`}</div>`;});
   }
   $("#app").innerHTML=h;
-  $("#back").onclick=()=>{S.subj="soc";home()};
+  $("#back").onclick=()=>{S.subj=RK;home()};
   document.querySelectorAll(".tab[data-s]").forEach(b=>b.onclick=()=>{stab=b.dataset.s;renderSoc();window.scrollTo(0,0)});
   const tq=$("#toQs"); if(tq) tq.onclick=()=>{stab="qs";renderSoc();window.scrollTo(0,0)};
   document.querySelectorAll(".opt[data-q]").forEach(b=>b.onclick=()=>{const qi=+b.dataset.q, oi=+b.dataset.o;
@@ -1190,21 +1196,21 @@ function renderSoc(){
 // 模擬考／錯題本（一次一題）
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function mockPick(){
-  scur=null; qz={mode:"pick"}; location.hash="soc-quiz";
-  const sel=sst().mockSel||SOC.units.filter(u=>u.star).map(u=>u.id);
-  $("#app").innerHTML=`<button class="back" id="back">‹ 社會複習</button>
-  <h2 class="ptitle">📝 段考模擬考</h2><p class="psub">勾選要考的單元（預設為 ★ 第二次段考重點）</p>
-  <div class="spick">${SOC.units.map(u=>`<label class="sch"><input type="checkbox" value="${u.id}" ${sel.includes(u.id)?"checked":""}><span>${esc(u.sub)}｜${esc(u.title)}${u.star?" ★":""}<small>${u.qs.length} 題</small></span></label>`).join("")}</div>
+  scur=null; qz={mode:"pick"}; location.hash=RK+"-quiz";
+  const sel=sst().mockSel||RD().units.filter(u=>u.star).map(u=>u.id);
+  $("#app").innerHTML=`<button class="back" id="back">‹ ${RNAME()}複習</button>
+  <h2 class="ptitle">📝 模擬考</h2><p class="psub">勾選要考的單元（預設為 ★ 重點單元）</p>
+  <div class="spick">${RD().units.map(u=>`<label class="sch"><input type="checkbox" value="${u.id}" ${sel.includes(u.id)?"checked":""}><span>${esc(u.sub)}｜${esc(u.title)}${u.star?" ★":""}<small>${u.qs.length} 題</small></span></label>`).join("")}</div>
   <div class="wf" style="margin-top:12px"><span style="align-self:center;color:var(--muted);font-weight:700;font-size:14px">題數</span>${[10,20,30].map(n=>`<button class="${(sst().mockN||20)===n?"on":""}" data-n="${n}">${n} 題</button>`).join("")}</div>
   <p class="nmsg" id="pmsg"></p>
   <button class="nextb" id="goMock">開始考試 ▶</button>`;
-  $("#back").onclick=()=>{S.subj="soc";home()};
+  $("#back").onclick=()=>{S.subj=RK;home()};
   document.querySelectorAll(".wf button").forEach(b=>b.onclick=()=>{sst().mockN=+b.dataset.n;save();document.querySelectorAll(".wf button").forEach(x=>x.classList.toggle("on",x===b))});
   $("#goMock").onclick=()=>{
     const ids=[...document.querySelectorAll(".spick input:checked")].map(x=>x.value);
     if(!ids.length){$("#pmsg").textContent="請至少勾選一個單元";return;}
     sst().mockSel=ids; save();
-    const pool=[]; SOC.units.filter(u=>ids.includes(u.id)).forEach(u=>u.qs.forEach((q,qi)=>pool.push([u.id,qi])));
+    const pool=[]; RD().units.filter(u=>ids.includes(u.id)).forEach(u=>u.qs.forEach((q,qi)=>pool.push([u.id,qi])));
     const n=Math.min(sst().mockN||20,pool.length);
     qz={mode:"mock",list:shuffle(pool).slice(0,n),i:0,ok:0,earned:0,ans:null,miss:[]}; renderQz(); window.scrollTo(0,0);
   };
@@ -1213,12 +1219,12 @@ function mockPick(){
 function startWrong(){
   const list=shuffle(wrongKeys().map(k=>{const [id,qi]=k.split(":");return [id,+qi]}));
   if(!list.length) return;
-  scur=null; location.hash="soc-quiz";
+  scur=null; location.hash=RK+"-quiz";
   qz={mode:"wrong",list,i:0,ok:0,earned:0,ans:null,miss:[]}; renderQz(); window.scrollTo(0,0);
 }
 function renderQz(){
   const z=qz, n=z.list.length, done=z.i>=n, mock=z.mode==="mock";
-  let h=`<button class="back" id="back">‹ 社會複習</button><h2 class="ptitle">${mock?"📝 段考模擬考":"❌ 錯題本"}</h2>
+  let h=`<button class="back" id="back">‹ ${RNAME()}複習</button><h2 class="ptitle">${mock?"📝 模擬考":"❌ 錯題本"}</h2>
     <p class="psub">${mock?`每題 ${Math.round(100/n*10)/10} 分`:"答對就從錯題本移除"}・已得 ${z.earned} 點</p>
     <div class="dbar"><div class="dprog"><i style="width:${Math.min(z.i,n)/n*100}%"></i></div><span class="mult">${Math.min(z.i+1,n)} / ${n}</span></div>`;
   if(done){
@@ -1227,7 +1233,7 @@ function renderQz(){
     if(z.miss.length) h+=`<p class="hint">答錯的 ${z.miss.length} 題已放進錯題本，記得回去訂正。</p>`;
     h+=`<button class="nextb" id="again">${mock?"再考一次 ▶":"回社會複習"}</button>`;
   }else{
-    const [id,qi]=z.list[z.i], u=SOC.units.find(x=>x.id===id), q=u.qs[qi], a=z.ans;
+    const [id,qi]=z.list[z.i], u=RD().units.find(x=>x.id===id), q=u.qs[qi], a=z.ans;
     const ord=z.ord||(z.ord=order(q.opts.length,String(Math.random())));
     h+=`<div class="q"><div class="qtag">${esc(u.sub)}｜${esc(u.title)}</div><div class="qh"><span>${sfmt(q.q)}</span></div>`;
     ord.forEach((oi,pos)=>{let c=""; if(a){ if(oi===0) c="ok"; else if(oi===a.pick) c="bad"; }
@@ -1236,8 +1242,8 @@ function renderQz(){
     h+=`</div>`; if(a) h+=`<button class="nextb" id="next">${z.i+1>=n?"看結果":"下一題 ▶"}</button>`;
   }
   $("#app").innerHTML=h;
-  $("#back").onclick=()=>{S.subj="soc";home()};
-  const ag=$("#again"); if(ag) ag.onclick=()=>{ if(mock) mockPick(); else {S.subj="soc";home();} };
+  $("#back").onclick=()=>{S.subj=RK;home()};
+  const ag=$("#again"); if(ag) ag.onclick=()=>{ if(mock) mockPick(); else {S.subj=RK;home();} };
   const nx=$("#next"); if(nx) nx.onclick=()=>{z.i++; z.ans=null; z.ord=null;
     if(z.i>=n){ if(mock){ const sc=Math.round(z.ok/n*100); const m=sst().mock||(sst().mock={}); m.best=Math.max(m.best||0,sc); m.n=(m.n||0)+1; if(z.ok===n&&n>=10){z.earned+=50; addPoints(50,"模擬考滿分！");} save(); } }
     renderQz(); window.scrollTo(0,0);};
@@ -1257,7 +1263,7 @@ function route(){const id=location.hash.slice(1);
   else if(id&&MATH.some(u=>u.id===id)){ if(!mcur||mcur.id!==id) openUnit(id); }
   else if(id.startsWith("drill-")&&ED==="jh"){ if(!dcur) startDrill(id.slice(6),S.dmode); }
   else if(id==="wallet"){ if(!wv) openWallet(); }
-  else if(id.startsWith("soc-")&&ED==="jh"){ const u=SOC.units.find(x=>"soc-"+x.id===id); if(u&&(!scur||scur.id!==u.id)) openSoc(u.id); else if(!u&&!qz) home(); }
+  else if((id.startsWith("soc-")||id.startsWith("sci-"))&&ED==="jh"){ RK=id.slice(0,3); const u=RD().units.find(x=>RK+"-"+x.id===id); if(u&&(!scur||scur.id!==u.id)) openSoc(u.id); else if(!u&&!qz) home(); }
   else if(cur||mcur||dcur||scur||qz||wv) home();}
 window.addEventListener("hashchange",route);
 $("#app").innerHTML='<div class="loading">載入題庫中…</div>';
@@ -1274,7 +1280,7 @@ loadContent().then(()=>{
   else if(startId&&MATH.some(u=>u.id===startId)) openUnit(startId);
   else if(startId.startsWith("drill-")&&ED==="jh"){S.subj="drill";startDrill(startId.slice(6),S.dmode);}
   else if(startId==="wallet") openWallet();
-  else if(startId.startsWith("soc-")&&ED==="jh"&&SOC.units.some(u=>"soc-"+u.id===startId)){S.subj="soc";openSoc(startId.slice(4));}
+  else if((startId.startsWith("soc-")||startId.startsWith("sci-"))&&ED==="jh"&&(RK=startId.slice(0,3),RD().units.some(u=>RK+"-"+u.id===startId))){S.subj=RK;openSoc(startId.slice(4));}
   else home();
 });
 if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(()=>{});
