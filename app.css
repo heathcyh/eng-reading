@@ -300,3 +300,4 @@ button.pts{font:inherit;font-weight:800;color:var(--ink);cursor:pointer}
 .xb button.warn2{background:var(--bad)}
 #xmsg{margin-left:8px;font-weight:700;color:var(--ok)}
 .mbox{max-height:90vh;overflow-y:auto}
+.pnum.snum.civ{background:#E4ECFB;color:var(--brand)}

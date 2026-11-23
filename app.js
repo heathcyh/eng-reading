@@ -1131,9 +1131,9 @@ function socHome(){
     <button class="sact mock" id="sMock"><b>📝 段考模擬考</b><small>從選定單元隨機抽 20 題，算分數${mk.best!=null?`・最高 ${mk.best} 分`:""}</small></button>
     <button class="sact wrong" id="sWrong" ${wk.length?"":"disabled"}><b>❌ 錯題本</b><small>${wk.length?`還有 ${wk.length} 題要訂正`:"目前沒有錯題 👍"}</small></button>
   </div>
-  ${grp.map(g=>`<h3 class="sgrp">${g==="地理"?"🗺️":"📜"} ${esc(g)}</h3><div class="plist">${units.filter(u=>u.sub===g).map(u=>{const s=socStats(u);return `
+  ${grp.map(g=>`<h3 class="sgrp">${g==="地理"?"🗺️":g==="歷史"?"📜":"⚖️"} ${esc(g)}</h3><div class="plist">${units.filter(u=>u.sub===g).map(u=>{const s=socStats(u);return `
     <button class="pcard" data-id="${u.id}">
-      <div class="pnum snum ${u.sub==="歷史"?"his":""}">${esc(u.no||"")}</div>
+      <div class="pnum snum ${u.sub==="歷史"?"his":u.sub==="公民"?"civ":""}">${esc(u.no||"")}</div>
       <div class="pinfo"><div class="t">${esc(u.title)}${u.star?'<span class="star">★ 二段重點</span>':""}</div><div class="z">${esc(u.range||"")}</div>
         <div class="badges"><span class="bdg ${s.done===u.qs.length?"done":""}">✅ 選擇題 ${s.ok}/${u.qs.length}</span>${(u.cards||[]).length?`<span class="bdg ${s.known===u.cards.length?"done":""}">🃏 問答卡 ${s.known}/${u.cards.length}</span>`:""}</div></div>
       <div class="chev">›</div></button>`}).join("")}</div>`).join("")}
