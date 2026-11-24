@@ -384,12 +384,15 @@ function home(){
   if(S.subj==="math") return mathHome();
   if(S.subj==="drill"&&ED==="jh") return drillHome();
   if((S.subj==="soc"||S.subj==="sci")&&ED==="jh"){ RK=S.subj; return socHome(); }
-  const list=PASSAGES.filter(p=>p.level===S.level);
+  const pool=PASSAGES.filter(p=>p.level===S.level), set=eset(S.level), es=estats(S.level);
+  const list=S.eall?pool:set.map(id=>pool.find(p=>p.id===id)).filter(Boolean);
   $("#app").innerHTML=`
   ${subjBar()}
   <section class="hero"><h1>英文短文閱讀</h1>
   <p>${ED==="es"?"小四到小六共三級，從生活短文開始。":"國一到國三共三級，依會考程度設計。"}每篇可整篇聽讀、點單字看翻譯與發音，並完成文意理解與克漏字賺積點。</p></section>
   <div class="levels">${EDN.lv.map(l=>`<button class="lv ${l===S.level?"on":""}" data-l="${l}"><b>${LV[l].n}</b><small>${LV[l].d}</small></button>`).join("")}</div>
+  ${setBar(es.done,set.length,es.fresh>0,es.fresh?`這一級還有 ${es.fresh} 篇新文章可以換`:"這一級的文章都讀過了，家長更新題庫後會有新文章").replace("本組進度","本組完成")}
+  <div class="lookbar"><button class="tg ${S.eall?"on":""}" id="eAll">📚 顯示全部 ${pool.length} 篇：${S.eall?"開":"關"}</button><span class="hint">關閉時只顯示本組 ${set.length} 篇；做完（理解＋克漏字）就能換新文章。</span></div>
   <div class="plist">${list.map((p,i)=>{const s=stats(p);return `
     <button class="pcard" data-id="${p.id}">
       <div class="pnum">${i+1}</div>
@@ -401,11 +404,28 @@ function home(){
         </div></div>
       <div class="chev">›</div>
     </button>`}).join("")}</div>
-  <p class="hint">🎯 積點規則：聽完全文 +5｜文意理解首答正確 +10｜克漏字首答正確 +5</p>`;
+  <p class="hint">🎯 積點規則：聽完全文 +5｜文意理解首答正確 +10｜克漏字首答正確 +5<br>🔄 本組文章的理解題和克漏字都做完後，按「更新題組」把做完的文章換成新文章。</p>`;
   document.querySelectorAll(".lv").forEach(b=>b.onclick=()=>{S.level=+b.dataset.l;save();home()});
+  const ea=$("#eAll"); if(ea) ea.onclick=()=>{S.eall=!S.eall;save();keepY(home)};
+  const eu=$("#updU"); if(eu) eu.onclick=()=>{if(eUpdate(S.level)) keepY(home)};
   document.querySelectorAll(".pcard").forEach(b=>b.onclick=()=>openPassage(b.dataset.id,"read"));
   bindSubj(); window.scrollTo(0,0);
 }
+// 英文題組：每一級一次顯示 ESET 篇
+function eDone(p){const r=S.done[p.id]; return !!r&&Object.keys(r.qs).length>=p.qs.length&&Object.keys(r.cl).length>=p.cloze.length;}
+function eset(l){S.eset=S.eset||{}; const pool=PASSAGES.filter(p=>p.level===l).map(p=>p.id);
+  let set=(S.eset[l]||[]).filter(id=>pool.includes(id));
+  if(!set.length){ const touched=pool.filter(id=>S.done[id]); set=touched.concat(pool.filter(id=>!S.done[id]).slice(0,Math.max(0,ESET-touched.length))); }
+  const fresh=pool.filter(id=>!S.done[id]&&!set.includes(id)); while(set.length<ESET&&fresh.length) set.push(fresh.shift());
+  set.sort((a,b)=>pool.indexOf(a)-pool.indexOf(b)); S.eset[l]=set; return set;}
+function estats(l){const set=eset(l), pool=PASSAGES.filter(p=>p.level===l);
+  return {done:set.filter(id=>eDone(pool.find(p=>p.id===id))).length, fresh:pool.filter(p=>!S.done[p.id]&&!set.includes(p.id)).length};}
+function eUpdate(l){const set=eset(l), pool=PASSAGES.filter(p=>p.level===l), fresh=pool.filter(p=>!S.done[p.id]&&!set.includes(p.id)).map(p=>p.id);
+  const done=set.filter(id=>eDone(pool.find(p=>p.id===id)));
+  if(!done.length){toast("先把一篇的理解題和克漏字做完，再按更新",2200);return false;}
+  if(!fresh.length){toast("這一級的新文章都讀過了！請家長更新題庫",2400);return false;}
+  let n=0; S.eset[l]=set.map(id=>{ if(done.includes(id)&&fresh.length){n++;return fresh.shift();} return id; });
+  save(); toast(`已更新：換上 ${n} 篇新文章`,2000); return true;}
 function openPassage(id,t){
   stopReading(); closeSheet();
   cur=PASSAGES.find(p=>p.id===id); if(!cur) return home(); tab=t||"read"; location.hash=id;
@@ -586,8 +606,14 @@ function fmt(s){
   return s;
 }
 function ansMarkup(a){a=String(a).replace(/^-/,"−");return a.replace(/(\d+)又(\d+)\/(\d+)/,"$1[$2/$3]").replace(/(^|[^\d\[])(\d+)\/(\d+)/,"$1[$2/$3]")}
-function mrec(id){S.math=S.math||{};return S.math[id]||(S.math[id]={a:{},paid:{}})}
-function mstats(u){const r=(S.math||{})[u.id]||{a:{}};const done=Object.keys(r.a).length, ok=Object.values(r.a).filter(x=>x.ok).length;return {done,ok}}
+function mrec(id){S.math=S.math||{};const r=S.math[id]||(S.math[id]={a:{},paid:{}}); r.gen=r.gen||{}; return r;}
+// 題組：r.set 是本組題目的 key（數字＝題庫第幾題，"g12"＝程式出的變化題，存在 r.gen）
+function mset(u){const r=mrec(u.id); if(Array.isArray(r.set)) r.set=r.set.filter(k=>typeof k==="number"?k<u.qs.length:!!r.gen[k]);
+  return initSet(r,u.qs.length,Math.min(u.qs.length,MSET),i=>!!r.a[i]);}
+function mq(u,k){return typeof k==="number"?u.qs[k]:mrec(u.id).gen[k]}
+function mstats(u){const r=mrec(u.id), set=mset(u), a=set.map(k=>r.a[k]).filter(Boolean);
+  const fresh=u.qs.filter((q,i)=>!r.paid[i]&&!set.includes(i)).length;
+  return {done:a.length, ok:a.filter(x=>x.ok).length, n:set.length, fresh, gen:!!(MGEN[u.id]||[]).length, rnd:r.rnd||0};}
 function mathHome(){
   const list=MATH.filter(u=>u.level===S.level);
   $("#app").innerHTML=`${subjBar()}
@@ -597,12 +623,13 @@ function mathHome(){
   <div class="plist">${list.length?list.map((u,i)=>{const s=mstats(u);return `
     <button class="pcard" data-id="${u.id}">
       <div class="pnum" style="background:#FFF3D6;color:#B87500">${i+1}</div>
-      <div class="pinfo"><div class="t">${esc(u.title)}${(S.mseen||[]).includes(u.id)?"":'<span class="new">NEW</span>'}</div><div class="z">${LV[u.level].n}・${u.qs.length} 題</div>
-        <div class="badges"><span class="bdg ${s.done===u.qs.length?"done":""}">✏️ 已作答 ${s.done}/${u.qs.length}</span><span class="bdg ${s.done&&s.ok===s.done?"done":""}">✅ 答對 ${s.ok}</span></div></div>
-      <div class="chev">›</div></button>`}).join(""):'<p class="hint">這個年級還沒有題目。</p>'}</div>
-  <p class="hint">🎯 積點規則：每題首次作答正確 +10。計算題用下方鍵盤作答，分數用「/」，帶分數用「又」（例：2又1/3）。</p>`;
+      <div class="pinfo"><div class="t">${esc(u.title)}${(S.mseen||[]).includes(u.id)?"":'<span class="new">NEW</span>'}</div><div class="z">${LV[u.level].n}・本組 ${s.n} 題${s.rnd?`・已換 ${s.rnd} 組`:""}</div>
+        <div class="badges"><span class="bdg ${s.done===s.n?"done":""}">✏️ 已作答 ${s.done}/${s.n}</span><span class="bdg ${s.done&&s.ok===s.done?"done":""}">✅ 答對 ${s.ok}</span></div></div>
+      <div class="chev">›</div></button>${s.done===s.n?updBtn(u.id,u.title):""}`}).join(""):'<p class="hint">這個年級還沒有題目。</p>'}</div>
+  <p class="hint">🎯 積點規則：每題首次作答正確 +10。計算題用下方鍵盤作答，分數用「/」，帶分數用「又」（例：2又1/3）。<br>🔄 做完一組可以按「更新題組」換新題目（只換做完的題，新題答對一樣 +10）。</p>`;
   document.querySelectorAll(".lv").forEach(b=>b.onclick=()=>{S.level=+b.dataset.l;save();home()});
   document.querySelectorAll(".pcard").forEach(b=>b.onclick=()=>openUnit(b.dataset.id));
+  document.querySelectorAll(".updb").forEach(b=>b.onclick=()=>{const u=MATH.find(x=>x.id===b.dataset.u); if(u&&mathUpdate(u)) keepY(mathHome);});
   bindSubj(); window.scrollTo(0,0);
 }
 function openUnit(id){
@@ -612,38 +639,42 @@ function openUnit(id){
   renderUnit(); window.scrollTo(0,0);
 }
 function renderUnit(){
-  const u=mcur, r=mrec(u.id), s=mstats(u);
+  const u=mcur, r=mrec(u.id), set=mset(u), s=mstats(u);
   let h=`<button class="back" id="back">‹ ${LV[u.level].n}數學單元</button>
-    <h2 class="ptitle">${esc(u.title)}</h2><p class="psub">${LV[u.level].n}（${LV[u.level].d}）・${u.qs.length} 題</p><div style="height:14px"></div>`;
+    <h2 class="ptitle">${esc(u.title)}</h2><p class="psub">${LV[u.level].n}（${LV[u.level].d}）・本組 ${set.length} 題${s.rnd?`・第 ${s.rnd+1} 組`:""}</p>`;
+  h+=setBar(s.done,set.length,s.fresh>0||s.gen,s.fresh?`題庫還有 ${s.fresh} 題沒做過`:(s.gen?"之後換上的是程式出的新數字題":"題庫的題目都做過了"));
   if(u.key&&u.key.length) h+=`<div class="keyc"><h3>📌 重點整理</h3><ul>${u.key.map(k=>`<li>${fmt(k)}</li>`).join("")}</ul></div>`;
-  if(s.done===u.qs.length) h+=`<div class="sum"><div><div class="big">${s.ok} / ${u.qs.length}</div><div class="s">本單元完成</div></div><button id="redo">重新練習</button></div>`;
-  u.qs.forEach((q,qi)=>{
-    const a=r.a[qi];
-    h+=`<div class="q" id="mq${qi}"><div class="qh"><span class="n">${qi+1}.</span><span>${fmt(q.q)}</span></div>`;
+  if(s.done===set.length) h+=`<div class="sum"><div><div class="big">${s.ok} / ${set.length}</div><div class="s">這一組完成了！按「更新題組」換新題</div></div><button id="redo">重做這組</button></div>`;
+  set.forEach((k,qi)=>{
+    const q=mq(u,k), a=r.a[k];
+    h+=`<div class="q" id="mq${qi}"><div class="qh"><span class="n">${qi+1}.</span><span>${fmt(q.q)}${typeof k==="string"?'<span class="gtag">新題</span>':""}</span></div>`;
     if(q.t==="num"){
       const shown=a?a.v:(kpQ===qi?kpVal:"");
       h+=`<div class="nrow"><div class="nin ${a?(a.ok?"ok":"bad"):(kpQ===qi?"act":"")}" data-n="${qi}">${shown?fmt(ansMarkup(shown)):(kpQ===qi?"":'<span class="ph">點這裡作答</span>')}${!a&&kpQ===qi?'<span class="caret"></span>':""}</div>${q.unit?`<span class="nunit">${esc(q.unit)}</span>`:""}</div>
         <div class="nmsg" id="nmsg${qi}"></div>`;
       if(a) h+=`<div class="exp">${a.ok?'<b class="okc">答對了！</b>':'<b class="badc">正確答案：'+fmt(ansMarkup(q.ans))+(q.unit?" "+esc(q.unit):"")+'</b>'}<br>${fmt(q.exp)}</div>`;
     }else{
-      const ord=order(q.opts.length,u.id+"m"+qi);
+      const ord=order(q.opts.length,u.id+"m"+k);
       ord.forEach((oi,pos)=>{let c=""; if(a){ if(oi===0) c="ok"; else if(oi===a.pick) c="bad"; }
         h+=`<button class="opt ${c}" data-q="${qi}" data-o="${oi}" ${a?"disabled":""}><span class="k">${KEYS[pos]}</span><span>${fmt(q.opts[oi])}</span></button>`;});
       if(a) h+=`<div class="exp">${a.ok?'<b class="okc">答對了！</b>':'<b class="badc">正確答案是 '+KEYS[ord.indexOf(0)]+'。</b>'} ${fmt(q.exp)}</div>`;
     }
     h+=`</div>`;
   });
+  if(s.done===set.length) h+=`<button class="nextb" id="upd2">🔄 更新題組，換新題目 ▶</button>`;
   $("#app").innerHTML=h;
   $("#back").onclick=home;
   document.querySelectorAll(".opt[data-q]").forEach(b=>b.onclick=()=>{
     const qi=+b.dataset.q, oi=+b.dataset.o; markM(qi,{pick:oi,ok:oi===0});
   });
-  document.querySelectorAll(".nin").forEach(b=>b.onclick=()=>{const qi=+b.dataset.n; if(r.a[qi]) return; if(kpQ!==qi){kpQ=qi;kpVal="";} kpOpen(); keepY(renderUnit); setTimeout(()=>{const e=$("#mq"+qi); if(e) e.scrollIntoView({block:"center",behavior:"smooth"})},50);});
-  const rd=$("#redo"); if(rd) rd.onclick=()=>{r.a={};save();renderUnit();window.scrollTo(0,0)};
+  document.querySelectorAll(".nin").forEach(b=>b.onclick=()=>{const qi=+b.dataset.n; if(r.a[set[qi]]) return; if(kpQ!==qi){kpQ=qi;kpVal="";} kpOpen(); keepY(renderUnit); setTimeout(()=>{const e=$("#mq"+qi); if(e) e.scrollIntoView({block:"center",behavior:"smooth"})},50);});
+  const rd=$("#redo"); if(rd) rd.onclick=()=>{set.forEach(k=>delete r.a[k]);save();renderUnit();window.scrollTo(0,0)};
+  const go=()=>{kpClose(); if(mathUpdate(u)){renderUnit();window.scrollTo(0,0);}};
+  const ub=$("#updU"); if(ub) ub.onclick=go; const u2=$("#upd2"); if(u2) u2.onclick=go;
 }
 function keepY(fn){const y=window.scrollY; fn(); window.scrollTo(0,y);}
 function markM(qi,res){
-  const r=mrec(mcur.id); r.a[qi]=res; const first=!r.paid[qi]; r.paid[qi]=true; save();
+  const r=mrec(mcur.id), k=mset(mcur)[qi]; r.a[k]=res; const first=!r.paid[k]; r.paid[k]=true; save();
   if(res.ok&&first) addPoints(10,"答對了！");
   keepY(renderUnit);
 }
@@ -651,7 +682,7 @@ function kpOpen(){$("#kp").classList.add("on");document.body.classList.add("kpon
 function kpClose(){kpQ=null;kpVal="";$("#kp").classList.remove("on");document.body.classList.remove("kpon")}
 function submitNum(){
   if(kpQ==="d") return drillNum();
-  const q=mcur.qs[kpQ], qi=kpQ, msg=t=>{const e=$("#nmsg"+qi); if(e) e.textContent=t;};
+  const q=mq(mcur,mset(mcur)[kpQ]), qi=kpQ, msg=t=>{const e=$("#nmsg"+qi); if(e) e.textContent=t;};
   const v=parseNum(kpVal); if(!v){msg(kpVal?"格式看不懂，請檢查一下（分數用 /，帶分數用「又」）":"請先輸入答案");return;}
   const ans=parseNum(q.ans);
   if(sameVal(v,ans)){
@@ -1124,27 +1155,41 @@ const SOPEN=new Set();
 function sst(){S[RK]=S[RK]||{u:{},wrong:{},mock:{}};return S[RK]}
 function srec(id){const s=sst();return s.u[id]||(s.u[id]={a:{},paid:{},c:{}})}
 function sfmt(s){return esc(String(s)).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>")}
-function socStats(u){const r=sst().u[u.id]||{a:{},c:{}};const a=Object.values(r.a);
-  return {done:a.length, ok:a.filter(x=>x.ok).length, known:Object.values(r.c||{}).filter(v=>v===1).length};}
+function sset(u){const r=srec(u.id); if(Array.isArray(r.set)) r.set=r.set.filter(k=>k<u.qs.length); return initSet(r,u.qs.length,Math.min(u.qs.length,SSET),i=>!!r.a[i]);}
+function socStats(u){const r=srec(u.id), set=sset(u), a=set.map(k=>r.a[k]).filter(Boolean);
+  const fresh=u.qs.filter((q,i)=>!r.paid[i]&&!set.includes(i)).length, tried=u.qs.filter((q,i)=>r.paid[i]).length;
+  return {done:a.length, ok:a.filter(x=>x.ok).length, n:set.length, fresh, tried, rnd:r.rnd||0, known:Object.values(r.c||{}).filter(v=>v===1).length};}
+function socUpdate(u){
+  const r=srec(u.id), set=sset(u), done=set.filter(k=>r.a[k]);
+  if(!done.length){toast("先做完一些題目，再按更新"); return false;}
+  const fresh=[...Array(u.qs.length).keys()].filter(i=>!r.paid[i]&&!set.includes(i));
+  if(!fresh.length){
+    set.forEach(k=>delete r.a[k]); r.set=shuffle([...Array(u.qs.length).keys()]).slice(0,Math.min(u.qs.length,SSET)).sort((a,b)=>a-b);
+    r.rnd=(r.rnd||0)+1; save(); toast(`這單元 ${u.qs.length} 題都做過了，重新洗牌再練（已得分的題不再給分）`,2800); return true; }
+  let n=0; const next=set.map(k=>{ if(!r.a[k]) return k; delete r.a[k]; if(fresh.length){n++; return fresh.shift();} return null; }).filter(k=>k!==null);
+  r.set=next.sort((a,b)=>a-b); r.rnd=(r.rnd||0)+1; save(); toast(`已更新：換上 ${n} 題新題目`,2000); return true;
+}
 function wrongKeys(){const w=sst().wrong; return Object.keys(w).filter(k=>{const [id,qi]=k.split(":");const u=RD().units.find(x=>x.id===id);return u&&u.qs[+qi];});}
 function socHome(){
   const units=RD().units, wk=wrongKeys(), mk=sst().mock||{};
   const grp=[...new Set(units.map(u=>u.sub))];
   $("#app").innerHTML=`${subjBar()}
   <section class="hero"><h1>${RK==="sci"?"🔬":"🌏"} ${esc(RD().title||RNAME()+"複習")}</h1><p>${esc(RD().desc||"")}</p>
-  <div class="rules" style="margin-top:10px">選擇題每題首次答對 <b>+10</b>｜模擬考每題答對 <b>+5</b>，100 分再 <b>+50</b>｜錯題本答對 <b>+3</b><br>問答卡用來背誦，自己判斷「會了／還不熟」，不計點。</div></section>
+  <div class="rules" style="margin-top:10px">每單元一次一組 ${SSET} 題，做完按 <b>🔄 更新題組</b> 換沒做過的題目｜選擇題每題首次答對 <b>+10</b>｜模擬考每題答對 <b>+5</b>，100 分再 <b>+50</b>｜錯題本答對 <b>+3</b><br>問答卡用來背誦，自己判斷「會了／還不熟」，不計點。</div></section>
   <div class="sacts">
     <button class="sact mock" id="sMock"><b>📝 模擬考</b><small>從選定單元隨機抽 20 題，算分數${mk.best!=null?`・最高 ${mk.best} 分`:""}</small></button>
     <button class="sact wrong" id="sWrong" ${wk.length?"":"disabled"}><b>❌ 錯題本</b><small>${wk.length?`還有 ${wk.length} 題要訂正`:"目前沒有錯題 👍"}</small></button>
   </div>
-  ${grp.map(g=>`<h3 class="sgrp">${({"地理":"🗺️","歷史":"📜","公民":"⚖️","生物":"🧬","理化":"⚗️"})[g]||"📘"} ${esc(g)}</h3><div class="plist">${units.filter(u=>u.sub===g).map(u=>{const s=socStats(u);return `
+  ${RD().exam2?`<div class="exam2">📌 <b>${esc(RD().starLabel||"重點")}</b>：${esc(RD().exam2)}</div>`:""}
+  ${grp.map(g=>`<h3 class="sgrp">${({"地理":"🗺️","歷史":"📜","公民":"⚖️","生物":"🧬","理化":"⚗️","考卷訂正":"📝","二段實驗總整理":"🧪"})[g]||"📘"} ${esc(g)}${RD().exam2&&units.filter(u=>u.sub===g).every(u=>u.star)?`<span class="star s2">★ ${esc(RD().starLabel)}</span>`:""}</h3><div class="plist">${units.filter(u=>u.sub===g).map(u=>{const s=socStats(u);return `
     <button class="pcard" data-id="${u.id}">
       <div class="pnum snum ${u.sub==="歷史"?"his":u.sub==="公民"?"civ":""}">${esc(u.no||"")}</div>
-      <div class="pinfo"><div class="t">${esc(u.title)}${u.star?`<span class="star">★ ${esc(RD().starLabel||"重點")}</span>`:""}</div><div class="z">${esc(u.range||"")}</div>
-        <div class="badges"><span class="bdg ${s.done===u.qs.length?"done":""}">✅ 選擇題 ${s.ok}/${u.qs.length}</span>${(u.cards||[]).length?`<span class="bdg ${s.known===u.cards.length?"done":""}">🃏 問答卡 ${s.known}/${u.cards.length}</span>`:""}</div></div>
-      <div class="chev">›</div></button>`}).join("")}</div>`).join("")}
+      <div class="pinfo"><div class="t">${esc(u.title)}${u.star?`<span class="star ${RD().exam2?"s2":""}">★ ${esc(RD().starLabel||"重點")}</span>`:""}</div><div class="z">${esc(u.range||"")}</div>
+        <div class="badges"><span class="bdg ${s.done===s.n?"done":""}">✅ 本組 ${s.ok}/${s.n}</span><span class="bdg ${s.tried===u.qs.length?"done":""}">📚 題庫 ${s.tried}/${u.qs.length}</span>${(u.cards||[]).length?`<span class="bdg ${s.known===u.cards.length?"done":""}">🃏 問答卡 ${s.known}/${u.cards.length}</span>`:""}</div></div>
+      <div class="chev">›</div></button>${s.done===s.n?updBtn(u.id,u.title):""}`}).join("")}</div>`).join("")}
   ${RD().note?`<p class="hint">${esc(RD().note)}</p>`:""}`;
   document.querySelectorAll(".pcard").forEach(b=>b.onclick=()=>{stab="key";openSoc(b.dataset.id)});
+  document.querySelectorAll(".updb").forEach(b=>b.onclick=()=>{const u=RD().units.find(x=>x.id===b.dataset.u); if(u&&socUpdate(u)) keepY(socHome);});
   $("#sMock").onclick=mockPick; const sw=$("#sWrong"); if(sw) sw.onclick=startWrong;
   bindSubj(); window.scrollTo(0,0);
 }
@@ -1157,19 +1202,22 @@ function renderSoc(){
   const u=scur, r=srec(u.id), s=socStats(u), cards=u.cards||[];
   let h=`<button class="back" id="back">‹ ${RNAME()}複習</button>
     <h2 class="ptitle">${esc(u.title)}</h2><p class="psub">${esc(u.sub)}・${esc(u.range||"")}${u.star?"・★ "+esc(RD().starLabel||"重點"):""}</p>
-    <div class="tabs"><button class="tab ${stab==="key"?"on":""}" data-s="key">📌 重點</button><button class="tab ${stab==="qs"?"on":""}" data-s="qs">✅ 選擇題 ${s.ok}/${u.qs.length}</button>${cards.length?`<button class="tab ${stab==="card"?"on":""}" data-s="card">🃏 問答卡</button>`:""}</div>`;
+    <div class="tabs"><button class="tab ${stab==="key"?"on":""}" data-s="key">📌 重點</button><button class="tab ${stab==="qs"?"on":""}" data-s="qs">✅ 選擇題 ${s.ok}/${s.n}</button>${cards.length?`<button class="tab ${stab==="card"?"on":""}" data-s="card">🃏 問答卡</button>`:""}</div>`;
   if(stab==="key"){
     (u.key||[]).forEach(sec=>{ h+=`<div class="keyc"><h3>${sfmt(sec.h)}</h3><ul>${sec.pts.map(p=>`<li>${sfmt(p)}</li>`).join("")}</ul></div>`; });
     if(u.table) u.table.forEach(t=>{h+=`<div class="keyc stbl"><h3>${sfmt(t.h)}</h3><div class="tw"><table><tr>${t.rows[0].map(c=>`<th>${sfmt(c)}</th>`).join("")}</tr>${t.rows.slice(1).map(rw=>`<tr>${rw.map(c=>`<td>${sfmt(c)}</td>`).join("")}</tr>`).join("")}</table></div></div>`;});
     h+=`<button class="nextb" id="toQs">讀完了，去做選擇題 ▶</button>`;
   }else if(stab==="qs"){
-    if(s.done===u.qs.length) h+=`<div class="sum"><div><div class="big">${s.ok} / ${u.qs.length}</div><div class="s">本單元完成${s.ok<u.qs.length?"・答錯的題目在錯題本":""}</div></div><button id="redo">重新練習</button></div>`;
-    u.qs.forEach((q,qi)=>{const a=r.a[qi], ord=order(q.opts.length,u.id+"s"+qi);
-      h+=`<div class="q" id="sq${qi}"><div class="qh"><span class="n">${qi+1}.</span><span>${sfmt(q.q)}</span></div>`;
+    const set=sset(u);
+    h+=setBar(s.done,s.n,true,s.fresh?`題庫 ${u.qs.length} 題，還有 ${s.fresh} 題沒出現過`:`題庫 ${u.qs.length} 題都出現過了，更新＝重新洗牌`);
+    if(s.done===s.n) h+=`<div class="sum"><div><div class="big">${s.ok} / ${s.n}</div><div class="s">這一組完成${s.ok<s.n?"・答錯的題目在錯題本":""}</div></div><button id="redo">重做這組</button></div>`;
+    set.forEach((qi,pos)=>{const q=u.qs[qi], a=r.a[qi], ord=order(q.opts.length,u.id+"s"+qi);
+      h+=`<div class="q" id="sq${qi}"><div class="qh"><span class="n">${pos+1}.</span><span>${sfmt(q.q)}</span></div>`;
       ord.forEach((oi,pos)=>{let c=""; if(a){ if(oi===0) c="ok"; else if(oi===a.pick) c="bad"; }
         h+=`<button class="opt ${c}" data-q="${qi}" data-o="${oi}" ${a?"disabled":""}><span class="k">${KEYS[pos]}</span><span>${sfmt(q.opts[oi])}</span></button>`;});
       if(a) h+=`<div class="exp">${a.ok?'<b class="okc">答對了！</b>':'<b class="badc">正確答案是 '+KEYS[ord.indexOf(0)]+'。</b>'} ${sfmt(q.exp||"")}</div>`;
       h+=`</div>`;});
+    if(s.done===s.n) h+=`<button class="nextb" id="upd2">🔄 更新題組，換新題目 ▶</button>`;
   }else{
     const weak=cards.map((c,ci)=>ci).filter(ci=>r.c[ci]!==1);
     h+=`<div class="lookbar"><button class="tg ${sOnlyWeak?"on":""}" id="weakTg">🎯 只看還不熟：${sOnlyWeak?"開":"關"}</button><span class="hint">已會 ${s.known}/${cards.length}。先想答案，再點「看答案」。</span></div>`;
@@ -1188,7 +1236,8 @@ function renderSoc(){
     if(r.a[qi]) return; const ok=oi===0; r.a[qi]={pick:oi,ok}; const k=u.id+":"+qi;
     if(ok) delete sst().wrong[k]; else sst().wrong[k]=1;
     const first=!r.paid[qi]; r.paid[qi]=true; save(); if(ok&&first) addPoints(10,"答對了！"); keepY(renderSoc);});
-  const rd=$("#redo"); if(rd) rd.onclick=()=>{r.a={};save();renderSoc();window.scrollTo(0,0)};
+  const rd=$("#redo"); if(rd) rd.onclick=()=>{sset(u).forEach(k=>delete r.a[k]);save();renderSoc();window.scrollTo(0,0)};
+  const sgo=()=>{if(socUpdate(u)){renderSoc();window.scrollTo(0,0);}}; const ub=$("#updU"); if(ub) ub.onclick=sgo; const u2=$("#upd2"); if(u2) u2.onclick=sgo;
   const wt=$("#weakTg"); if(wt) wt.onclick=()=>{sOnlyWeak=!sOnlyWeak;keepY(renderSoc)};
   document.querySelectorAll(".reveal").forEach(b=>b.onclick=()=>{SOPEN.add(+b.dataset.c);keepY(renderSoc)});
   document.querySelectorAll(".cbtn button").forEach(b=>b.onclick=()=>{r.c[+b.dataset.c]=+b.dataset.v;save();keepY(renderSoc)});
@@ -1231,7 +1280,7 @@ function renderQz(){
     const score=Math.round(z.ok/n*100);
     h+=`<div class="sum"><div><div class="big">${mock?score+" 分":z.ok+" / "+n}</div><div class="s">答對 ${z.ok} 題・本回得 ${z.earned} 點${mock&&z.ok===n?"（含滿分獎勵 50）":""}</div></div></div>`;
     if(z.miss.length) h+=`<p class="hint">答錯的 ${z.miss.length} 題已放進錯題本，記得回去訂正。</p>`;
-    h+=`<button class="nextb" id="again">${mock?"再考一次 ▶":"回社會複習"}</button>`;
+    h+=`<button class="nextb" id="again">${mock?"再考一次 ▶":"回"+RNAME()+"複習"}</button>`;
   }else{
     const [id,qi]=z.list[z.i], u=RD().units.find(x=>x.id===id), q=u.qs[qi], a=z.ans;
     const ord=z.ord||(z.ord=order(q.opts.length,String(Math.random())));
@@ -1252,6 +1301,238 @@ function renderQz(){
     if(ok){ z.ok++; const p=mock?5:3; res.pts=p; z.earned+=p; delete sst().wrong[k]; save(); addPoints(p,mock?"模擬考答對":"錯題訂正"); }
     else { sst().wrong[k]=1; z.miss.push(k); save(); }
     z.ans=res; keepY(renderQz); });
+}
+
+
+// ═════════ 🔄 題組更新（各科共用）═════════
+// 每個單元一次顯示「一組」題目；做完後按「更新題組」，只把做完的題換成沒做過的新題。
+// 已經得過分的題目不會重複給分；數學題庫用完後，改由程式出新數字的變化題（答對照樣 +10）。
+const MSET=10, SSET=10, ESET=3;
+function initSet(r,poolN,size,keep){
+  if(Array.isArray(r.set)&&r.set.length) return r.set;
+  const idx=[...Array(poolN).keys()], kp=idx.filter(keep);
+  r.set=(kp.length>=size?kp:kp.concat(idx.filter(i=>!keep(i)).slice(0,size-kp.length))).sort((a,b)=>a-b);
+  return r.set;
+}
+function setBar(done,n,can,note){
+  return `<div class="setbar"><div class="st"><b>本組進度 ${done}/${n}</b><small>${esc(note||"")}</small></div><button class="updu ${done===n?"hot":""}" id="updU" ${done&&can?"":"disabled"}>🔄 更新題組</button></div>`;
+}
+function updBtn(id,title){return `<button class="updb" data-u="${esc(id)}">🔄 這組做完了，更新「${esc(title)}」題組</button>`}
+function mathUpdate(u){
+  const r=mrec(u.id), set=mset(u), done=set.filter(k=>r.a[k]);
+  if(!done.length){toast("先做完一些題目，再按更新"); return false;}
+  const fresh=[...Array(u.qs.length).keys()].filter(i=>!r.paid[i]&&!set.includes(i));
+  const avoid=set.map(k=>(mq(u,k)||{}).q); let nNew=0, nGen=0;
+  const next=set.map(k=>{ if(!r.a[k]) return k;
+    delete r.a[k]; if(typeof k==="string") delete r.gen[k];
+    if(fresh.length){ nNew++; return fresh.shift(); }
+    const q=mgen(u,avoid); if(q){ const g="g"+(r.gn=(r.gn||0)+1); r.gen[g]=q; avoid.push(q.q); nGen++; return g; }
+    return k; });
+  if(!nNew&&!nGen){ // 沒有新題可換：重新洗牌（不再計點）
+    set.forEach(k=>delete r.a[k]); r.set=shuffle([...Array(u.qs.length).keys()]).slice(0,Math.min(u.qs.length,MSET));
+    r.rnd=(r.rnd||0)+1; save(); toast("題庫都做過了，重新洗牌（已得分的題不再給分）",2600); return true; }
+  r.set=next; r.rnd=(r.rnd||0)+1; save();
+  toast(`已更新：換上 ${nNew+nGen} 題新題目`,2000); return true;
+}
+
+// ───────── 🔄 數學變化題（題組更新時，題庫題目用完就由程式出新題）─────────
+// 每個單元一組產生器，回傳 {t:"num",q,ans,exp,unit?} 或 {t:"mc",q,opts:[正解,...],exp}
+const dstr=(x,p=2)=>String(+x.toFixed(p));             // 小數字串（去尾 0）
+const comma=n=>n.toLocaleString("en-US");
+const fstr=(n,d)=>{const g=gcd(n,d);n/=g;d/=g;return d===1?String(n):`${n}/${d}`};   // 最簡分數字串
+const ftxt=(n,d)=>d===1?String(n):`[${n}/${d}]`;
+const mixTxt=(n,d)=>{const w=Math.floor(n/d),r=n%d;return r?(w?`${w}[${r}/${d}]`:`[${r}/${d}]`):String(w)};
+const mixAns=(n,d)=>{const g=gcd(n,d);n/=g;d/=g;const w=Math.floor(n/d),r=n%d;return d===1?String(n):(w?`${w}又${r}/${d}`:`${r}/${d}`)};
+const NUM=(q,ans,exp,unit)=>Object.assign({t:"num",q,ans:String(ans),exp},unit?{unit}:{});
+const MC=(q,right,wrongs,exp)=>{const w=[...new Set(wrongs.map(String))].filter(x=>x!==String(right)).slice(0,3); return w.length<3?null:{t:"mc",q,opts:[String(right),...w],exp};};
+const SH=["日","一","二","三","四","五","六"];
+
+const MGEN={
+"m4-1":[
+  ()=>{const n=R(1000000,99999999), P=pick([["千",1000],["萬",10000],["十萬",100000]]), a=Math.round(n/P[1])*P[1];
+    return NUM(`${comma(n)} 用四捨五入法取概數到「${P[0]}位」是多少？`,a,`看${P[0]}位的下一位：${String(Math.floor(n/(P[1]/10))%10)}，${Math.floor(n/(P[1]/10))%10>=5?"5 以上要進位":"4 以下要捨去"}，答案是 ${comma(a)}。`)},
+  ()=>{const n=R(100000,9999999), up=Math.random()<.5, P=pick([["百",100],["千",1000],["萬",10000]]), a=up?Math.ceil(n/P[1])*P[1]:Math.floor(n/P[1])*P[1];
+    return NUM(`${comma(n)} 用無條件${up?"進入":"捨去"}法取概數到「${P[0]}位」是多少？`,a,`無條件${up?"進入：只要"+P[0]+"位以下不是 0，"+P[0]+"位就加 1":"捨去："+P[0]+"位以下全部變成 0"}，答案是 ${comma(a)}。`)},
+  ()=>{const a=R(1,9), b=R(1,9999), v=a*1e8+b*1e4;
+    return NUM(`${a} 個一億和 ${b} 個一萬合起來是多少？`,v,`${a} 億 = ${comma(a*1e8)}，${b} 萬 = ${comma(b*1e4)}，合起來是 ${comma(v)}。`)}
+],
+"m4-2":[
+  ()=>{const d=pick([3,4,5,6,7,8,9]), w=R(1,5), r=R(1,d-1), n=w*d+r;
+    return NUM(`${w}[${r}/${d}] 換成假分數是多少？（用 / 輸入）`,`${n}/${d}`,`${w} × ${d} + ${r} = ${n}，所以是 [${n}/${d}]。`)},
+  ()=>{const d=pick([3,4,5,6,7,8,9]), w=R(1,5), r=R(1,d-1), n=w*d+r;
+    return MC(`[${n}/${d}] 換成帶分數是多少？`,`${w}[${r}/${d}]`,[`${w+1}[${r}/${d}]`,`${r}[${w}/${d}]`,`${w}[${d-r}/${d}]`,`${Math.max(1,w-1)}[${r}/${d}]`],`${n} ÷ ${d} = ${w} 餘 ${r}，所以是 ${w}[${r}/${d}]。`)},
+  ()=>{const d=pick([5,7,9,11]), a=R(1,d-1), b=R(1,d-1), add=Math.random()<.6;
+    if(!add&&a===b) return null; const [x,y]=add?[a,b]:[Math.max(a,b),Math.min(a,b)], n=add?x+y:x-y;
+    return NUM(`計算：[${x}/${d}] ${add?"+":"−"} [${y}/${d}] = ?`,n%d===0?n/d:`${n}/${d}`,`分母相同，分子${add?"相加":"相減"}：${x} ${add?"+":"−"} ${y} = ${n}，答案 ${ftxt(n,d)}${n>d&&n%d?`（= ${mixTxt(n,d)}）`:""}。`)}
+],
+"m4-3":[
+  ()=>{const a=R(101,999)/100, b=R(11,99)/10, add=Math.random()<.5, [x,y]=add?[a,b]:(a>b?[a,b]:[b,a]), v=add?x+y:x-y;
+    return NUM(`計算：${dstr(x)} ${add?"+":"−"} ${dstr(y)} = ?`,dstr(v),`小數點對齊再計算：${dstr(x)} ${add?"+":"−"} ${dstr(y)} = ${dstr(v)}。`)},
+  ()=>{const n=R(2,99); return NUM(`${dstr(n/100)} 是幾個 0.01？`,n,`${dstr(n/100)} = ${n} 個 0.01。`)},
+  ()=>{const a=R(11,99)/10, k=R(3,9), v=a*k; return NUM(`計算：${dstr(a)} × ${k} = ?`,dstr(v),`先算 ${Math.round(a*10)} × ${k} = ${Math.round(a*10)*k}，再點回一位小數：${dstr(v)}。`)}
+],
+"m4-4":[
+  ()=>{const a=R(1000,9999), b=R(12,98); return NUM(`計算：${a} × ${b} = ?`,a*b,`直式乘法：${a} × ${b} = ${comma(a*b)}。`)},
+  ()=>{const b=R(12,49), q=R(101,899), a=b*q; return NUM(`計算：${a} ÷ ${b} = ?`,q,`${a} ÷ ${b} = ${q}，驗算：${q} × ${b} = ${a}。`)},
+  ()=>{const a=R(20,200), b=R(3,15), c=R(3,15), d=R(1,a); const v=a+b*c-d;
+    return NUM(`計算：${a} + ${b} × ${c} − ${d} = ?`,v,`先乘後加減：${b} × ${c} = ${b*c}，${a} + ${b*c} − ${d} = ${v}。`)},
+  ()=>{const a=R(2,9), b=R(2,9), c=R(2,30); return NUM(`計算：(${c} + ${a}) × ${b} = ?`,(c+a)*b,`先算括號：${c} + ${a} = ${c+a}，再乘 ${b} = ${(c+a)*b}。`)}
+],
+"m4-5":[
+  ()=>{const l=R(6,40), w=R(3,l-1), area=Math.random()<.5;
+    return NUM(`長 ${l} 公分、寬 ${w} 公分的長方形，${area?"面積是幾平方公分":"周長是幾公分"}？`,area?l*w:2*(l+w),area?`長 × 寬 = ${l} × ${w} = ${l*w}。`:`(長 + 寬) × 2 = (${l} + ${w}) × 2 = ${2*(l+w)}。`,area?"平方公分":"公分")},
+  ()=>{const s=R(3,25); return NUM(`周長 ${4*s} 公分的正方形，面積是幾平方公分？`,s*s,`邊長 = ${4*s} ÷ 4 = ${s}，面積 = ${s} × ${s} = ${s*s}。`,"平方公分")},
+  ()=>{const l=R(4,30), w=R(2,20), A=l*w; return NUM(`一個長方形面積是 ${A} 平方公分，長是 ${l} 公分，寬是幾公分？`,w,`寬 = 面積 ÷ 長 = ${A} ÷ ${l} = ${w}。`,"公分")},
+  ()=>{const m=R(2,9); return NUM(`${m} 平方公尺 = 幾平方公分？`,m*10000,`1 平方公尺 = 100 × 100 = 10000 平方公分，${m} 平方公尺 = ${m*10000} 平方公分。`,"平方公分")}
+],
+"m4-6":[
+  ()=>{const a=R(25,90), b=R(20,150-a); return NUM(`三角形的兩個角是 ${a}° 和 ${b}°，第三個角是幾度？`,180-a-b,`三角形內角和 180°：180 − ${a} − ${b} = ${180-a-b}。`,"度")},
+  ()=>{const t=2*R(10,80); return NUM(`等腰三角形的頂角是 ${t}°，一個底角是幾度？`,(180-t)/2,`兩個底角相等：(180 − ${t}) ÷ 2 = ${(180-t)/2}。`,"度")},
+  ()=>{const a=R(15,165), full=Math.random()<.4; return NUM(full?`一個角是 ${a}°，它和另一個角合起來是一個周角（360°），另一個角是幾度？`:`一條直線上兩個角合成平角，其中一個是 ${a}°，另一個是幾度？`,full?360-a:180-a,full?`周角 360°：360 − ${a} = ${360-a}。`:`平角 180°：180 − ${a} = ${180-a}。`,"度")},
+  ()=>{const a=R(10,170); const k=a<90?"銳角":a===90?"直角":"鈍角";
+    return MC(`${a}° 的角是哪一種角？`,k,["銳角","直角","鈍角","平角"],`小於 90° 是銳角，等於 90° 是直角，大於 90° 小於 180° 是鈍角。`)}
+],
+"m4-7":[
+  ()=>{const h=R(1,11), m=R(0,59), pm=Math.random()<.6, t=`${pm?h+12:h}:${String(m).padStart(2,"0")}`;
+    return MC(`${pm?"下午":"上午"} ${h} 時 ${m} 分用 24 時制表示是？`,t,[`${pm?h:h+12}:${String(m).padStart(2,"0")}`,`${h+10}:${String(m).padStart(2,"0")}`,`${pm?h+12:h}:${String((m+30)%60).padStart(2,"0")}`,`${h+2}:${String(m).padStart(2,"0")}`],`${pm?"下午要加 12：":"上午不變："}${t}。`)},
+  ()=>{const h=R(1,5), m=R(1,59); return NUM(`${h} 小時 ${m} 分等於幾分鐘？`,h*60+m,`${h} × 60 + ${m} = ${h*60+m}。`,"分鐘")},
+  ()=>{const s=R(7*60,15*60), d=R(25,170), e=s+d, f=t=>`${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`;
+    return NUM(`從 ${f(s)} 到 ${f(e)}，經過幾分鐘？`,d,`${f(s)} 到 ${f(e)}：先算整點再補分鐘，共 ${Math.floor(d/60)?Math.floor(d/60)+" 小時 ":""}${d%60} 分 = ${d} 分鐘。`,"分鐘")},
+  ()=>{const m=R(2,9)*60+R(1,59); return NUM(`${m} 分鐘是幾小時又幾分？請填「分」的部分。`,m%60,`${m} ÷ 60 = ${Math.floor(m/60)} 餘 ${m%60}，是 ${Math.floor(m/60)} 小時 ${m%60} 分。`,"分")}
+],
+"m4-8":[
+  ()=>{const p=R(12,45), d=R(5,30), a=R(2,5), b=R(2,5); const v=a*p+b*(p+d);
+    return NUM(`一枝筆 ${p} 元，一本筆記本比一枝筆貴 ${d} 元。買 ${a} 枝筆和 ${b} 本筆記本，一共要付多少元？`,v,`筆記本 ${p} + ${d} = ${p+d} 元；${a} × ${p} + ${b} × ${p+d} = ${a*p} + ${b*(p+d)} = ${v}。`,"元")},
+  ()=>{const c=R(6,24), k=R(12,30), g=pick([3,4,6,8,12]); if(c*k%g) return null; const v=c*k/g;
+    return NUM(`學校買了 ${c} 箱礦泉水，每箱 ${k} 瓶，平均分給 ${g} 個班級，每班分到幾瓶？`,v,`共 ${c} × ${k} = ${c*k} 瓶，${c*k} ÷ ${g} = ${v}。`,"瓶")},
+  ()=>{const m=pick([500,1000]), p=R(15,85), n=R(3,Math.floor(m/p)); const v=m-p*n; if(v<0) return null;
+    return NUM(`媽媽帶 ${m} 元去買菜，買了 ${n} 斤青菜，每斤 ${p} 元，還剩多少元？`,v,`花了 ${p} × ${n} = ${p*n} 元，${m} − ${p*n} = ${v}。`,"元")},
+  ()=>{const per=R(4,9), n=R(25,99), q=Math.ceil(n/per);
+    return NUM(`${n} 位同學去露營，每頂帳篷最多睡 ${per} 人，至少要幾頂帳篷？`,q,`${n} ÷ ${per} = ${Math.floor(n/per)} 餘 ${n%per}${n%per?"，剩下的人也要一頂，所以 "+q:""}。`,"頂")}
+],
+"m5-1":[
+  ()=>{const n=pick([12,18,20,24,28,30,32,36,40,42,45,48,54,56,60,72]), c=divisors(n).length;
+    return NUM(`${n} 的因數一共有幾個？`,c,`${n} 的因數：${divisors(n).join("、")}，共 ${c} 個。`,"個")},
+  ()=>{const n=pick([24,30,36,40,42,48,56,60]), fs=divisors(n).filter(x=>x>1&&x<n), right=pick(fs), wr=[];
+    for(let t=0;t<40&&wr.length<3;t++){const x=R(4,n-1); if(n%x&&!wr.includes(x)) wr.push(x);}
+    return MC(`下列哪一個數是 ${n} 的因數？`,right,wr,`${n} ÷ ${right} = ${n/right}，整除，所以 ${right} 是 ${n} 的因數。`)},
+  ()=>{const [a,b]=pick([[4,6],[6,8],[6,9],[8,12],[9,12],[10,15],[12,18],[14,21],[15,20],[16,24],[18,24],[20,30]]), g=gcd(a,b), l=a*b/g, isG=Math.random()<.5;
+    return NUM(`${a} 和 ${b} 的${isG?"最大公因數":"最小公倍數"}是多少？`,isG?g:l,isG?`${a} 和 ${b} 共同的因數中最大的是 ${g}。`:`${a} 的倍數中第一個也是 ${b} 的倍數的是 ${l}。`)},
+  ()=>{const k=R(3,9), lo=R(10,50), hi=lo+R(20,60), c=Math.floor(hi/k)-Math.floor((lo-1)/k);
+    return NUM(`${lo} 到 ${hi} 之間（包含 ${lo} 和 ${hi}）有幾個 ${k} 的倍數？`,c,`${hi} ÷ ${k} 取整數 ${Math.floor(hi/k)}，${lo-1} ÷ ${k} 取整數 ${Math.floor((lo-1)/k)}，相減得 ${c}。`,"個")}
+],
+"m5-2":[
+  ()=>{const d=R(3,12), n=R(1,d-1), k=R(2,6); if(gcd(n,d)!==1) return null;
+    return NUM(`把 [${n*k}/${d*k}] 約成最簡分數。`,`${n}/${d}`,`分子分母同除以 ${k}（最大公因數）：[${n}/${d}]。`)},
+  ()=>{const b=pick([2,3,4,5,6,8,10,12]), d=pick([3,4,5,6,9,10,12,15]); if(b===d) return null; const a=R(1,b-1), c=R(1,d-1), add=Math.random()<.6;
+    const n=add?a*d+c*b:a*d-c*b, D=b*d; if(n<=0) return null; const l=lcm(b,d);
+    return NUM(`計算：[${a}/${b}] ${add?"+":"−"} [${c}/${d}] = ?`,fstr(n,D),`通分成分母 ${l}：[${a*l/b}/${l}] ${add?"+":"−"} [${c*l/d}/${l}] = [${a*l/b+(add?1:-1)*c*l/d}/${l}]，約分後是 ${ftxt(n/gcd(n,D),D/gcd(n,D))}。`)},
+  ()=>{const b=pick([3,4,5,6]), d=pick([2,3,4,8]); if(b===d) return null; const w1=R(1,4), w2=R(1,3), a=R(1,b-1), c=R(1,d-1); if(gcd(a,b)>1||gcd(c,d)>1) return null;
+    const n=(w1*b+a)*d+(w2*d+c)*b, D=b*d;
+    return NUM(`計算：${w1}[${a}/${b}] + ${w2}[${c}/${d}] = ?（可填帶分數，例如 2又1/3）`,mixAns(n,D),`整數 ${w1} + ${w2} = ${w1+w2}，分數部分通分相加，再進位整理，答案 ${mixTxt(n/gcd(n,D),D/gcd(n,D))}。`)}
+],
+"m5-3":[
+  ()=>{const b=R(4,30), h=2*R(2,12); return NUM(`底 ${b} 公分、高 ${h} 公分的三角形，面積是幾平方公分？`,b*h/2,`底 × 高 ÷ 2 = ${b} × ${h} ÷ 2 = ${b*h/2}。`,"平方公分")},
+  ()=>{const b=R(4,30), h=R(3,20); return NUM(`底 ${b} 公分、高 ${h} 公分的平行四邊形，面積是幾平方公分？`,b*h,`底 × 高 = ${b} × ${h} = ${b*h}。`,"平方公分")},
+  ()=>{const a=R(3,12), c=a+R(2,10), h=2*R(2,8); return NUM(`上底 ${a} 公分、下底 ${c} 公分、高 ${h} 公分的梯形，面積是幾平方公分？`,(a+c)*h/2,`(上底 + 下底) × 高 ÷ 2 = (${a} + ${c}) × ${h} ÷ 2 = ${(a+c)*h/2}。`,"平方公分")},
+  ()=>{const l=R(3,15), w=R(2,10), h=R(2,10); return NUM(`長 ${l} 公分、寬 ${w} 公分、高 ${h} 公分的長方體，體積是幾立方公分？`,l*w*h,`長 × 寬 × 高 = ${l} × ${w} × ${h} = ${l*w*h}。`,"立方公分")},
+  ()=>{const s=R(2,12); return NUM(`邊長 ${s} 公分的正方體，體積是幾立方公分？`,s**3,`${s} × ${s} × ${s} = ${s**3}。`,"立方公分")}
+],
+"m6-1":[
+  ()=>{const b=R(2,9), d=R(2,9), a=R(1,b), c=R(1,d); if(gcd(a,b)>1||gcd(c,d)>1) return null; const n=a*d, D=b*c;
+    return NUM(`計算：[${a}/${b}] ÷ [${c}/${d}] = ?`,fstr(n,D),`除以一個分數 = 乘以它的倒數：[${a}/${b}] × [${d}/${c}] = ${ftxt(n/gcd(n,D),D/gcd(n,D))}。`)},
+  ()=>{const q=R(2,40), b=R(2,9)/10, a=q*b; return NUM(`計算：${dstr(a,2)} ÷ ${dstr(b,1)} = ?`,q,`被除數和除數同乘 10：${dstr(a*10,1)} ÷ ${dstr(b*10,0)} = ${q}。`)},
+  ()=>{const n=R(2,12), d=pick([2,3,4,5,6]), k=R(2,6); if(gcd(k,d)>1||k===d) return null; return NUM(`${n*k} 公斤的米，平均分裝成每袋 [${k}/${d}] 公斤，可以裝幾袋？`,n*d,`${n*k} ÷ [${k}/${d}] = ${n*k} × [${d}/${k}] = ${n*d}。`,"袋")}
+],
+"m6-2":[
+  ()=>{const a=R(1,9), b=R(1,9), k=R(2,9); if(a===b||gcd(a,b)>1) return null;
+    return MC(`${a*k} : ${b*k} 化成最簡整數比是多少？`,`${a} : ${b}`,[`${b} : ${a}`,`${a+1} : ${b+1}`,`${a} : ${b+1}`,`${a+b} : ${b}`,`${2*a} : ${b}`],`兩邊同除以最大公因數 ${k}：${a} : ${b}。`)},
+  ()=>{const a=R(1,9), b=R(2,12); return NUM(`${a} : ${b} 的比值是多少？（可用分數）`,fstr(a,b),`比值 = 前項 ÷ 後項 = ${a} ÷ ${b} = ${ftxt(a/gcd(a,b),b/gcd(a,b))}。`)},
+  ()=>{const p=pick([5,10,15,20,25,30,40,60,75]), n=pick([40,60,80,120,200,240,300,400]); const v=n*p/100; if(v%1) return null;
+    return NUM(`${n} 的 ${p}% 是多少？`,v,`${n} × ${p}% = ${n} × [${p}/100] = ${v}。`)},
+  ()=>{const t=pick([20,25,40,50]), x=R(1,t-1); const p=x*100/t; if(p%1) return null;
+    return NUM(`全班 ${t} 人，有 ${x} 人戴眼鏡，戴眼鏡的人占全班的百分之幾？`,p,`${x} ÷ ${t} = ${dstr(x/t)} = ${p}%。`,"%")}
+],
+"m6-3":[
+  ()=>{const r=R(2,20), dia=Math.random()<.5; return NUM(`${dia?"直徑":"半徑"} ${dia?2*r:r} 公分的圓，圓周長約是幾公分？（圓周率取 3.14）`,dstr(2*r*3.14),`圓周長 = 直徑 × 3.14 = ${2*r} × 3.14 = ${dstr(2*r*3.14)}。`,"公分")},
+  ()=>{const r=R(2,15); return NUM(`半徑 ${r} 公分的圓，面積約是幾平方公分？（圓周率取 3.14）`,dstr(r*r*3.14),`面積 = 半徑 × 半徑 × 3.14 = ${r} × ${r} × 3.14 = ${dstr(r*r*3.14)}。`,"平方公分")},
+  ()=>{const v=R(3,18)*5, t=R(2,6); return NUM(`一輛車每小時走 ${v} 公里，${t} 小時可以走幾公里？`,v*t,`距離 = 速率 × 時間 = ${v} × ${t} = ${v*t}。`,"公里")},
+  ()=>{const v=R(40,90), t=R(2,8); return NUM(`小明騎車 ${t} 分鐘騎了 ${v*t} 公尺，他的速率是每分鐘幾公尺？`,v,`速率 = 距離 ÷ 時間 = ${v*t} ÷ ${t} = ${v}。`,"公尺")}
+],
+"m7-1":[
+  ()=>{const a=nz(-30,30), b=nz(-30,30); return NUM(`計算：${a<0?`(−${-a})`:a} + ${b<0?`(−${-b})`:b} = ?`,a+b,`${a} + (${b}) = ${a+b}。同號相加取同號，異號相減取絕對值大的符號。`)},
+  ()=>{const a=nz(-12,12), b=nz(-12,12); return NUM(`計算：${a<0?`(−${-a})`:a} × ${b<0?`(−${-b})`:b} = ?`,a*b,`${a*b<0?"異號相乘為負":"同號相乘為正"}：${a*b}。`)},
+  ()=>{const q=nz(-12,12), b=nz(-9,9), a=q*b; return NUM(`計算：${a<0?`(−${-a})`:a} ÷ ${b<0?`(−${-b})`:b} = ?`,q,`${q<0?"異號相除為負":"同號相除為正"}：${q}。`)},
+  ()=>{const a=R(-20,20), b=R(-20,20); if(a===b) return null; return NUM(`數線上 A(${a})、B(${b}) 兩點的距離是多少？`,Math.abs(a-b),`距離 = |${a} − (${b})| = ${Math.abs(a-b)}。`)}
+],
+"m7-2":[
+  ()=>{const b=pick([2,3,4,5,10]), e=b===10?R(2,6):b===2?R(3,8):R(2,4); return NUM(`計算：${b}^${e} = ?`,b**e,`${b}^${e} = ${Array(e).fill(b).join(" × ")} = ${b**e}。`)},
+  ()=>{const base=pick(["2","3","5","a","x"]), m=R(2,6), n=R(2,6), op=pick(["×","÷"]);
+    if(op==="÷"&&m<=n) return null; const e=op==="×"?m+n:m-n;
+    return MC(`${base}^${m} ${op} ${base}^${n} = ?`,`${base}^${e}`,[`${base}^${m*n}`,`${base}^${op==="×"?Math.abs(m-n)||1:m+n}`,`${base}^${e+1}`,`${base}^${e-1}`],`同底數${op==="×"?"相乘，指數相加":"相除，指數相減"}：${base}^${e}。`)},
+  ()=>{const a=R(11,99)/10, k=R(3,9), n=Math.round(a*10**k); return MC(`${comma(n)} 用科學記號表示為何？`,`${dstr(a,1)} × 10^${k}`,[`${dstr(a,1)} × 10^${k+1}`,`${dstr(a,1)} × 10^${k-1}`,`${Math.round(a*10)} × 10^${k}`,`${dstr(a/10,2)} × 10^${k+1}`],`a × 10^n 中 1 ≤ a < 10：${comma(n)} = ${dstr(a,1)} × 10^${k}。`)},
+  ()=>{const a=R(11,99)/10, k=R(2,6), str="0."+"0".repeat(k-1)+String(Math.round(a*10)); return MC(`${str} 用科學記號表示為何？`,`${dstr(a,1)} × 10^{−${k}}`,[`${dstr(a,1)} × 10^{−${k+1}}`,`${dstr(a,1)} × 10^{−${k-1}}`,`${dstr(a,1)} × 10^${k}`,`${Math.round(a*10)} × 10^{−${k}}`],`小數點往右移 ${k} 位得 ${dstr(a,1)}，所以是 ${dstr(a,1)} × 10^{−${k}}。`)}
+],
+"m7-3":[
+  ()=>{const x=nz(-10,12), a=nz(-6,9), b=R(-20,20), c=a*x+b; return NUM(`解方程式：${a===1?"":a===-1?"−":a<0?"−"+(-a):a}x ${b<0?"− "+(-b):"+ "+b} = ${c}，x = ?`,x,`移項：${a}x = ${c} − (${b}) = ${c-b}，x = ${c-b} ÷ ${a} = ${x}。`)},
+  ()=>{const x=R(-8,15), a=R(2,6), b=R(1,9), c=a*(x-b); return NUM(`解方程式：${a}(x − ${b}) = ${c}，x = ?`,x,`兩邊同除以 ${a}：x − ${b} = ${c/a}，x = ${x}。`)},
+  ()=>{const x=nz(-9,9), a=R(2,9), c=R(1,a-1)||1, b=R(-15,15); const d=(a-c)*x+b; return NUM(`解方程式：${a}x ${b<0?"− "+(-b):"+ "+b} = ${c===1?"":c}x ${d<0?"− "+(-d):"+ "+d}，x = ?`,x,`移項：${a}x − ${c}x = ${d} − (${b})，${a-c}x = ${d-b}，x = ${x}。`)},
+  ()=>{const x=R(3,30), k=R(2,5), s=x*(k+1); return NUM(`哥哥的錢是弟弟的 ${k} 倍，兩人合起來有 ${s} 元。設弟弟有 x 元，x = ?`,x,`x + ${k}x = ${s}，${k+1}x = ${s}，x = ${x}。`,"元")}
+],
+"m7-4":[()=>genOps(pick(["as","md","mix"]))],
+"m7-5":[()=>genOps("fr")],
+"m8-1":[
+  ()=>{const n=pick([101,102,99,98,201,49,51,103,97,1001]); const p=n>100?(n>1000?1000:Math.round(n/100)*100):Math.round(n/10)*10, d=n-p;
+    return NUM(`利用乘法公式計算：${n}^2 = ?`,n*n,`(${p} ${d<0?"−":"+"} ${Math.abs(d)})^2 = ${p}^2 ${d<0?"−":"+"} 2×${p}×${Math.abs(d)} + ${Math.abs(d)}^2 = ${n*n}。`)},
+  ()=>{const a=pick([50,100,200,30,40,60]), d=R(1,9); return NUM(`利用乘法公式計算：${a+d} × ${a-d} = ?`,(a+d)*(a-d),`平方差公式：(${a}+${d})(${a}−${d}) = ${a}^2 − ${d}^2 = ${a*a} − ${d*d} = ${a*a-d*d}。`)},
+  ()=>{const a=R(1,9), b=R(1,9), s=Math.random()<.5;
+    return MC(`因式分解：x^2 ${s?"+":"−"} ${2*a}x + ${a*a} = ?`,`(x ${s?"+":"−"} ${a})^2`,[`(x ${s?"−":"+"} ${a})^2`,`(x + ${a})(x − ${a})`,`(x ${s?"+":"−"} ${2*a})^2`,`(x ${s?"+":"−"} ${a*a})^2`],`完全平方式：x^2 ${s?"+":"−"} 2·${a}·x + ${a}^2 = (x ${s?"+":"−"} ${a})^2。`)},
+  ()=>{const a=R(2,12); return MC(`因式分解：x^2 − ${a*a} = ?`,`(x + ${a})(x − ${a})`,[`(x − ${a})^2`,`(x + ${a})^2`,`(x + ${a*a})(x − 1)`,`(x − ${a})(x − ${a})`],`平方差：x^2 − ${a}^2 = (x + ${a})(x − ${a})。`)}
+],
+"m8-2":[
+  ()=>{const n=R(4,25); return NUM(`√{${n*n}} = ?`,n,`${n} × ${n} = ${n*n}，所以 √{${n*n}} = ${n}。`)},
+  ()=>{const k=pick([2,3,5,6,7]), a=R(2,6); if(k===a) return null; return MC(`√{${a*a*k}} 化成最簡根式是？`,`${a}√${k}`,[`${k}√${a}`,`${a*a}√${k}`,`${a}√${a*k}`,`${a+1}√${k}`],`${a*a*k} = ${a}^2 × ${k}，√{${a*a*k}} = ${a}√${k}。`)},
+  ()=>{const T=pick([[3,4,5],[6,8,10],[5,12,13],[8,15,17],[9,12,15],[7,24,25],[12,16,20]]), m=Math.random()<.5;
+    return m?NUM(`直角三角形兩股長 ${T[0]}、${T[1]}，斜邊長是多少？`,T[2],`斜邊² = ${T[0]}^2 + ${T[1]}^2 = ${T[2]*T[2]}，斜邊 = ${T[2]}。`)
+            :NUM(`直角三角形斜邊 ${T[2]}、一股 ${T[0]}，另一股長是多少？`,T[1],`另一股² = ${T[2]}^2 − ${T[0]}^2 = ${T[1]*T[1]}，另一股 = ${T[1]}。`)},
+  ()=>{const n=R(5,90); if(Number.isInteger(Math.sqrt(n))) return null; const lo=Math.floor(Math.sqrt(n));
+    return MC(`√{${n}} 介於哪兩個連續整數之間？`,`${lo} 和 ${lo+1}`,[`${lo-1} 和 ${lo}`,`${lo+1} 和 ${lo+2}`,`${Math.floor(n/2)} 和 ${Math.floor(n/2)+1}`,`${lo+2} 和 ${lo+3}`],`${lo}^2 = ${lo*lo} < ${n} < ${(lo+1)**2} = ${lo+1}^2。`)}
+],
+"m8-3":[
+  ()=>{let a=nz(-9,9), b=nz(-9,9); if(a===b) b=a+1; if(a>b)[a,b]=[b,a]; if(a+b===0) return null; const s=a+b, p=a*b, sg=v=>v<0?"− "+(-v):"+ "+v;
+    return MC(`x^2 ${sg(-s).replace("+ 0","")}x ${sg(p)} = 0 的解是？`,`x = ${a} 或 x = ${b}`,[`x = ${-a} 或 x = ${-b}`,`x = ${a} 或 x = ${-b}`,`x = ${a+1} 或 x = ${b-1}`,`x = ${-a} 或 x = ${b}`],`因式分解：(x ${sg(-a)})(x ${sg(-b)}) = 0，x = ${a} 或 x = ${b}。`)},
+  ()=>{const n=R(2,15); return NUM(`x^2 = ${n*n} 的正數解是多少？`,n,`x = ±${n}，正數解為 ${n}。`)},
+  ()=>{const a=R(-10,20), d=nz(-6,8), n=R(6,20); return NUM(`等差數列首項 ${a}、公差 ${d}，第 ${n} 項是多少？`,a+(n-1)*d,`a_n = a_1 + (n−1)d = ${a} + ${n-1}×(${d}) = ${a+(n-1)*d}。`)},
+  ()=>{const a=R(1,10), d=R(1,6), n=R(5,20), S2=n*(2*a+(n-1)*d)/2; return NUM(`等差數列首項 ${a}、公差 ${d}，前 ${n} 項的和是多少？`,S2,`S = n(2a_1+(n−1)d)÷2 = ${n}×(${2*a}+${(n-1)*d})÷2 = ${S2}。`)}
+],
+"m9-1":[
+  ()=>{const a=R(2,9), k=pick([1.5,2,2.5,3,4]), b=R(2,12); const v=b*k; if(a*k%1) return null;
+    return NUM(`△ABC ~ △DEF，AB = ${a}、DE = ${dstr(a*k)}。若 BC = ${b}，則 EF = ?`,dstr(v),`相似比 = ${a} : ${dstr(a*k)}，EF = ${b} × ${dstr(a*k)} ÷ ${a} = ${dstr(v)}。`)},
+  ()=>{const m=R(1,5), n=R(2,7); if(m>=n||gcd(m,n)>1) return null; return MC(`兩個相似三角形的對應邊長比是 ${m} : ${n}，面積比是？`,`${m*m} : ${n*n}`,[`${m} : ${n}`,`${2*m} : ${2*n}`,`${m**3} : ${n**3}`,`${n*n} : ${m*m}`],`面積比 = 邊長比的平方 = ${m*m} : ${n*n}。`)},
+  ()=>{const s=R(2,9), k=R(20,90); return NUM(`地圖比例尺 1 : ${k*1000}，圖上 ${s} 公分代表實際幾公里？`,dstr(s*k*1000/100000,2),`${s} × ${k*1000} = ${s*k*1000} 公分 = ${dstr(s*k*1000/100000,2)} 公里。`,"公里")}
+],
+"m9-2":[
+  ()=>{const h=nz(-6,6), k=R(-9,9), a=pick([1,-1,2,-2,3]); const A=a===1?"":a===-1?"−":String(a).replace("-","−");
+    return MC(`y = ${A}(x ${h<0?"+ "+(-h):"− "+h})^2 ${k<0?"− "+(-k):"+ "+k} 的頂點坐標是？`,`(${h}, ${k})`,[`(${-h}, ${k})`,`(${h}, ${-k})`,`(${-h}, ${-k})`,`(${k}, ${h})`],`y = a(x − h)^2 + k 的頂點為 (h, k) = (${h}, ${k})。`)},
+  ()=>{const a=nz(-4,4), c=R(-9,9); return MC(`y = ${a===1?"":a===-1?"−":String(a).replace("-","−")}x^2 ${c<0?"− "+(-c):"+ "+c} 的圖形開口方向是？`,a>0?"向上":"向下",[a>0?"向下":"向上","向左","向右"],`a = ${a} ${a>0?"> 0，開口向上":"< 0，開口向下"}。`)},
+  ()=>{const a=nz(-3,3), h=R(-4,4), k=R(-9,9), x=R(-3,5); const y=a*(x-h)**2+k;
+    return NUM(`y = ${a===1?"":a===-1?"−":String(a).replace("-","−")}(x ${h<0?"+ "+(-h):"− "+h})^2 ${k<0?"− "+(-k):"+ "+k}，當 x = ${x} 時，y = ?`,y,`代入：${a}×(${x} − (${h}))^2 + (${k}) = ${a}×${(x-h)**2} + (${k}) = ${y}。`)}
+],
+"m9-3":[
+  ()=>{const n=pick([5,7]), d=[...Array(n)].map(()=>R(1,30)); const s=[...d].sort((a,b)=>a-b);
+    return NUM(`資料 ${d.join(", ")} 的中位數是多少？`,s[(n-1)/2],`由小到大：${s.join(", ")}，正中間是 ${s[(n-1)/2]}。`)},
+  ()=>{const n=pick([4,5,6]), m=R(5,20), d=[...Array(n-1)].map(()=>R(m-6,m+6)); d.push(m*n-d.reduce((a,b)=>a+b,0)); if(d[n-1]<0) return null;
+    return NUM(`資料 ${d.join(", ")} 的平均數是多少？`,m,`總和 ${m*n} ÷ ${n} 個 = ${m}。`)},
+  ()=>{const r=R(1,6), w=R(1,8), b=R(1,6), t=r+w+b, c=pick([["紅",r],["白",w],["藍",b]]);
+    return NUM(`袋中有紅球 ${r} 顆、白球 ${w} 顆、藍球 ${b} 顆，任取一顆是${c[0]}球的機率是多少？（用分數）`,fstr(c[1],t),`${c[0]}球 ${c[1]} 顆 ÷ 全部 ${t} 顆 = ${ftxt(c[1]/gcd(c[1],t),t/gcd(c[1],t))}。`)},
+  ()=>{const k=pick([1,2,3,4,5]); return NUM(`擲一顆公正的骰子，出現點數大於 ${k} 的機率是多少？（用分數）`,fstr(6-k,6),`大於 ${k} 的有 ${6-k} 種，機率 = ${ftxt((6-k)/gcd(6-k,6),6/gcd(6-k,6))}。`)}
+]
+};
+function mgen(u,avoid){
+  const G=MGEN[u.id]; if(!G||!G.length) return null;
+  for(let t=0;t<60;t++){ let q=null; try{ q=pick(G)(); }catch(e){ q=null; }
+    if(q&&q.q&&!(avoid||[]).includes(q.q)&&(q.t!=="num"||parseNum(q.ans))) return q; }
+  return null;
 }
 
 $("#ptsBtn").onclick=()=>openWallet("hist");

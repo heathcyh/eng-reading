@@ -1,7 +1,7 @@
 // 離線快取（國中版）：所有檔案都先抓網路拿最新版，沒網路才用快取
-const CACHE = "jifen-jh-v1";
+const CACHE = "jifen-jh-v2";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./icon-180.png",
-  "../app.js", "../app.css", "../content.json", "../math.json", "../social.json"];
+  "../app.js", "../app.css", "../content.json", "../math.json", "../social.json", "../science.json"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith("jifen-jh-") && k !== CACHE).map(k => caches.delete(k)))));
