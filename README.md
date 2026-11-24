@@ -151,7 +151,7 @@ App 需要放在一個 https 網址上，手機才能安裝。以下用 **GitHub
 
 改 `tools/build_science.py` 再執行 `python3 tools/build_science.py`。格式和社會相同（`key`、`table`、`qs`、`cards`），另外：
 
-- 最上方 `EXAM2 = {"2", "3"}` 設定第二次段考的章；這些章的單元會標紅色「★ 二段範圍」，模擬考預設只考這些單元。
+- 最上方 `EXAM2` 列出第二次段考的單元 id（目前依學校公告：2-2～3-3，P70～P125）；這些單元會標紅色「★ 二段範圍」，模擬考預設只考這些單元。
 - 平時考訂正的原題保存在 `tools/science_quiz_src.json`，每次重建都會合併進去。
 
 新增英文文章：改 `tools/add_passages.py` 再執行，會自動檢查克漏字數量、翻譯句數。
