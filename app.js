@@ -623,7 +623,7 @@ function mathHome(){
   <div class="plist">${list.length?list.map((u,i)=>{const s=mstats(u);return `
     <button class="pcard" data-id="${u.id}">
       <div class="pnum" style="background:#FFF3D6;color:#B87500">${i+1}</div>
-      <div class="pinfo"><div class="t">${esc(u.title)}${(S.mseen||[]).includes(u.id)?"":'<span class="new">NEW</span>'}</div><div class="z">${LV[u.level].n}・本組 ${s.n} 題${s.rnd?`・已換 ${s.rnd} 組`:""}</div>
+      <div class="pinfo"><div class="t">${esc(u.title)}${u.tag?`<span class="star s2">★ ${esc(u.tag)}</span>`:""}${(S.mseen||[]).includes(u.id)?"":'<span class="new">NEW</span>'}</div><div class="z">${LV[u.level].n}・題庫 ${u.qs.length} 題・本組 ${s.n} 題${s.rnd?`・已換 ${s.rnd} 組`:""}</div>
         <div class="badges"><span class="bdg ${s.done===s.n?"done":""}">✏️ 已作答 ${s.done}/${s.n}</span><span class="bdg ${s.done&&s.ok===s.done?"done":""}">✅ 答對 ${s.ok}</span></div></div>
       <div class="chev">›</div></button>${s.done===s.n?updBtn(u.id,u.title):""}`}).join(""):'<p class="hint">這個年級還沒有題目。</p>'}</div>
   <p class="hint">🎯 積點規則：每題首次作答正確 +10。計算題用下方鍵盤作答，分數用「/」，帶分數用「又」（例：2又1/3）。<br>🔄 做完一組可以按「更新題組」換新題目（只換做完的題，新題答對一樣 +10）。</p>`;
@@ -1369,7 +1369,7 @@ const MGEN={
   ()=>{const a=R(101,999)/100, b=R(11,99)/10, add=Math.random()<.5, [x,y]=add?[a,b]:(a>b?[a,b]:[b,a]), v=add?x+y:x-y;
     return NUM(`計算：${dstr(x)} ${add?"+":"−"} ${dstr(y)} = ?`,dstr(v),`小數點對齊再計算：${dstr(x)} ${add?"+":"−"} ${dstr(y)} = ${dstr(v)}。`)},
   ()=>{const n=R(2,99); return NUM(`${dstr(n/100)} 是幾個 0.01？`,n,`${dstr(n/100)} = ${n} 個 0.01。`)},
-  ()=>{const a=R(11,99)/10, k=R(3,9), v=a*k; return NUM(`計算：${dstr(a)} × ${k} = ?`,dstr(v),`先算 ${Math.round(a*10)} × ${k} = ${Math.round(a*10)*k}，再點回一位小數：${dstr(v)}。`)}
+  ()=>{const a=R(11,99)/10, k=R(3,9), v=a*k; if(Number.isInteger(a)) return null; return NUM(`計算：${dstr(a)} × ${k} = ?`,dstr(v),`先算 ${Math.round(a*10)} × ${k} = ${Math.round(a*10)*k}，再點回一位小數：${dstr(v)}。`)}
 ],
 "m4-4":[
   ()=>{const a=R(1000,9999), b=R(12,98); return NUM(`計算：${a} × ${b} = ?`,a*b,`直式乘法：${a} × ${b} = ${comma(a*b)}。`)},
@@ -1528,6 +1528,166 @@ const MGEN={
   ()=>{const k=pick([1,2,3,4,5]); return NUM(`擲一顆公正的骰子，出現點數大於 ${k} 的機率是多少？（用分數）`,fstr(6-k,6),`大於 ${k} 的有 ${6-k} 種，機率 = ${ftxt((6-k)/gcd(6-k,6),6/gcd(6-k,6))}。`)}
 ]
 };
+// ── 加更多變化題型（題庫擴充到每單元 100 題以上時，題型才不會太重複）──
+const MORE={
+"m4-1":[
+  ()=>{const n=R(10000000,99999999), P=pick([["千萬",7],["百萬",6],["十萬",5],["萬",4],["千",3]]), d=Math.floor(n/10**P[1])%10;
+    return NUM(`${comma(n)} 的「${P[0]}位」數字是多少？`,d,`由右往左數：個、十、百、千、萬、十萬、百萬、千萬，${P[0]}位是 ${d}。`)},
+  ()=>{const a=R(1000000,9999999), b=a+pick([1,10,100,1000,90000,-9,-100,-99000]), c=Number(String(a).split("").reverse().join("")), d=Math.floor(a/10);
+    const all=[a,b,c,d]; if(new Set(all).size<4) return null; const mx=Math.max(...all);
+    return MC(`下列哪一個數最大？`,comma(mx),all.filter(x=>x!==mx).map(comma),`先比位數，位數相同再從最高位一位一位比，最大的是 ${comma(mx)}。`)},
+  ()=>{const a=R(12,98)*1000, b=R(11,99)*10000, s=Math.random()<.5; const v=s?a+b:b-a;
+    return NUM(`計算：${comma(b)} ${s?"+":"−"} ${comma(a)} = ?`,v,`可以想成 ${b/1000} 千 ${s?"+":"−"} ${a/1000} 千 = ${v/1000} 千 = ${comma(v)}。`)}
+],
+"m4-2":[
+  ()=>{const d=pick([5,6,7,8,9,10,12]), a=R(1,d-1); let b=R(1,d-1); if(a===b) return null;
+    return MC(`[${a}/${d}] 和 [${b}/${d}]，哪一個比較大？`,`[${Math.max(a,b)}/${d}]`,[`[${Math.min(a,b)}/${d}]`,"一樣大","無法比較"],`分母相同，分子大的分數比較大。`)},
+  ()=>{const a=R(2,9); let b=R(2,9); if(a===b) return null;
+    return MC(`[1/${a}] 和 [1/${b}]，哪一個比較大？`,`[1/${Math.min(a,b)}]`,[`[1/${Math.max(a,b)}]`,"一樣大","無法比較"],`分子都是 1，分母愈小（分成的份數愈少），每一份愈大。`)},
+  ()=>{const d=pick([4,5,6,7,8,9]), w=R(2,5), r=R(1,d-1), s=R(1,d-1), n=w*d+r-s; if(n<=0) return null;
+    return NUM(`計算：${w}[${r}/${d}] − [${s}/${d}] = ?（可填帶分數，例如 2又1/3）`,mixAns(n,d),`${r>=s?`分數部分直接相減：${r} − ${s} = ${r-s}`:`分子不夠減，借 1 = [${d}/${d}]：${w-1}[${r+d}/${d}] − [${s}/${d}]`}，答案 ${mixTxt(n,d)}。`)}
+],
+"m4-3":[
+  ()=>{const xs=[...new Set([...Array(4)].map(()=>R(100,999)/100))]; if(xs.length<4) return null; const mx=Math.max(...xs);
+    return MC(`下列哪一個小數最大？`,dstr(mx),xs.filter(x=>x!==mx).map(x=>dstr(x)),`先比整數部分，再比十分位、百分位，最大的是 ${dstr(mx)}。`)},
+  ()=>{const n=R(1,99), d=n%10?100:10, nn=d===10?n/10:n; return NUM(`${dstr(n/100)} 化成分數是多少？（用 / 輸入，要約成最簡）`,fstr(nn,d),`${dstr(n/100)} = [${nn}/${d}]${gcd(nn,d)>1?`，約分後是 ${ftxt(nn/gcd(nn,d),d/gcd(nn,d))}`:""}。`)},
+  ()=>{const a=R(12,99)/10, b=R(12,99)/10, c=R(1,9)/10, v=a+b-c; if(v<=0) return null;
+    return NUM(`計算：${dstr(a)} + ${dstr(b)} − ${dstr(c)} = ?`,dstr(v),`由左往右：${dstr(a)} + ${dstr(b)} = ${dstr(a+b)}，再減 ${dstr(c)} = ${dstr(v)}。`)}
+],
+"m4-4":[
+  ()=>{const b=R(12,59), q=R(11,99), r=R(1,b-1), a=b*q+r; return NUM(`${a} ÷ ${b} = ? … ?，請填「餘數」。`,r,`${b} × ${q} = ${b*q}，${a} − ${b*q} = ${r}，所以商 ${q} 餘 ${r}。`)},
+  ()=>{const a=R(2,9)*25, b=4*R(2,9); if(a%100===0) return null; return NUM(`用簡便方法計算：${a} × ${b} = ?`,a*b,`拆成 (${a/25} × 25) × (4 × ${b/4}) = ${a/25*b/4} × 100 = ${a*b}。`)},
+  ()=>{const a=R(100,500), b=R(2,9), c=R(2,9); return NUM(`計算：${a} − (${b} × ${c} − ${b}) = ?`,a-(b*c-b),`先算括號：${b} × ${c} = ${b*c}，${b*c} − ${b} = ${b*c-b}；${a} − ${b*c-b} = ${a-(b*c-b)}。`)}
+],
+"m4-5":[
+  ()=>{const s=R(3,40); return NUM(`邊長 ${s} 公分的正方形，周長是幾公分？`,4*s,`正方形周長 = 邊長 × 4 = ${4*s}。`,"公分")},
+  ()=>{const l=R(10,30), w=R(6,l), cl=R(2,w-3), cw=R(2,w-3); if(cl>=l||cw>=w) return null;
+    return NUM(`一張長 ${l} 公分、寬 ${w} 公分的長方形紙，剪掉一個長 ${cl} 公分、寬 ${cw} 公分的長方形，剩下的面積是幾平方公分？`,l*w-cl*cw,`${l} × ${w} − ${cl} × ${cw} = ${l*w} − ${cl*cw} = ${l*w-cl*cw}。`,"平方公分")},
+  ()=>{const w=R(2,15), l=w+R(1,15), P=2*(l+w); return NUM(`一個長方形周長 ${P} 公分，寬 ${w} 公分，長是幾公分？`,l,`長 + 寬 = ${P} ÷ 2 = ${P/2}，長 = ${P/2} − ${w} = ${l}。`,"公分")}
+],
+"m4-6":[
+  ()=>{const a=R(20,80), b=R(20,150-a), c=180-a-b, mx=Math.max(a,b,c); if(a===60&&b===60) return null; const k=mx<90?"銳角三角形":mx===90?"直角三角形":"鈍角三角形";
+    return MC(`三角形的三個角分別是 ${a}°、${b}°、${c}°，這是什麼三角形？`,k,["銳角三角形","直角三角形","鈍角三角形","等邊三角形"].filter(x=>x!==k),`最大的角是 ${mx}°，${mx<90?"三個角都小於 90°":mx===90?"有一個直角":"有一個鈍角"}，所以是${k}。`)},
+  ()=>{const b=R(20,80); return NUM(`等腰三角形的一個底角是 ${b}°，頂角是幾度？`,180-2*b,`兩個底角相等：180 − ${b} × 2 = ${180-2*b}。`,"度")},
+  ()=>{const h=R(1,11); const v=h===6?180:Math.min(h,12-h)*30; return NUM(`時鐘在 ${h} 點整時，時針和分針形成的較小角是幾度？`,v,`每一大格 30°，${h} 點整相差 ${Math.min(h,12-h)} 格，${Math.min(h,12-h)} × 30 = ${v}。`,"度")}
+],
+"m4-7":[
+  ()=>{const d=R(1,6), h=R(1,23); return NUM(`${d} 日 ${h} 小時是幾小時？`,d*24+h,`1 日 = 24 小時：${d} × 24 + ${h} = ${d*24+h}。`,"小時")},
+  ()=>{const m=R(2,9), s=R(1,59); return NUM(`${m} 分 ${s} 秒是幾秒？`,m*60+s,`${m} × 60 + ${s} = ${m*60+s}。`,"秒")},
+  ()=>{const s=R(8*60,9*60+30), d=R(35,150), e=s+d, f=t=>`${Math.floor(t/60)} 時 ${t%60} 分`;
+    return NUM(`${f(s)} 開始上課，上了 ${d} 分鐘，結束時是幾時幾分？請填「分」的部分。`,e%60,`${f(s)} 再過 ${d} 分鐘是 ${f(e)}。`,"分")}
+],
+"m4-8":[
+  ()=>{const n=R(3,6), avg=R(60,95), xs=[...Array(n-1)].map(()=>R(avg-12,avg+12)); xs.push(avg*n-xs.reduce((a,b)=>a+b,0)); if(xs[n-1]>100||xs[n-1]<0) return null;
+    return NUM(`小華 ${n} 次考試的分數是 ${xs.join("、")} 分，平均是幾分？`,avg,`總分 ${avg*n} ÷ ${n} = ${avg}。`,"分")},
+  ()=>{const s=R(2,8), b=s+R(2,9), t=s+b; return NUM(`哥哥和弟弟共有 ${t} 張貼紙，哥哥比弟弟多 ${b-s} 張，弟弟有幾張？`,s,`(${t} − ${b-s}) ÷ 2 = ${s}。`,"張")},
+  ()=>{const p=R(25,90), k=R(3,8), save=R(5,20); return NUM(`一盒餅乾原價 ${p} 元，特價每盒便宜 ${save} 元，買 ${k} 盒要付多少元？`,(p-save)*k,`每盒 ${p} − ${save} = ${p-save} 元，${p-save} × ${k} = ${(p-save)*k}。`,"元")}
+],
+"m5-1":[
+  ()=>{const ps=[2,3,5,7,11,13,17,19,23,29,31,37,41,43,47], p=pick(ps), w=[]; for(let t=0;t<40&&w.length<3;t++){const x=R(4,50); if(!ps.includes(x)&&!w.includes(x)) w.push(x);}
+    return MC(`下列哪一個數是質數？`,p,w,`質數只有 1 和自己兩個因數；${p} 是質數，其他數都還有別的因數。`)},
+  ()=>{const k=pick([2,3,5,9]), n=k*R(12,999), w=[]; for(let t=0;t<60&&w.length<3;t++){const x=R(100,9999); if(x%k&&!w.includes(x)) w.push(x);}
+    return MC(`下列哪一個數是 ${k} 的倍數？`,n,w,k===2?"個位數是偶數就是 2 的倍數。":k===5?"個位數是 0 或 5 就是 5 的倍數。":`各位數字的和是 ${k} 的倍數，就是 ${k} 的倍數。`)},
+  ()=>{const [a,b]=pick([[6,8],[8,12],[12,18],[9,15],[10,25],[14,21],[16,20],[18,30]]), L=a*b/gcd(a,b);
+    return NUM(`甲每 ${a} 天去一次圖書館，乙每 ${b} 天去一次。今天兩人一起去，至少再過幾天兩人又會同一天去？`,L,`求 ${a} 和 ${b} 的最小公倍數 = ${L}。`,"天")}
+],
+"m5-2":[
+  ()=>{const d=R(2,9), n=R(1,d-1), k=R(2,8); if(gcd(n,d)>1) return null; return NUM(`[${n}/${d}] = [?/${d*k}]，? 是多少？`,n*k,`分母乘以 ${k}，分子也要乘以 ${k}：${n} × ${k} = ${n*k}。`)},
+  ()=>{const b=R(3,9), d=R(3,9); if(b===d) return null; const a=R(1,b-1), c=R(1,d-1); if(a*d===c*b||gcd(a,b)>1||gcd(c,d)>1) return null; const big=a*d>c*b?`[${a}/${b}]`:`[${c}/${d}]`, sm=a*d>c*b?`[${c}/${d}]`:`[${a}/${b}]`;
+    return MC(`[${a}/${b}] 和 [${c}/${d}]，哪一個比較大？`,big,[sm,"一樣大","無法比較"],`通分成分母 ${b*d}：[${a*d}/${b*d}] 和 [${c*b}/${b*d}]，比分子。`)},
+  ()=>{const d=pick([4,6,8,9,10,12,15]), a=R(1,d-1), b=R(1,d-1), c=R(1,d-1), n=a+b-c; if(n<=0) return null;
+    return NUM(`計算：[${a}/${d}] + [${b}/${d}] − [${c}/${d}] = ?（要約成最簡分數）`,fstr(n,d),`分母相同，分子 ${a} + ${b} − ${c} = ${n}，[${n}/${d}] 約分後是 ${ftxt(n/gcd(n,d),d/gcd(n,d))}。`)}
+],
+"m5-3":[
+  ()=>{const l=R(1,9); return NUM(`${l} 公升 = 幾立方公分？`,l*1000,`1 公升 = 1000 立方公分。`,"立方公分")},
+  ()=>{const l=R(10,40), w=R(10,30), h=R(5,20); const v=l*w*h; if(v%1000) return null; return NUM(`一個長 ${l} 公分、寬 ${w} 公分、高 ${h} 公分的水箱裝滿水，共有幾公升？`,v/1000,`${l} × ${w} × ${h} = ${v} 立方公分 = ${v/1000} 公升。`,"公升")},
+  ()=>{const a=R(2,9), v=a*R(2,9)*R(2,9), base=v/a; return NUM(`長方體的體積是 ${v} 立方公分，底面積是 ${base} 平方公分，高是幾公分？`,a,`高 = 體積 ÷ 底面積 = ${v} ÷ ${base} = ${a}。`,"公分")}
+],
+"m6-1":[
+  ()=>{const a=R(1,9), b=R(2,9), c=R(1,9), d=R(2,9); if(gcd(a,b)>1||gcd(c,d)>1) return null; return NUM(`計算：[${a}/${b}] × [${c}/${d}] = ?`,fstr(a*c,b*d),`分子乘分子、分母乘分母：[${a*c}/${b*d}]，約分後是 ${ftxt(a*c/gcd(a*c,b*d),b*d/gcd(a*c,b*d))}。`)},
+  ()=>{const a=R(11,99)/10, b=R(11,99)/10, v=a*b; return NUM(`計算：${dstr(a)} × ${dstr(b)} = ?`,dstr(v,4),`${Math.round(a*10)} × ${Math.round(b*10)} = ${Math.round(a*10)*Math.round(b*10)}，共兩位小數：${dstr(v,4)}。`)},
+  ()=>{const t=R(2,9), d=pick([2,3,4,5]), k=R(1,d-1); if(gcd(k,d)>1) return null; const n=t*d; return NUM(`一桶油重 ${n} 公斤，用掉 [${k}/${d}]，用掉幾公斤？`,fstr(n*k,d),`${n} × [${k}/${d}] = ${ftxt(n*k/gcd(n*k,d),d/gcd(n*k,d))}。`,"公斤")}
+],
+"m6-2":[
+  ()=>{const a=R(1,9), b=R(1,9), k=R(2,9); if(a===b) return null; return NUM(`${a} : ${b} = ${a*k} : x，x = ?`,b*k,`前項乘以 ${k}，後項也乘以 ${k}：x = ${b} × ${k} = ${b*k}。`)},
+  ()=>{const a=R(1,7), b=R(1,7), t=(a+b)*R(3,20); if(gcd(a,b)>1) return null; return NUM(`${t} 顆糖果依 ${a} : ${b} 分給姊姊和妹妹，姊姊分到幾顆？`,t*a/(a+b),`共 ${a+b} 份，每份 ${t/(a+b)} 顆，姊姊 ${a} 份 = ${t*a/(a+b)} 顆。`,"顆")},
+  ()=>{const p=pick([100,200,300,400,500,800,1000,1200]), off=pick([7,8,9,75,85,6]); const r=off<10?off*10:off; const v=p*r/100;
+    return NUM(`一件衣服原價 ${p} 元，打${off<10?off:off/10}折${off>=10?`（${off} 折）`:""}後是多少元？`,v,`打 ${off<10?off:off/10} 折 = 原價的 ${r}%：${p} × ${r}% = ${v}。`,"元")}
+],
+"m6-3":[
+  ()=>{const v=R(4,15)*5, t=R(2,6), d=v*t; return NUM(`一輛車每小時走 ${v} 公里，走 ${d} 公里要幾小時？`,t,`時間 = 距離 ÷ 速率 = ${d} ÷ ${v} = ${t}。`,"小時")},
+  ()=>{const r=R(2,10); return NUM(`半徑 ${r} 公分的半圓，周長約是幾公分？（圓周率取 3.14）`,dstr(r*3.14+2*r),`半圓周長 = 圓周長的一半 + 直徑 = ${2*r} × 3.14 ÷ 2 + ${2*r} = ${dstr(r*3.14+2*r)}。`,"公分")},
+  ()=>{const v=pick([60,72,90,36,54,108]), s=v*1000/3600; if(s%1) return null; return NUM(`時速 ${v} 公里，等於秒速幾公尺？`,s,`${v} 公里 = ${v*1000} 公尺，1 小時 = 3600 秒，${v*1000} ÷ 3600 = ${s}。`,"公尺")}
+],
+"m7-1":[
+  ()=>{const a=nz(-50,50); return NUM(`|${a<0?"−"+(-a):a}| 的相反數是多少？`,-Math.abs(a),`|${a}| = ${Math.abs(a)}，它的相反數是 −${Math.abs(a)}。`)},
+  ()=>{const xs=[...new Set([...Array(4)].map(()=>nz(-30,30)))]; if(xs.length<4) return null; const mn=Math.min(...xs); const t=x=>x<0?"−"+(-x):String(x);
+    return MC(`下列哪一個數最小？`,t(mn),xs.filter(x=>x!==mn).map(t),`在數線上愈左邊的數愈小，最小的是 ${t(mn)}。`)},
+  ()=>{const a=R(1,15); return NUM(`數線上和原點距離 ${a} 的點有兩個，這兩點的距離是多少？`,2*a,`兩點是 ${a} 和 −${a}，距離 = ${a} − (−${a}) = ${2*a}。`)}
+],
+"m7-2":[
+  ()=>{const b=pick(["2","3","a","x"]), m=R(2,5), n=R(2,4); return MC(`(${b}^${m})^${n} = ?`,`${b}^${m*n}`,[`${b}^${m+n}`,`${b}^${m**n}`,`${b}^${m*n+1}`],`次方的次方，指數相乘：${m} × ${n} = ${m*n}。`)},
+  ()=>{const k=R(2,6); return MC(`10^{−${k}} 等於下列何者？`,"0."+"0".repeat(k-1)+"1",["0."+"0".repeat(k)+"1","0."+"0".repeat(Math.max(0,k-2))+"1","1"+"0".repeat(k)],`10^{−${k}} = [1/10^${k}]，小數點後第 ${k} 位是 1。`)},
+  ()=>{const a=R(11,99)/10, k=R(3,8), b=R(11,99)/10, j=R(3,8); if(k===j) return null; const big=k>j?`${dstr(a,1)} × 10^${k}`:`${dstr(b,1)} × 10^${j}`;
+    return MC(`${dstr(a,1)} × 10^${k} 和 ${dstr(b,1)} × 10^${j}，哪一個比較大？`,big,[k>j?`${dstr(b,1)} × 10^${j}`:`${dstr(a,1)} × 10^${k}`,"一樣大","無法比較"],`科學記號先比 10 的次方，次方大的數比較大。`)}
+],
+"m7-3":[
+  ()=>{const x=nz(-6,6), a=R(2,5), b=R(-9,9), c=a*x+b, cands=[x,x+1,-x||2,x-2]; if(new Set(cands).size<4) return null;
+    return MC(`下列哪一個是方程式 ${a}x ${b<0?"− "+(-b):"+ "+b} = ${c} 的解？`,`x = ${x}`,cands.slice(1).map(v=>`x = ${v}`),`代入 x = ${x}：${a} × ${x} ${b<0?"− "+(-b):"+ "+b} = ${c}，等號成立。`)},
+  ()=>{const f=R(30,48), s=R(3,14), k=R(2,4), t=(f-k*s)/(k-1); if(t<=0||t%1) return null;
+    return NUM(`爸爸今年 ${f} 歲，兒子今年 ${s} 歲，幾年後爸爸的年齡是兒子的 ${k} 倍？`,t,`設 x 年後：${f} + x = ${k}(${s} + x)，${f} − ${k*s} = ${k-1}x，x = ${t}。`,"年")},
+  ()=>{const n=R(3,9), p=R(10,50), d=R(5,30), x=R(5,40), tot=n*x+d; return NUM(`買 ${n} 枝同樣的筆，再加 ${d} 元的包裝費，共付 ${tot} 元。一枝筆幾元？`,x,`設一枝筆 x 元：${n}x + ${d} = ${tot}，${n}x = ${tot-d}，x = ${x}。`,"元")}
+],
+"m8-1":[
+  ()=>{const a=R(1,9), b=R(1,9), s=pick(["+","−"]); return MC(`(${a}x ${s} ${b})^2 展開後是？`,`${a*a}x^2 ${s} ${2*a*b}x + ${b*b}`,[`${a*a}x^2 + ${b*b}`,`${a*a}x^2 ${s==="+"?"−":"+"} ${2*a*b}x + ${b*b}`,`${a*a}x^2 ${s} ${a*b}x + ${b*b}`],`(a ${s} b)^2 = a^2 ${s} 2ab + b^2：(${a}x)^2 ${s} 2·${a}x·${b} + ${b}^2。`)},
+  ()=>{const k=R(2,9), a=R(1,9), b=R(1,9); if(gcd(a,b)>1) return null; return MC(`因式分解：${k*a}x + ${k*b} = ?`,`${k}(${a===1?"":a}x + ${b})`,[`${k}(${a===1?"":a}x + ${k*b})`,`${k*a}(x + ${b})`,`x(${k*a} + ${k*b})`],`提出公因數 ${k}：${k}(${a===1?"":a}x + ${b})。`)},
+  ()=>{let p=nz(-9,9), q=nz(-9,9); if(p===q||p+q===0) return null; const s=p+q, m=p*q, sg=v=>v<0?"− "+(-v):"+ "+v, f=v=>`(x ${sg(v)})`;
+    return MC(`因式分解：x^2 ${sg(s)}x ${sg(m)} = ?`,`${f(p)}${f(q)}`,[`${f(-p)}${f(-q)}`,`${f(p)}${f(-q)}`,`${f(-p)}${f(q)}`],`找兩數乘積 ${m}、和 ${s}：${p} 和 ${q}。`)},
+  ()=>{const a=R(11,99), b=R(1,10); if(a<=b) return null; return NUM(`利用乘法公式計算：${a}^2 − ${b}^2 = ?`,a*a-b*b,`平方差：(${a} + ${b})(${a} − ${b}) = ${a+b} × ${a-b} = ${a*a-b*b}。`)},
+  ()=>{const a=R(2,9), b=R(2,9); return NUM(`已知 a + b = ${a+b}，ab = ${a*b}，則 a^2 + b^2 = ?`,a*a+b*b,`a^2 + b^2 = (a + b)^2 − 2ab = ${(a+b)**2} − ${2*a*b} = ${a*a+b*b}。`)}
+],
+"m8-2":[
+  ()=>{const k=pick([2,3,5,6,7]), a=R(1,9), b=R(1,9), s=Math.random()<.5; const v=s?a+b:a-b; if(!v) return null;
+    return MC(`計算：${a}√${k} ${s?"+":"−"} ${b}√${k} = ?`,`${v===1?"":v===-1?"−":String(v).replace("-","−")}√${k}`,[`${s?a*b:a+b}√${k}`,`${v}√${2*k}`,`${a+b}√${k*k}`].map(x=>x.replace("-","−")),`同類方根合併：(${a} ${s?"+":"−"} ${b})√${k}。`)},
+  ()=>{const a=R(2,9), b=R(2,9); return NUM(`計算：√{${a*a}} × √{${b*b}} = ?`,a*b,`${a} × ${b} = ${a*b}。`)},
+  ()=>{const T=pick([[3,4,5],[6,8,10],[5,12,13],[8,15,17]]); return NUM(`長方形長 ${T[0]}、寬 ${T[1]}，對角線長是多少？`,T[2],`對角線² = ${T[0]}^2 + ${T[1]}^2 = ${T[2]**2}，對角線 = ${T[2]}。`)}
+],
+"m8-3":[
+  ()=>{const a=R(-10,20), d=nz(-6,8), m=R(2,6), n=m+R(2,8); return NUM(`等差數列第 ${m} 項是 ${a+(m-1)*d}，第 ${n} 項是 ${a+(n-1)*d}，公差是多少？`,d,`公差 = (${a+(n-1)*d} − ${a+(m-1)*d}) ÷ (${n} − ${m}) = ${d}。`)},
+  ()=>{const r=nz(-9,9); return NUM(`x^2 ${r<0?"+ "+(-2*r):"− "+2*r}x + ${r*r} = 0 的解是 x = ?`,r,`(x ${r<0?"+ "+(-r):"− "+r})^2 = 0，重根 x = ${r}。`)},
+  ()=>{const a=R(1,9), n=R(5,30); return NUM(`1 + 3 + 5 + … 的前 ${n} 個奇數相加，和是多少？`,n*n,`前 n 個奇數的和 = n^2 = ${n*n}。`)}
+],
+"m9-1":[
+  ()=>{const P=R(10,40), k=R(2,4); return NUM(`△ABC ~ △DEF，相似比 1 : ${k}，△ABC 的周長是 ${P}，△DEF 的周長是多少？`,P*k,`周長比 = 相似比：${P} × ${k} = ${P*k}。`)},
+  ()=>{const h=R(14,18)/10, s=R(10,25)/10, H=R(5,20); return NUM(`同一時刻，身高 ${dstr(h,1)} 公尺的人影長 ${dstr(s,1)} 公尺，一棵樹影長 ${dstr(H*s,1)} 公尺，樹高幾公尺？`,dstr(H*h,1),`身高 : 影長 = 樹高 : 樹影，樹高 = ${dstr(H*s,1)} × ${dstr(h,1)} ÷ ${dstr(s,1)} = ${dstr(H*h,1)}。`,"公尺")},
+  ()=>{const a=R(2,8), b=R(2,8), c=R(2,8); return NUM(`△ABC 中，DE // BC，AD = ${a}、DB = ${b}、DE = ${c*a}，則 BC = ?`,dstr(c*(a+b)),`AD : AB = DE : BC，${a} : ${a+b} = ${c*a} : BC，BC = ${dstr(c*(a+b))}。`)}
+],
+"m9-2":[
+  ()=>{const h=nz(-6,6), k=R(-9,9), a=pick([1,-1,2,-2]); return NUM(`二次函數 y = ${a===1?"":a===-1?"−":String(a).replace("-","−")}(x ${h<0?"+ "+(-h):"− "+h})^2 ${k<0?"− "+(-k):"+ "+k} 的對稱軸是 x = ?`,h,`y = a(x − h)^2 + k 的對稱軸是 x = h = ${h}。`)},
+  ()=>{const a=pick([1,2,-1,-2]), h=nz(-5,5), k=R(-9,9); return MC(`y = ${a===1?"":a===-1?"−":String(a).replace("-","−")}(x ${h<0?"+ "+(-h):"− "+h})^2 ${k<0?"− "+(-k):"+ "+k} 有最大值還是最小值？`,a>0?`最小值 ${k}`:`最大值 ${k}`,[a>0?`最大值 ${k}`:`最小值 ${k}`,a>0?`最小值 ${h}`:`最大值 ${h}`,a>0?`最大值 ${h}`:`最小值 ${h}`],`a ${a>0?"> 0 開口向上，有最小值":"< 0 開口向下，有最大值"}，就是頂點的 y 坐標 ${k}。`)},
+  ()=>{const p=nz(-6,6), q=nz(-6,6); if(p===q) return null; const s=-(p+q), m=p*q, sg=v=>v<0?"− "+(-v):"+ "+v;
+    return MC(`y = x^2 ${sg(s)}x ${sg(m)} 的圖形與 x 軸交點的 x 坐標是？`,`${Math.min(p,q)} 和 ${Math.max(p,q)}`,[`${-Math.max(p,q)} 和 ${-Math.min(p,q)}`,`${Math.min(p,q)} 和 ${-Math.max(p,q)}`,`${m} 和 ${s}`],`令 y = 0：(x ${sg(-p)})(x ${sg(-q)}) = 0，x = ${p} 或 ${q}。`)}
+],
+"m9-3":[
+  ()=>{const xs=[...Array(R(5,8))].map(()=>R(1,50)); return NUM(`資料 ${xs.join(", ")} 的全距是多少？`,Math.max(...xs)-Math.min(...xs),`全距 = 最大值 − 最小值 = ${Math.max(...xs)} − ${Math.min(...xs)}。`)},
+  ()=>{const m=R(1,20), xs=[m,m,m,...[...Array(R(3,5))].map(()=>R(1,20))]; const c={}; xs.forEach(x=>c[x]=(c[x]||0)+1); const mx=Math.max(...Object.values(c)); if(Object.values(c).filter(v=>v===mx).length>1) return null;
+    const sh=xs.sort(()=>Math.random()-.5); return NUM(`資料 ${sh.join(", ")} 的眾數是多少？`,Object.keys(c).find(k=>c[k]===mx),`出現次數最多的數就是眾數。`)},
+  ()=>{const n=pick([2,3]), t=2**n, k=R(0,n); const C=(a,b)=>{let r=1;for(let i=0;i<b;i++)r=r*(a-i)/(i+1);return r}; const c=C(n,k);
+    return NUM(`同時丟 ${n} 枚公正硬幣，恰好出現 ${k} 個正面的機率是多少？（用分數）`,fstr(c,t),`全部 ${t} 種結果，恰 ${k} 個正面有 ${c} 種，機率 ${ftxt(c/gcd(c,t),t/gcd(c,t))}。`)}
+],
+"m7-6":[()=>genQ("std"),()=>genQ("gl"),()=>genQ("gl"),()=>genQ("rel"),()=>genQ("app")],
+"m7-7":[
+  ()=>{const b=pick([2,3,5,"a","x"]), m=R(2,9), n=R(2,9); return MC(`${b}^${m} × ${b}^${n} = ?`,`${b}^${m+n}`,[`${b}^${m*n}`,`${b}^${Math.abs(m-n)||1}`,`${b}^${m+n+1}`],`同底數相乘，指數相加：${m} + ${n} = ${m+n}。`)},
+  ()=>{const b=pick([2,3,7,"a","y"]), n=R(2,6), m=n+R(1,6); return MC(`${b}^${m} ÷ ${b}^${n} = ?`,`${b}^${m-n}`,[`${b}^${m+n}`,`${b}^${m*n}`,`${b}^${m-n+1}`],`同底數相除，指數相減：${m} − ${n} = ${m-n}。`)},
+  ()=>{const b=pick([2,3,5,"a"]), m=R(2,5), n=R(2,4); return MC(`(${b}^${m})^${n} = ?`,`${b}^${m*n}`,[`${b}^${m+n}`,`${b}^${m*n+1}`,`${b}^${m*n-1}`],`次方的次方，指數相乘：${m} × ${n} = ${m*n}。`)},
+  ()=>{const a=pick([2,3,4,5]), b=pick([2,3,5,7]), n=R(2,6); if(a===b) return null; return MC(`${a}^${n} × ${b}^${n} = ?`,`${a*b}^${n}`,[`${a*b}^${2*n}`,`${a+b}^${n}`,`${a*b}^${n+1}`],`指數相同時，底數相乘：(${a} × ${b})^${n} = ${a*b}^${n}。`)},
+  ()=>{const m=R(2,9), n=R(2,9); return NUM(`2^${m} × 5^${m+n} 是幾位數？`,String(5**n).length+m,`2^${m} × 5^${m} = 10^${m}，剩下 5^${n} = ${5**n}，所以是 ${5**n} 後面接 ${m} 個 0，共 ${String(5**n).length+m} 位。`,"位")},
+  ()=>{const n=R(2,3), a=R(1,4), b=R(2,5); if(gcd(a,b)>1) return null; return NUM(`計算：(−[${a}/${b}])^${n} = ?`,fstr((n%2?-1:1)*a**n,b**n),`分子分母都 ${n} 次方，${n%2?"奇數次方保留負號":"偶數次方為正"}：${n%2?"−":""}[${a**n}/${b**n}]。`)},
+  ()=>{const b=pick([2,3]), m=R(2,6), n=R(1,4), k=R(1,m+n-1); const e=m+n-k; return NUM(`計算：${b}^${m} × ${b}^${n} ÷ ${b}^${k} = ?`,b**e,`指數：${m} + ${n} − ${k} = ${e}，${b}^${e} = ${b**e}。`)},
+  ()=>{const a=pick([2,3,5,7,10]); return NUM(`${a}^0 = ?`,1,`任何不為 0 的數的 0 次方都等於 1。`)}
+]
+};
+Object.entries(MORE).forEach(([k,v])=>{ MGEN[k]=(MGEN[k]||[]).concat(v); });
 function mgen(u,avoid){
   const G=MGEN[u.id]; if(!G||!G.length) return null;
   for(let t=0;t<60;t++){ let q=null; try{ q=pick(G)(); }catch(e){ q=null; }

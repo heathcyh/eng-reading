@@ -1,5 +1,5 @@
 // 離線快取（國小版）：所有檔案都先抓網路拿最新版，沒網路才用快取
-const CACHE = "jifen-es-v3";
+const CACHE = "jifen-es-v4";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./icon-180.png",
   "../app.js", "../app.css", "../content.json", "../math.json"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))); self.skipWaiting(); });
