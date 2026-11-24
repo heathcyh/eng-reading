@@ -1617,9 +1617,10 @@ document.querySelectorAll(".pc").forEach(b=>b.onclick=()=>{PAD.col=b.dataset.c; 
   const end=()=>{ if(st){st=null; padSize();} }; g.addEventListener("pointerup",end); g.addEventListener("pointercancel",end);})();
 window.addEventListener("resize",()=>{ if(PAD.on) padSize(); });
 // 只在數學單元、特訓區顯示；換題組時自動清空
-function padSync(){ const k=mcur?"m:"+mcur.id:(dcur?"d:"+dcur.tp+":"+dcur.mode+":"+dcur.i:null);
+function padSync(){ // 每一科都有計算紙：數學／特訓／英文文章／社會自然單元／模擬考、錯題本（每題一張新紙）
+  const k=mcur?"m:"+mcur.id:dcur?"d:"+dcur.tp+":"+dcur.mode+":"+dcur.i:cur?"e:"+cur.id:scur?"s:"+RK+":"+scur.id:(qz&&qz.list)?"q:"+RK+":"+qz.mode+":"+qz.i:null;
   $("#padFab").classList.toggle("on",!!k);
   if(!k){ if(PAD.on) padClose(); PAD.key=null; return; }
   if(k!==PAD.key){ PAD.strokes=[]; PAD.key=k; if(PAD.on) padDraw(); } }
-["home","openPassage","openUnit","renderDrill","openWallet","openSoc"].forEach(fn=>{const f=window[fn]; window[fn]=function(){const r=f.apply(this,arguments); updatePills(); padSync(); return r;};});
+["home","openPassage","openUnit","renderDrill","openWallet","openSoc","renderQz","mockPick"].forEach(fn=>{const f=window[fn]; window[fn]=function(){const r=f.apply(this,arguments); updatePills(); padSync(); return r;};});
 updatePills();
